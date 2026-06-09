@@ -65,10 +65,13 @@ This step is focused on implementing the approved task cards one by one using a 
 13. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
 14. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
 
-#### 🚀 Step 2 Execution Policies:
+#### 🚀 Step 2 Execution Policies (Autonomous Loop):
+* **Autonomous Execution (No Human-in-the-Loop)**: Unlike Step 1, the development/execution loop in Step 2 runs with **full autonomy**. You do **NOT** need human operator approval or confirmation to move between task cards, commit local changes, transition between sub-agent roles, or run test suites. Proceed autonomously through the tasks unless you encounter a crucial unreviewed requirement or a severe structural blocker.
 * **Simulated Persistent Goal Mode**: Treat the build objective as a persistent goal. Do not halt after individual micro-tasks, branch updates, or commits. Automatically proceed through all planned task cards sequentially until the final goal is met.
+* **Sequential & Modular Progress**: Build the solution sequentially and modularly following the approved plans. Use specialized sub-agents (`[Planner-Agent]`, `[Builder-Agent]`, `[Review-Agent]`), dependency tracing via `CodeGraph`, task lifecycle management via `task-master`, and logical tracking via `Sequential Thinking`.
 * **Fresh Context Resume Checklist**: At the start of a fresh session or context reset, you must complete the resume checklist (verify status, load only baseline files, inspect Git state, and write a ledger resume summary).
 * **Stateless Scaling (Caveman resets)**: When context utilization reaches 45%, serialize the active state to `state.md` and hand over execution to a fresh session to maintain reasoning quality.
+
 
 
 ## 🧠 The 12 Universal Principles

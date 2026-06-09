@@ -8,8 +8,11 @@ You are working on **[PROJECT_NAME]** under **[ORCHESTRATOR_NAME]** orchestratio
 
 This prompt is sent to resume or initialize a fresh-session task loop. Ensure you start in a clean context space before proceeding.
 
-### 🌟 Simulated Persistent Goal Mode
-Treat this instruction as your persistent build goal: **Build the complete planned [PROJECT_NAME] solution end-to-end**. Do not halt after ordinary micro-tasks, branch commits, PR updates, or local milestones. Continue until the primary objective is completely fulfilled.
+### 🌟 Simulated Persistent Goal Mode & Autonomy
+* **Full Autonomy (No Human-in-the-Loop)**: You do **NOT** need operator approval to transition between task cards, commit local changes, spawn sub-agents, or run test suites. Proceed through the tasks completely autonomously.
+* **Persistent Build Goal**: Build the complete planned [PROJECT_NAME] solution end-to-end. Do not halt after ordinary micro-tasks, branch commits, PR updates, or local milestones.
+* **Sequential & Modular Methods**: Build the codebase in a modular method strictly following the sequence established in Step 1. Leverage specialized sub-agent roles (`Planner-Agent`, `Builder-Agent`, `Review-Agent`), trace dependencies via `CodeGraph`, manage lifecycles via `task-master`, and keep logical continuity via `Sequential Thinking`.
+
 
 ### 🎯 Primary Objective:
 Build the full **[PROJECT_NAME]** product exactly as specified in the repository planning docs:
@@ -72,10 +75,11 @@ Adhere strictly to the Zero-Assumption Execution Policy during implementation:
 ---
 
 ### 🔄 Execution Loop
-Continue through every planned task card after each validation gate passes. Stop only when:
+Continue through every planned task card after each validation gate passes with full autonomy (no human approval needed for transitions or commits). Stop and escalate to the operator only if:
+- You encounter a crucial requirement that was not reviewed or planned in Step 1.
+- You hit a severe, unresolvable blocker (e.g., missing credentials, environment failure).
 - The complete approved build goal is achieved.
-- A true blocker is reached (requiring operator intervention).
-- Critical credentials or external checks are missing.
 - The operator cancels the current goal.
 
 *Begin now by completing the Fresh Context Resume Checklist, validating your workspace, and executing the first task card.*
+

@@ -1,13 +1,3 @@
-# Post-PRD Workflow
-
-This document walks through the complete workflow from a confirmed PRD to a shipped feature.
-
-## Prerequisites
-
-- A confirmed PRD with clear requirements, success metrics, and stakeholder approval
-- Access to the target codebase
-- GlobalSetup files copied into the project
-
 # Post-PRD Workflow (Two-Step Development Cycle)
 
 This document details the complete, two-step pipeline from a confirmed Product Requirements Document (PRD) to iteration and deployment.
@@ -18,7 +8,7 @@ This document details the complete, two-step pipeline from a confirmed Product R
 
 Step 1 is a strictly **human-in-the-loop planning phase**. The agent's goal is to construct the complete implementation plans, contracts, and test matrices without modifying any functional application code.
 
-### Phase 1: PRD Review & Completeness check
+### Phase 1: PRD Review & Completeness Check
 Verify the PRD is actionable using `templates/prd/prd-review-checklist.md`:
 * All requirements are specific, measurable, and testable.
 * Constraints, non-goals, and edge cases are documented.
@@ -82,3 +72,9 @@ During long execution sessions:
 ### Phase 12: Ship
 Push the short-lived branch/PR to GitHub, verify status checks, and prepare for human code merge.
 
+### 🚀 Step 2 Autonomous Policies (CRITICAL):
+1. **Autonomous Development**: The agent executes Step 2 with **full autonomy**. Human-in-the-loop approvals are **NOT** required for local git commits, task-to-task transitions, sub-agent spawning, or plan traversal.
+2. **Sequential & Modular Methods**: Build the codebase in a modular method strictly following the sequence established in Step 1. Leverage specialized sub-agent roles (`Planner-Agent`, `Builder-Agent`, `Review-Agent`), trace dependencies via `CodeGraph`, manage lifecycles via `task-master`, and keep logical continuity via `Sequential Thinking`.
+3. **Escalation Exception**: The agent must only halt and ask the operator if:
+   - It encounters a crucial requirement that was not reviewed or documented in Step 1.
+   - It hits a severe blocker (e.g., missing third-party access, environment failures).

@@ -8,7 +8,7 @@ Before editing, retrieve and read:
 
 ## Execution Constraints
 - Do NOT read files outside the scoped paths.
-- Maintain a strict context budget (keep under 20k tokens in session).
+- Maintain a strict context budget: Monitor active capacity (plan splits at 35% warning check, trigger Caveman log pruning and stateless handover at 45% critical reset).
 - Limit implementation to a maximum of 3 source files and 3 discrete modifications.
 - Implement changes incrementally and run tests.
 

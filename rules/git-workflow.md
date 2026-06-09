@@ -22,11 +22,13 @@ Maintain high git hygiene standards by following these conventions.
   - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
   - Subject: Imperative, present tense, lowercase (e.g. `feat(auth): add JWT expiration handling`).
 
-## Pull Requests
-* Always create a branch for your work. Never work directly on `main` or `master` branches unless deploying a critical hotfix.
-* PR description must include:
+## Pull Requests & Feature Branches
+* Always create a branch for your work. Never work directly on `main` or `master` branches.
+* **Autonomous Branch Pushes**: During Step 2 (autonomous execution), you commit and push local changes to the feature branch autonomously without halting for intermediate reviews.
+* **Final Delivery PR Review**: Once the complete build goal is met and all task cards are executed, create a Pull Request to merge the feature branch into `main`. This final PR requires explicit human review and approval.
+* The final PR description must include:
   1. Summary of changes.
   2. Requirements mapped (traceability).
   3. Testing proof (screenshots, command logs, coverage report).
   4. Rollback strategy.
-* Request human review for all Pull Requests.
+

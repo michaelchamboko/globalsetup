@@ -42,7 +42,7 @@ These rules represent the baseline behavioral standards for any agent executing 
 * Conduct structured reviews (code quality, security, performance, DB) before declaring a task or build complete.
 
 ### 9. Never Bypass Safeguards
-* Do not run banned commands (e.g. force push to main, dropping production databases).
+* Do not run banned or dangerous commands under any circumstances (refer to the exact restrictions in `safeguards/dangerous-command-rules.md`).
 * Protect sensitive credentials, configuration files, and package lockfiles.
 
 ### 10. Preserve Context & Integrity

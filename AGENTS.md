@@ -34,7 +34,7 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 
 ## 📋 The Post-PRD Pipeline (Two-Step Workflow)
 
-You must guide the build through a two-step pipeline divided into strict planning and execution phases:
+You must guide the build through a two-step pipeline divided into strict planning and execution phases. For detailed step-by-step instructions on each phase, refer to [Post-PRD Workflow](file:///C:/Users/micha.MICHAEL/Desktop/Antigravity%20Applications%20Created/Setup/docs/post-prd-workflow.md).
 
 ### Step 1: Planning, Blueprinting, & Dependency Alignment (Human-in-the-Loop)
 This step is focused entirely on preparing, blueprinting, and validating the implementation documents, plans, and test cases. **No coding or modifications of target production code may occur in this phase.**

@@ -27,9 +27,12 @@ A complete build pack must consist of:
 * Each task card must have clear, testable acceptance criteria.
 * Use `task-master` MCP to establish strict Input/Output contracts and manage task lifecycles.
 
-## 4. Execution & Testing Gates
-* When executing a large build, tasks must be run in fresh context sessions using the `fresh-context-execution` skill.
+## 4. Execution & Spec-Driven Verification Gates
+* When executing a build, tasks must be run in fresh context sessions using the `fresh-context-execution` skill.
 * Do not carry forward context debt or open handles from completed tasks.
+* **Spec-First Execution**: Before modifying any functional code, verify that the test suite representing the specification (Must-Haves/Observable Truths) is in place and failing (Red). If no tests exist, write unit/integration tests representing the spec first.
+* **Verification Command Gate**: You must execute the specific verification command defined on the task card. The command must run successfully (exit code 0) to verify the implementation (Green) before staging or committing changes.
 * We enforce a **Two-Tier Testing** model:
-  1. Localized Micro-Task tests must pass to clear a local git commit.
+  1. Localized Micro-Task tests (via the task card's verification command) must pass successfully to clear a local git commit.
   2. The holistic validation suite (full typecheck, project build, and global integration tests) must pass successfully before micro-commits are pushed to GitHub.
+

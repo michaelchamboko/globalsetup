@@ -32,29 +32,44 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 
 ---
 
-## 📋 The Post-PRD Pipeline
+## 📋 The Post-PRD Pipeline (Two-Step Workflow)
 
-You must guide the build through the following 14-step pipeline:
+You must guide the build through a two-step pipeline divided into strict planning and execution phases:
 
-```
-Confirmed PRD
-  ├── 1. PRD Review & Completeness Check
-  ├── 2. Build Brief Generation
-  ├── 3. Existing Codebase Discovery (Never write code blind)
-  ├── 4. Architecture Map & Component Diagramming
-  ├── 5. Data, API, UI, Permission, & Integration Contracts
-  ├── 6. Task Graph Construction & Dependency Analysis
-  ├── 7. Fresh-Context Task Cards Creation
-  ├── 8. Isolated Task Execution (TDD Red-Green-Refactor)
-  ├── 9. Automated Testing (Unit, Integration, E2E)
-  ├── 10. Specialist Reviews (Security, Performance, DB, UI)
-  ├── 11. Bug Fixes & Refinement
-  ├── 12. Final Definition of Done Verification
-  ├── 13. Pre-Ship Safeguards Check
-  └── 14. Branch Commit, Push, and PR Creation
-```
+### Step 1: Planning, Blueprinting, & Dependency Alignment (Human-in-the-Loop)
+This step is focused entirely on preparing, blueprinting, and validating the implementation documents, plans, and test cases. **No coding or modifications of target production code may occur in this phase.**
+
+1. **PRD Review & Completeness Check** (Reviewing PRD requirements using `prd-review-checklist.md`)
+2. **Build Brief Generation** (Translating PRD to technical brief, defining goals and non-goals)
+3. **Existing Codebase Discovery** (Inspect existing patterns, symbols, and files via `CodeGraph`)
+4. **Architecture Map & Component Diagramming** (Component modeling and ADR design decisions)
+5. **Data, API, UI, Permission, & Integration Contracts** (Interface definitions before logic)
+6. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
+7. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
+
+#### ⚠️ Step 1 Execution Policies:
+* **Zero-Assumption Policy**: If any details are not specified in the PRD, or if you identify a better architectural/implementation approach, you **MUST** pause, present a detailed recommendation, and ask the user for feedback. **Auto-approvals are strictly prohibited at this stage.**
+* **Plan Dependency Ripple Review**: If a change is made to one part of a plan or module, you **MUST** immediately review and adjust all other plans/modules that have dependencies on it to ensure global architectural alignment.
+* **Completion Gate**: Step 1 is only completed when all plans, contracts, and test cases are fully generated, cross-referenced, and manually approved by the human operator.
 
 ---
+
+### Step 2: Iterative Execution & Deployment (Autonomous Loop)
+This step is focused on implementing the approved task cards one by one using a clean execution loop under any agent harness.
+
+8. **Isolated Task Execution** (TDD Red-Green-Refactor on a single task card)
+9. **Automated Testing** (Running unit, integration, and E2E validation)
+10. **Specialist Reviews** (Code, security, database, performance checklists)
+11. **Bug Fixes & Refinement** (Addressing review feedback)
+12. **Final Definition of Done Verification** (Checking DoD requirements)
+13. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
+14. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
+
+#### 🚀 Step 2 Execution Policies:
+* **Simulated Persistent Goal Mode**: Treat the build objective as a persistent goal. Do not halt after individual micro-tasks, branch updates, or commits. Automatically proceed through all planned task cards sequentially until the final goal is met.
+* **Fresh Context Resume Checklist**: At the start of a fresh session or context reset, you must complete the resume checklist (verify status, load only baseline files, inspect Git state, and write a ledger resume summary).
+* **Stateless Scaling (Caveman resets)**: When context utilization reaches 45%, serialize the active state to `state.md` and hand over execution to a fresh session to maintain reasoning quality.
+
 
 ## 🧠 The 12 Universal Principles
 
@@ -106,10 +121,22 @@ Use this map to navigate the build system:
 
 ## 🚀 Execution Guide
 
-When instructed to begin a build:
-1. Locate the confirmed PRD and check constraints in `project_rules.md`, `state.md`, and `findings.md`.
-2. Trace dependencies with `CodeGraph`.
-3. Use `task-master` MCP to initialize objectives and delegate Micro-Tasks.
-4. Follow the `prd-to-build-pack` skill to create the build pack documents.
-5. Monitor context size; reset when context reaches 45% using `Caveman`.
-6. Enforce Two-Tier Testing on all commits.
+### When initiating a new project build (Step 1):
+1. **Initialize Step 1**: Locate the PRD file (e.g., `PRD.md`) at the project root.
+2. **Execute Planning Pipelines**: Run tasks 1 through 7 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`.
+3. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
+4. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
+5. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.
+
+### When starting or resuming implementation (Step 2):
+1. **Initialize Step 2**: Start a fresh session using the project-specific bootstrap instructions.
+2. **Fresh Context Resume Checklist**:
+   * Read baseline documents: `AGENTS.md`, `state.md`, `project_rules.md`, `findings.md`, and `task_plan.md`.
+   * Inspect current Git branch, status, and recent commits.
+   * Run dependency tracing using `CodeGraph` before changing any logic.
+   * Identify completed, in-progress, and next tasks.
+   * Record a resume summary in the ledger.
+3. **Simulated Persistent Goal Mode**: Execute tasks sequentially from `task_plan.md`. Do not pause between tasks or Git commits unless a critical blocker is encountered.
+4. **Isolated Task Loops**: For each task card, run the spec-first (Red-Green) validation loop.
+5. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
+

@@ -8,139 +8,77 @@ This document walks through the complete workflow from a confirmed PRD to a ship
 - Access to the target codebase
 - GlobalSetup files copied into the project
 
-## Phase 1: PRD Review
+# Post-PRD Workflow (Two-Step Development Cycle)
 
-Before any build planning begins, verify the PRD is actionable:
+This document details the complete, two-step pipeline from a confirmed Product Requirements Document (PRD) to iteration and deployment.
 
-- All requirements are specific and measurable
-- Success metrics are defined
-- Constraints and non-goals are documented
-- Stakeholders have approved the PRD
-- No ambiguous language remains ("should," "might," "could consider")
+---
 
-Use `templates/prd/prd-review-checklist.md` to verify completeness.
+## 🛠️ Step 1: Planning, Blueprinting, & Dependency Alignment
 
-## Phase 2: Build Brief
+Step 1 is a strictly **human-in-the-loop planning phase**. The agent's goal is to construct the complete implementation plans, contracts, and test matrices without modifying any functional application code.
 
-Create a build brief that translates the PRD into an implementation-focused summary:
+### Phase 1: PRD Review & Completeness check
+Verify the PRD is actionable using `templates/prd/prd-review-checklist.md`:
+* All requirements are specific, measurable, and testable.
+* Constraints, non-goals, and edge cases are documented.
+* Stakeholders have approved the PRD.
 
-- What will be built (in technical terms)
-- What will NOT be built (explicit non-goals)
-- Assumptions and risks
-- Acceptance criteria for each requirement
+### Phase 2: Build Brief
+Create a technical build brief translating the PRD into architecture-level details using `templates/build-requirements/build-brief-template.md`.
 
-Use `templates/build-requirements/build-brief-template.md`.
+### Phase 3: Existing Codebase Discovery
+Before starting architecture mapping, inspect the target project using the `repo-discovery` skill and `CodeGraph`. Output findings to `build-pack/04-existing-codebase-discovery.md`.
 
-## Phase 3: Existing Codebase Discovery
+### Phase 4: Architecture Map & ADRs
+Model component relationships and write Architectural Decision Records (ADRs) using `templates/architecture/architecture-map-template.md`.
 
-Before writing any code, inspect the target project:
+### Phase 5: Interface Contracts
+Define and write data schemas, API routes, UI components, permission matrices, and external service contracts under `templates/contracts/`.
 
-- Language, framework, package manager
-- Test runner, linter, formatter
-- Database, auth system, routing structure
-- Existing patterns, naming conventions
-- Deployment and CI/CD workflow
-- Areas that must not be touched
+### Phase 6: Task Graph & Sizing Heuristics
+Decompose plans into ordered task graphs.
+* Apply task-sizing heuristics: No single task card may modify more than **3 source files** or require more than **3 implementation steps**.
+* Isolate infrastructure and database test fixtures into separate "Foundation" task cards.
 
-Use the `repo-discovery` skill. Output goes to `build-pack/04-existing-codebase-discovery.md`.
+### Phase 7: Task Card Specification & Test Matrices
+Generate the final execution task cards. Each card must define:
+* Scoped context files (Context Baseline).
+* Must-Haves (Observable Truths & Target Artifacts).
+* The exact `verification_command` to execute.
 
-## Phase 4: Architecture Map
+### ⚠️ Step 1 Human-in-the-Loop Policies (CRITICAL):
+1. **Zero-Assumption Policy**: If details are missing from the PRD, or if a more optimal implementation, library, or design approach exists, the agent **MUST** pause, document its recommendation, and request explicit operator input. **Auto-approvals are strictly blocked during Step 1.**
+2. **Plan Dependency Ripple Review**: If a plan for a module or task changes during design reviews, immediately trace and adjust all other dependent plans and modules to maintain global consistency.
+3. **Completion Gate**: Step 1 is finished only when all plans, task cards, and test cases are verified as complete and approved by the human operator.
 
-Document the existing architecture and plan how the new feature integrates:
+---
 
-- System component diagram
-- Data flow for the new feature
-- Integration points with existing code
-- Architecture decisions (with ADRs if needed)
+## 🚀 Step 2: Iterative Execution & Deployment
 
-Use `templates/architecture/architecture-map-template.md`.
+Step 2 is the iterative implementation of the approved task cards. This phase is characterized by autonomous, sequential execution of task cards under any agent harness.
 
-## Phase 5: Contracts
+### Phase 8: Isolated Task Execution (TDD Loop)
+For each task card, the agent starts a fresh context session and follows the spec-first loop:
+1. **Read Task Card**: Inspect must-haves, context baseline, and verification CLI command.
+2. **Red State Check**: Run the verification command first to ensure the spec assertions fail or that tests are in place. If missing, implement tests representing the spec first.
+3. **Implement**: Write the minimum code necessary to satisfy the truths.
+4. **Green State Check**: Run the verification command to ensure exit code 0.
+5. **Regression Check**: Run the global test suite.
+6. **Commit**: Save changes locally (localized micro-test passed).
 
-Define contracts for all interfaces before implementation:
+### Phase 9: Automated Testing & Specialist Review
+Run targeted reviews (security, performance, code style, database) on the diff and re-verify the changes before final staging.
 
-- **Data contract**: Schema changes, migrations, indexes
-- **API contract**: Endpoints, request/response shapes, authentication
-- **UI contract**: Components, states, responsive behavior
-- **Permission contract**: Roles, access control, authorization rules
-- **Integration contract**: Third-party service interactions
+### Phase 10: Stateless Scaling (Caveman Resets)
+During long execution sessions:
+* **Warning Check (35% capacity)**: Check if the task runs over context budgets.
+* **Handover Reset (45% capacity)**: Serialize current state to `state.md` using the standardized Caveman Handover Payload, terminate the session, and resume in a fresh context.
 
-Use templates in `templates/contracts/`.
+### Phase 11: Deployment & Global Verification
+* Run the global validation suite (full typecheck, project builds, integration/global tests).
+* If deployment is in scope (e.g. Vercel, Firebase), deploy using CLI tools and verify deployment logs.
 
-## Phase 6: Task Graph
+### Phase 12: Ship
+Push the short-lived branch/PR to GitHub, verify status checks, and prepare for human code merge.
 
-Split the build into ordered, dependency-aware tasks:
-
-- Foundation tasks (schema, config, setup)
-- Data/schema tasks (migrations, models)
-- API tasks (endpoints, middleware)
-- UI tasks (components, pages)
-- Integration tasks (connecting pieces)
-- Testing tasks (unit, integration, E2E)
-- Review tasks (specialist reviews)
-- Documentation tasks
-- Release tasks
-
-Each task gets a task card with acceptance criteria.
-
-Use `templates/tasks/task-graph-template.md` and `templates/tasks/task-card-template.md`.
-
-## Phase 7: Fresh-Context Task Execution
-
-For large builds, execute tasks in fresh context sessions:
-
-- Each task card is self-contained
-- The agent reads the task card, inspects relevant files, implements, tests, and verifies
-- No accumulated context debt from previous tasks
-- Each task is verified before the next begins
-
-Use the `fresh-context-execution` skill.
-
-## Phase 8: Implementation
-
-For each task:
-
-1. Read the task card
-2. Inspect the files listed in "files likely involved"
-3. Review existing patterns to follow
-4. Implement the smallest correct change
-5. Run tests
-6. Verify acceptance criteria
-7. Mark the task as complete
-
-## Phase 9: Testing
-
-- Unit tests for all new functions
-- Integration tests for API endpoints
-- UI tests for new components
-- Regression tests to verify nothing broke
-- Run the full test suite
-
-## Phase 10: Specialist Review
-
-Run relevant reviews using the reviewer profiles:
-
-- Code review (always)
-- Security review (if auth, input handling, queries)
-- Performance review (if endpoints, queries, loops)
-- Database review (if schema changes)
-- Frontend review (if UI changes)
-- Documentation review (if docs changed)
-
-## Phase 11: Fix and Verify
-
-- Address all review findings
-- Re-run affected tests
-- Re-verify acceptance criteria
-- Confirm lint, typecheck, and build pass
-
-## Phase 12: Ship
-
-Use the pre-ship checklist and ship skill:
-
-1. Complete the Definition of Done checklist
-2. Document the rollback plan
-3. Commit with meaningful message
-4. Push to remote
-5. Create PR with summary and test plan
-6. Request human review

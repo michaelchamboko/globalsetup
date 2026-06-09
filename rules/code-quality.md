@@ -4,7 +4,7 @@ alwaysApply: true
 
 # Code Quality
 
-## Anti-defaults (counter common Claude tendencies)
+## Anti-defaults (counter common agent tendencies)
 
 - No premature abstractions. Three similar lines beats a helper used once.
 - Don't add features or improvements beyond what was asked.

@@ -1,114 +1,34 @@
-# Contributing to dotclaude
+# Contributing to GlobalSetup
 
-Thanks for wanting to make this better. This project aims to be the standard `.claude/` folder structure. Contributions that help more developers ship faster are welcome.
+Thank you for contributing to GlobalSetup! This project aims to be a harness-neutral post-PRD agentic build system that helps developers and coding agents build software with discipline and high quality.
 
-## Before you contribute
+## Guidelines for Contributions
 
-- Check existing issues and open PRs to avoid duplicate work.
-- For large changes (new skills, new agents, restructuring), open an issue first to discuss the approach.
+We welcome contributions across all areas of the project:
 
-## What we're looking for
+### 1. Rules (`rules/`)
+* Keep rules general and framework-agnostic. Use concrete examples (like React, Go, Python) only to illustrate patterns.
+* Avoid referring to specific coding agents or harnesses as first-class targets.
+* Ensure each rule focuses on actionable, verifiable standards.
 
-**Yes, please:**
-- Bug fixes in hook scripts
-- Improvements to existing rules, skills, or agents that make them more effective
-- New skills for common daily workflows (not project-creation workflows)
-- New agents for common review or analysis tasks
-- Better token efficiency. Same quality, fewer tokens.
-- Documentation improvements
+### 2. Skills (`skills/`)
+* Skills must represent clear, step-by-step workflows.
+* Keep frontmatter clean with only `name` and `description` fields.
+* Instructions should be actionable for any LLM or coding agent.
 
-**Probably not:**
-- Language-specific rules. Claude already knows standard conventions.
-- Project scaffolding skills. This repo is for daily work, not project creation.
-- Vendor-specific configurations (specific CI providers, cloud platforms, etc.)
+### 3. Templates (`templates/`)
+* Templates must be generic and easy to fill in.
+* Use clear placeholder tags like `[Feature Name]` or `[TODO]`.
 
-> Plugin packaging is welcome. Dotclaude itself ships as a marketplace (see the main README). Improvements to `marketplace.json`, the per-plugin `plugin.json` files, or `scripts/sync-plugins.sh` count as documentation improvements.
+### 4. Reviewers (`reviewers/`)
+* Reviewer profiles must be structured as checklist-driven markdown documents.
+* Do not assume any automated subagent execution flow; write checklists that any agent or human can execute.
 
-## PR rules
+### 5. Safeguards (`safeguards/`)
+* Safeguards must remain declarative rules and checklists rather than executable script hooks.
 
-### One thing per PR
-
-Each PR should do exactly one thing. Don't bundle a new skill with a rule fix and a README update. Split them.
-
-### File requirements
-
-| File type | Must have | Must NOT have |
-|---|---|---|
-| **Rules** (`.md` in `rules/`) | `alwaysApply: true` or `paths:` frontmatter | Language-specific conventions Claude already knows |
-| **Skills** (`SKILL.md`) | `name`, `description` in frontmatter | Hardcoded package names, model assignments |
-| **Agents** (`.md` in `agents/`) | `name`, `description`, `tools` in frontmatter | `model` field (users choose their own model) |
-| **Hooks** (`.sh` in `hooks/`) | `jq` availability check, proper exit codes (0 = allow, 2 = block) | Hardcoded paths, missing `#!/bin/bash` |
-
-### Naming
-
-- Skill directories: `kebab-case`. `debug-fix/`, `test-writer/`.
-- Agent files: `kebab-case.md`. `code-reviewer.md`, `security-reviewer.md`.
-- Rule files: `kebab-case.md`. `code-quality.md`, `frontend.md`.
-- Hook scripts: `kebab-case.sh`. `protect-files.sh`, `block-dangerous-commands.sh`.
-
-### No duplication
-
-Before adding content, check that it's not already covered elsewhere:
-
-- If a hook enforces it, don't also add a rule saying the same thing.
-- If a skill covers it, don't duplicate the guidance in a rule.
-- If `CLAUDE.md` says it, don't repeat it in a rule.
-- Agents run isolated and CAN repeat rule content. They don't see rules.
-
-### No hardcoded opinions
-
-This is a template. Keep it framework-agnostic.
-
-- Don't hardcode `npm`, `pnpm`, `yarn`, or any specific package manager.
-- Don't hardcode specific component libraries, CSS frameworks, or test runners.
-- Don't assign `model` to agents or skills. Let users choose.
-- Present options as tables or lists, not mandates.
-- The `/setupdotclaude` skill handles project-specific customization at runtime.
-
-### Token consciousness
-
-Every line in a rule costs tokens every session. Every line in a skill costs tokens when invoked. Before adding content, ask: would removing this cause Claude to make mistakes? If no, don't add it.
-
-### Hook scripts must be safe
-
-- Always check for `jq` availability before using it.
-- Exit 0 (allow) if dependencies are missing. Don't block the user.
-- PreToolUse hooks observe and block. They should never modify files. PostToolUse hooks may transform output (for example, formatting).
-- Test with sample JSON input before submitting.
-
-### Plugin marketplace consistency
-
-If you add or rename a skill or agent, also:
-
-- Add or update its entry in `.claude-plugin/marketplace.json`.
-- Add or update its `plugins/<name>/.claude-plugin/plugin.json`.
-- Run `scripts/sync-plugins.sh` to mirror the file into `plugins/<name>/` and (if it's a skill) into `plugins/setupdotclaude/template/`.
-
-The sync script is the source of truth. Don't hand-edit files inside `plugins/` or `plugins/setupdotclaude/template/`. They will be overwritten on the next sync.
-
-### Hooks require tests
-
-Every new or modified hook script MUST ship with fixtures under `hooks/tests/fixtures/<hook-name>/`. Each fixture is a JSON file specifying the stdin payload Claude Code would deliver, the expected exit code (0 allow, 2 block), and any substrings that must or must not appear in stdout. Cover at minimum: (a) one allow case, (b) one block case, and (c) every adversarial input class the hook's regexes touch (quoted paths, shell expansions, multi-statement SQL, combined flags, case variants, redirection edge cases). PRs that add or change a hook without corresponding fixtures will be rejected. Run `bash hooks/tests/run-all.sh` locally and ensure it passes before opening a PR. CI (`.github/workflows/hook-tests.yml`) runs the same suite on Linux and macOS for every PR touching `hooks/`.
-
-### Update READMEs
-
-If you add a new file to `rules/`, `skills/`, `agents/`, or `hooks/`, add a description to the README in that folder. Keep it to two or three lines.
-
-### Update the root README
-
-If your change adds or removes a file, update the structure tree in `README.md` to match.
-
-## How to submit
-
-1. Fork the repo.
-2. Create a branch: `feat/your-skill-name` or `fix/hook-bug-description`.
-3. Make your changes.
-4. Test: verify YAML frontmatter is valid, hook scripts work with sample input, no duplication with existing files. Run `scripts/sync-plugins.sh` if you touched anything in `agents/` or `skills/`.
-5. Open a PR with:
-   - **Title**: what you added or changed (under 72 chars)
-   - **Body**: why it's useful, what daily workflow it improves
-   - **Testing**: how you verified it works
-
-## Code of conduct
-
-Be helpful, be kind, be constructive. We're all here to make Claude Code better for daily development work.
+## Process
+1. Create a feature branch (`feat/your-improvement`).
+2. Make surgical, clean changes.
+3. Commit with conventional commit messages.
+4. Open a Pull Request with a clear description of your changes and why they are beneficial.

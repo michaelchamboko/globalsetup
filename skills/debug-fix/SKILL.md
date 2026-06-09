@@ -1,4 +1,10 @@
----\nname: debug-fix\ndescription: Find and fix a bug. Supports careful default and --fast hotfix modes.\nargument-hint: [issue description] [optional: --fast]\n---\n\nFind and fix a bug:
+---
+name: debug-fix
+description: Find and fix a bug. Supports careful default and --fast hotfix modes.
+argument-hint: [issue description] [optional: --fast]
+---
+
+Find and fix a bug:
 
 1. **Understand**: Read the stack trace, error, or issue description.
 2. **Default (Careful)**:

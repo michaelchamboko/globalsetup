@@ -1,4 +1,10 @@
----\nname: tdd\ndescription: Test-Driven Development loop. Write a failing test first, then minimum code to pass, then refactor.\nargument-hint: [feature description]\n---\n\nExecute strict Test-Driven Development (TDD) for the given feature:
+---
+name: tdd
+description: Test-Driven Development loop. Write a failing test first, then minimum code to pass, then refactor.
+argument-hint: [feature description]
+---
+
+Execute strict Test-Driven Development (TDD) for the given feature:
 
 1. **Red**: Write a single failing test for the next smallest behavior. Assert specific values. Run it and verify it fails.
 2. **Green**: Write the minimum, simplest code to make the test pass. Hardcoding is acceptable initially.

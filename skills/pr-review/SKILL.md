@@ -1,4 +1,10 @@
----\nname: pr-review\ndescription: Structured code and PR review synthesis\nargument-hint: [PR number | staged | path]\n---\n\nConduct a structured review of code changes or a pull request:
+---
+name: pr-review
+description: Structured code and PR review synthesis
+argument-hint: [PR number | staged | path]
+---
+
+Conduct a structured review of code changes or a pull request:
 
 1. **Determine Scope**: Review staged changes, a specific file, or a pull request using command line tools (e.g. git diff, gh pr diff).
 2. **PR Quality Check**: Verify the PR title, description, size, and CI status. Suggest splitting if changes exceed 500 lines.

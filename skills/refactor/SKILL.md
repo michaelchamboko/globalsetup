@@ -1,4 +1,10 @@
----\nname: refactor\ndescription: Safe refactoring with tests as a safety net\nargument-hint: [file or pattern]\n---\n\nPerform safe refactoring without changing code behavior:
+---
+name: refactor
+description: Safe refactoring with tests as a safety net
+argument-hint: [file or pattern]
+---
+
+Perform safe refactoring without changing code behavior:
 
 1. **Verify Test Coverage**: Ensure the target code has adequate unit tests. Write tests first if coverage is low.
 2. **Plan Transformations**: Detail the specific steps and expected changes.

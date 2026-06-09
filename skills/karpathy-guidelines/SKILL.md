@@ -1,4 +1,9 @@
----\nname: karpathy-guidelines\ndescription: Karpathy build discipline guidelines\n---\n\nAdhere to the 4 core Karpathy principles for engineering discipline:
+---
+name: karpathy-guidelines
+description: Karpathy build discipline guidelines
+---
+
+Adhere to the 4 core Karpathy principles for engineering discipline:
 
 1. **Think Before Coding**: Spend time analyzing requirements and codebase structures before editing files.
 2. **Simplicity First**: Write clean, readable code. Avoid pre-optimization and needless abstractions.

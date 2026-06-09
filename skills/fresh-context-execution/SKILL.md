@@ -1,4 +1,10 @@
----\nname: fresh-context-execution\ndescription: Guidelines for executing a single task card in isolation\nargument-hint: [Task Card ID]\n---\n\nFollow these guidelines to execute a single task card in a fresh, isolated session to prevent context debt:
+---
+name: fresh-context-execution
+description: Guidelines for executing a single task card in isolation
+argument-hint: [Task Card ID]
+---
+
+Follow these guidelines to execute a single task card in a fresh, isolated session to prevent context debt:
 
 1. Read the task card completely.
 2. Load only the files listed under "Context Baseline".

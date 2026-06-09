@@ -1,4 +1,9 @@
----\nname: test-writer\ndescription: Automatically writes comprehensive tests for new or changed code\n---\n\nGenerate comprehensive automated tests for changed files:
+---
+name: test-writer
+description: Automatically writes comprehensive tests for new or changed code
+---
+
+Generate comprehensive automated tests for changed files:
 
 1. Identify modified files using git diff or status.
 2. Map all execution paths (happy path, edge cases, error cases, boundaries).

@@ -6,12 +6,20 @@ This is an example task graph generated from the User Notification System build 
 
 ## Task Graph
 
+### Module Coverage
+
+| Module ID | Module Plan | Responsibility | Validation Location |
+|-----------|-------------|----------------|---------------------|
+| M-001 | `build-pack/module-plans/M-001-notification-core.md` | Database/API/real-time notification core | github / approved runtime |
+| M-002 | `build-pack/module-plans/M-002-notification-ui.md` | Notification UI components | vercel / github |
+| M-003 | `build-pack/module-plans/M-003-release-validation.md` | Review and release gates | github / hosting platform |
+
 ### Foundation Tasks
 
-| ID | Title | Dependencies | Status |
-|----|-------|-------------|--------|
-| T-001 | Create notifications database table and migration | None | [ ] |
-| T-002 | Add notification model and data access layer | T-001 | [ ] |
+| ID | Module | Title | Dependencies | Status |
+|----|--------|-------|-------------|--------|
+| T-001 | M-001 | Create notifications database migration artifact | None | [ ] |
+| T-002 | M-001 | Add notification model and data access layer | T-001 | [ ] |
 
 ### API Tasks
 

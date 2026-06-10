@@ -24,22 +24,25 @@ for file in \
   15-pre-ship-checklist.md \
   16-definition-of-done.md; do
   if [ ! -f "build-pack/$file" ]; then
-    echo "âŒ Missing build-pack/$file"
+    echo "[missing] build-pack/$file"
     MISSING=$((MISSING + 1))
   else
-    # Check if file is still empty or has placeholders
     if grep -q "<!-- TODO -->" "build-pack/$file" || grep -q "\[TODO\]" "build-pack/$file"; then
-       echo "âš ï¸  build-pack/$file contains placeholder markers"
+       echo "[placeholder] build-pack/$file contains placeholder markers"
     else
-       echo "âœ… build-pack/$file is present"
+       echo "[ok] build-pack/$file is present"
     fi
   fi
 done
 
-if [ $MISSING -eq 0 ]; then
-  echo "ðŸŽ‰ All 17 build pack files are present!"
+if [ "$MISSING" -eq 0 ]; then
+  if ! find build-pack/module-plans -maxdepth 1 -name 'M-*.md' ! -name 'M-000-*' | grep -q .; then
+    echo "[missing] real build-pack/module-plans/M-*.md module plans beyond the M-000 template"
+    exit 1
+  fi
+  echo "[ok] All 17 build pack files and module plans are present"
   exit 0
 else
-  echo "âŒ Missing $MISSING build pack file(s)!"
+  echo "[missing] $MISSING build pack file(s)"
   exit 1
 fi

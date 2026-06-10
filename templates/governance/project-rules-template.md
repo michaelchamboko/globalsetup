@@ -22,4 +22,5 @@
 
 ## ðŸ§ª Testing Rules
 - Unit Tests: Required for all business logic helpers (target: 90% coverage).
-- Two-Tier Testing model enforced (localized unit checks for commit, full build for push).
+- Intended-location validation enforced. Hosted apps build in their hosting platform, not locally by default.
+- Local dependency installs, local production builds, local dev servers, and full local typechecks require explicit operator opt-in.

@@ -26,22 +26,27 @@ $files = @(
 foreach ($file in $files) {
     $path = "build-pack\$file"
     if (!(Test-Path $path)) {
-        Write-Host "âŒ Missing $path" -ForegroundColor Red
+        Write-Host "[missing] $path" -ForegroundColor Red
         $missing++
     } else {
         $content = Get-Content $path -Raw
         if ($content -match "<!-- TODO -->" -or $content -match "\[TODO\]") {
-            Write-Host "âš ï¸  $path contains placeholder markers" -ForegroundColor Yellow
+            Write-Host "[placeholder] $path contains placeholder markers" -ForegroundColor Yellow
         } else {
-            Write-Host "âœ… $path is present" -ForegroundColor Green
+            Write-Host "[ok] $path is present" -ForegroundColor Green
         }
     }
 }
 
 if ($missing -eq 0) {
-    Write-Host "ðŸŽ‰ All 17 build pack files are present!" -ForegroundColor Green
+    $modulePlans = Get-ChildItem "build-pack\module-plans" -Filter "M-*.md" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike "M-000-*" }
+    if ($modulePlans.Count -lt 1) {
+        Write-Host "[missing] real build-pack\module-plans\M-*.md module plans beyond the M-000 template" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "[ok] All 17 build pack files and module plans are present" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "âŒ Missing $missing build pack file(s)!" -ForegroundColor Red
+    Write-Host "[missing] $missing build pack file(s)" -ForegroundColor Red
     exit 1
 }

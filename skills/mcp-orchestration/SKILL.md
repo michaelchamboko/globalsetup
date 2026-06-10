@@ -12,7 +12,7 @@ Follow these steps to orchestrate tasks and manage sub-agent execution using the
 
 ## Step 2: Task Decomposition
 1. Act as the `[Planner-Agent]` to decompose the high-level objective into the smallest possible atomic, independent units of work (**Micro-Tasks**).
-2. Ensure each Micro-Task is scoped to a small set of files and maps to a clean, isolated commit.
+2. Ensure each Micro-Task is scoped to a small set of files, maps to a module plan, and can be pushed for intended-location validation.
 3. Organize the Micro-Tasks in dependency order.
 
 ## Step 3: Define Input/Output Contracts
@@ -23,8 +23,10 @@ For each Micro-Task, prior to spawning a sub-agent:
    - The exact requirements to satisfy.
 2. Define the **Output Contract**:
    - The expected file changes (new or modified files).
-   - The specific linting, compilation, and unit verification commands.
-   - The localized testing metrics.
+   - The validation location.
+   - The specific hosted/runtime verification command or check.
+   - The validation metrics.
+   - Any explicit local-build exception, if approved.
 
 ## Step 4: Dispatch & Sub-Agent Execution
 1. Route the Micro-Task to a specialized sub-agent based on the task type:
@@ -35,6 +37,6 @@ For each Micro-Task, prior to spawning a sub-agent:
 ## Step 5: Evaluate & Synthesize
 1. Ingest the sub-agent's outputs.
 2. Check the output against the defined contract.
-3. Run the micro-validation tests locally.
+3. Run or observe the micro-validation check in the declared validation location.
 4. **Reject and respawn** the sub-agent if the contract is violated, tests fail, or scope creep is detected.
-5. Once verified, execute a local Git commit for this Micro-Task and move to the next task in `task_plan.md`.
+5. Once verified, commit/push according to the task contract and move to the next task in `task_plan.md`.

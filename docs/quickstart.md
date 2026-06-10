@@ -50,6 +50,9 @@ bash scripts/generate-build-pack.sh
 ```
 
 This creates a `build-pack/` directory with blank templates for all 17 build pack documents.
+It also creates `build-pack/module-plans/`, where one module-level plan must be added for each implementation area before task cards are approved.
+
+GlobalSetup setup and build-pack generation do not install application dependencies or build the application locally.
 
 ## Step 5: Fill In the Build Pack
 
@@ -58,16 +61,18 @@ Use the `prd-to-build-pack` skill to guide your agent through transforming the c
 1. Read the confirmed PRD
 2. Run the `repo-discovery` skill to inspect the existing codebase
 3. Fill in each build pack document using the templates
-4. Review the build pack for completeness
+4. Create module plans under `build-pack/module-plans/`
+5. Review the build pack for completeness
 
 ## Step 6: Execute the Task Graph
 
 Once the build pack is complete:
 
 1. Review the task graph (`build-pack/11-task-graph.md`)
-2. Execute tasks in dependency order using the `fresh-context-execution` skill
-3. Each task is self-contained with its own acceptance criteria
-4. Verify each task before moving to the next
+2. Review the module plans under `build-pack/module-plans/`
+3. Execute tasks in dependency order using the `fresh-context-execution` skill
+4. Each task is self-contained with its own acceptance criteria and validation location
+5. Verify each task in the intended location before moving to the next
 
 ## Step 7: Run Review Gates
 
@@ -80,7 +85,7 @@ Before shipping:
 
 ## Step 8: Ship
 
-Use the `ship` skill to commit, push, and create a PR with safety checks at every step.
+Use the `ship` skill to commit, push, and create a PR with safety checks at every step. Hosted applications should build in their intended platform, such as Vercel or GitHub Actions, not on the operator's workstation by default.
 
 ## Next Steps
 

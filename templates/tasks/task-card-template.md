@@ -1,8 +1,9 @@
 # Task Card: [T-NNN] [Title]
 
-**Task Graph Reference**: [Link]  
-**Dependencies**: [T-001, T-002]  
-**Status**: [ ] Not started / [/] In progress / [x] Complete  
+**Task Graph Reference**: [Link]
+**Module Plan Reference**: [build-pack/module-plans/M-NNN-module-name.md]
+**Dependencies**: [T-001, T-002]
+**Status**: [ ] Not started / [/] In progress / [x] Complete
 
 ## Objective
 
@@ -24,7 +25,7 @@
   - [Truth 1: e.g., Returns 400 Bad Request when request body is missing 'email']
   - [Truth 2: e.g., DB record is created with password hashed using bcrypt]
 * **Target Artifacts**:
-  - `[file/path/1]` must exist and pass typechecks.
+  - `[file/path/1]` must exist and pass the declared validation check.
   - `[file/path/2]` must be modified to include the new validation logic.
 
 ## Implementation Steps
@@ -35,9 +36,11 @@
 
 ## Testing Plan & Verification
 
-* **Verification Command**: `[Exact executable CLI command to run test: e.g., npm run test:unit test/feature.test.js]`
+* **Validation Location**: `[github / vercel / oracle / approved-runtime / local-docs-only]`
+* **Verification Command or Hosted Check**: `[Exact command, PR check, Vercel deployment check, Oracle read-only probe, or docs-only validation]`
 * **Expected Output**: `[Successful exit code 0 or positive verification indicator]`
 * **Manual Verification**: [Manual verification steps]
+* **Local Build Exception**: `[No by default. If yes, cite explicit operator approval and commands allowed.]`
 
 ## Acceptance Criteria
 

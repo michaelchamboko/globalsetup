@@ -31,11 +31,12 @@ These rules represent the baseline behavioral standards for any agent executing 
 
 ### 6. Isolated Task Execution
 * Break large features into independent, self-contained task cards.
-* Write task cards with specific, localized context baselines and testing commands so that any agent can execute them in a clean session.
+* Write task cards with specific context baselines, module-plan references, validation locations, and testing commands so that any agent can execute them in a clean session.
 
 ### 7. Test-Driven Discipline
 * Implement automated tests (unit, integration, and E2E) alongside your code changes.
-* Use the AAA (Arrange-Act-Assert) pattern and run local tests after every modification.
+* Use the AAA (Arrange-Act-Assert) pattern and run or observe validation in the task card's declared location after every modification.
+* Do not run local dependency installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
 ### 8. Specialist Review Gates
 * Use the checklists defined in the `reviewers/` folder.
@@ -54,4 +55,4 @@ These rules represent the baseline behavioral standards for any agent executing 
 * Write descriptive commit messages matching the project style (e.g. conventional commits).
 
 ### 12. Goal-Driven Resolution
-* Keep working until the objective is fully met, all tests are passing, lint errors are resolved, and the Definition of Done is satisfied.
+* Keep working until the objective is fully met, intended-location validation passes, review findings are resolved, and the Definition of Done is satisfied.

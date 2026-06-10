@@ -4,8 +4,8 @@
 
 ### Stage 1: Database Setup
 1. Define the `Notification` model in `prisma.schema`.
-2. Generate and apply migration locally.
-3. Verify table using Prisma Studio.
+2. Generate a reviewed migration artifact.
+3. Apply and verify migration only in the approved database/runtime environment.
 
 ### Stage 2: Backend API
 1. Implement GET `/api/notifications` with session authorization.

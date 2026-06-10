@@ -6,13 +6,14 @@ alwaysApply: true
 
 These rules govern the implementation and execution of automated tests and release gates.
 
-## 1. Two-Tier Testing Model (Delivery Gate)
-We enforce a strict two-tier testing hierarchy to protect main branch integrity:
-* **Tier 1 (Local Git Commit)**: Localized Micro-Task unit/integration tests must pass successfully before approving a local git commit. You are prohibited from staging and committing code that does not pass localized tests.
-* **Tier 2 (GitHub Push)**: The holistic validation suite (full codebase typecheck, production build command, and global integration/E2E tests) must pass successfully on your machine before pushing the micro-commits to GitHub.
+## 1. Intended-Location Validation Model (Delivery Gate)
+We enforce validation where the system is intended to run:
+* **Tier 1 (Micro-Task Validation)**: Each task card must declare a validation location and a validation command/check. The check must pass in that location before the task is marked complete.
+* **Tier 2 (Hosted/Runtime Validation)**: For hosted applications, push source changes to GitHub and use configured CI/CD, Vercel, or the approved hosting platform as the production build gate.
+* **Local Build Prohibition**: Do not run local dependency installs, local production builds, local dev servers, or full local typechecks by default. Local preview requires explicit operator opt-in.
 
 ## 2. Test Execution & Feedback
-* Run the specific, targeted test file after changes, not the full suite, during development. This provides faster feedback and conserves token limits.
+* Run or observe the specific, targeted validation check after changes, not a full local app build, during development. This provides faster feedback and respects operator machine limits.
 * Flaky test? Fix it or delete it. Never retry in a loop to make it pass.
 
 ## 3. Test Design Conventions

@@ -1,7 +1,10 @@
 # Module Plan: [Module Name]
 
-**Owner**: [Lead Agent / Developer]  
-**Status**: [Proposed / Approved / Complete]  
+**Owner**: [Lead Agent / Developer]
+**Status**: [Proposed / Approved / Complete]
+**Module ID**: [M-001]
+**Target Runtime**: [github / vercel / oracle / approved-runtime / docs-only]
+**Validation Location**: [github / vercel / oracle / approved-runtime / local-docs-only]
 
 ## Overview
 
@@ -17,12 +20,25 @@
 
 [Details about classes, interfaces, algorithms, and data structures inside the module.]
 
+## Runtime Boundary
+
+- Intended build/deploy location: [e.g. Vercel, GitHub Actions, Oracle, Render]
+- Local workstation role: [source editing/docs only unless explicit local-preview opt-in]
+- Local build/install exception: [No by default / approval reference]
+
+## Dependencies
+
+- Upstream modules: [M-xxx]
+- Downstream modules: [M-yyy]
+- External services: [service names]
+
 ## Task Breakdown
 
-- [ ] Task 1: [description]
-- [ ] Task 2: [description]
+- [ ] [T-001] [description]
+- [ ] [T-002] [description]
 
 ## Verification Plan
 
-- [ ] Unit tests for all functions
-- [ ] Integration checks
+- [ ] Validation location confirmed.
+- [ ] Hosted/runtime check defined for each task.
+- [ ] No local application install/build required unless explicitly approved.

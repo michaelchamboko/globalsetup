@@ -26,16 +26,22 @@ Model component relationships and write Architectural Decision Records (ADRs) us
 ### Phase 5: Interface Contracts
 Define and write data schemas, API routes, UI components, permission matrices, and external service contracts under `templates/contracts/`.
 
-### Phase 6: Task Graph & Sizing Heuristics
+### Phase 6: Module Plans
+Create one module plan per implementation area under `build-pack/module-plans/` using `templates/tasks/module-plan-template.md`.
+Each module plan must define ownership, boundaries, files likely involved, dependencies, target runtime, validation location, and task breakdown.
+
+### Phase 7: Task Graph & Sizing Heuristics
 Decompose plans into ordered task graphs.
 * Apply task-sizing heuristics: No single task card may modify more than **3 source files** or require more than **3 implementation steps**.
 * Isolate infrastructure and database test fixtures into separate "Foundation" task cards.
+* Every task must reference the module plan it belongs to.
 
-### Phase 7: Task Card Specification & Test Matrices
+### Phase 8: Task Card Specification & Test Matrices
 Generate the final execution task cards. Each card must define:
 * Scoped context files (Context Baseline).
 * Must-Haves (Observable Truths & Target Artifacts).
-* The exact `verification_command` to execute.
+* The exact `verification_command` or hosted validation check to execute.
+* The `validation_location` where the check must run.
 
 ### ⚠️ Step 1 Human-in-the-Loop Policies (CRITICAL):
 1. **Zero-Assumption Policy**: If details are missing from the PRD, or if a more optimal implementation, library, or design approach exists, the agent **MUST** pause, document its recommendation, and request explicit operator input. **Auto-approvals are strictly blocked during Step 1.**
@@ -51,11 +57,11 @@ Step 2 is the iterative implementation of the approved task cards. This phase is
 ### Phase 8: Isolated Task Execution (TDD Loop)
 For each task card, the agent starts a fresh context session and follows the spec-first loop:
 1. **Read Task Card**: Inspect must-haves, context baseline, and verification CLI command.
-2. **Red State Check**: Run the verification command first to ensure the spec assertions fail or that tests are in place. If missing, implement tests representing the spec first.
+2. **Red State Check**: Use the declared validation location to confirm the spec is unmet or that tests/checks are in place. If missing, create the minimum spec check first.
 3. **Implement**: Write the minimum code necessary to satisfy the truths.
-4. **Green State Check**: Run the verification command to ensure exit code 0.
-5. **Regression Check**: Run the global test suite.
-6. **Commit**: Save changes locally (localized micro-test passed).
+4. **Green State Check**: Run or observe the declared validation check in the intended location.
+5. **Regression Check**: Use hosted or target-runtime validation, not local app builds by default.
+6. **Commit/Push**: Save changes and push so the intended platform can validate them.
 
 ### Phase 9: Automated Testing & Specialist Review
 Run targeted reviews (security, performance, code style, database) on the diff and re-verify the changes before final staging.
@@ -66,14 +72,16 @@ During long execution sessions:
 * **Handover Reset (45% capacity)**: Serialize current state to `state.md` using the standardized Caveman Handover Payload, terminate the session, and resume in a fresh context.
 
 ### Phase 11: Deployment & Global Verification
-* Run the global validation suite (full typecheck, project builds, integration/global tests).
-* If deployment is in scope (e.g. Vercel, Firebase), deploy using CLI tools and verify deployment logs.
+* Push source changes to GitHub and verify the configured intended platform.
+* For Vercel-hosted apps, use Vercel install/build/deploy logs as the production build check.
+* For database or worker tasks, validate in the approved target runtime only.
+* Do not run local application installs, production builds, dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
 ### Phase 12: Ship
 Push the short-lived branch/PR to GitHub, verify status checks, and prepare for human code merge.
 
 ### 🚀 Step 2 Autonomous Policies (CRITICAL):
-1. **Autonomous Development**: The agent executes Step 2 with **full autonomy**. Human-in-the-loop approvals are **NOT** required for local git commits, task-to-task transitions, sub-agent spawning, or plan traversal.
+1. **Autonomous Development**: The agent executes Step 2 with **full autonomy**. Human-in-the-loop approvals are **NOT** required for ordinary commits, task-to-task transitions, sub-agent spawning, hosted validation checks, or plan traversal.
 2. **Sequential & Modular Methods**: Build the codebase in a modular method strictly following the sequence established in Step 1. Leverage specialized sub-agent roles (`Planner-Agent`, `Builder-Agent`, `Review-Agent`), trace dependencies via `CodeGraph`, manage lifecycles via `task-master`, and keep logical continuity via `Sequential Thinking`.
 3. **Escalation Exception**: The agent must only halt and ask the operator if:
    - It encounters a crucial requirement that was not reviewed or documented in Step 1.

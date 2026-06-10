@@ -3,15 +3,20 @@
 **Objective**: `[task-master high-level objective]`  
 **Last Updated**: `[YYYY-MM-DD]`  
 
-## ðŸ—ºï¸ Micro-Task List
+## Micro-Task List
 
-| Task ID | Micro-Task Title | Dependencies | Sub-Agent | Status |
-|---------|------------------|--------------|-----------|--------|
-| T-001 | [e.g. Add migration for users table] | None | Builder | [ ] / [/] / [x] |
-| T-002 | [e.g. Define User type and schema] | T-001 | Builder | [ ] |
-| T-003 | [e.g. Implement GET /api/users] | T-002 | Builder | [ ] |
+| Task ID | Module | Micro-Task Title | Dependencies | Sub-Agent | Validation Location | Status |
+|---------|--------|------------------|--------------|-----------|---------------------|--------|
+| T-001 | M-001 | [e.g. Add migration for users table] | None | Builder | [github/vercel/oracle/local-docs-only] | [ ] / [/] / [x] |
+| T-002 | M-001 | [e.g. Define User type and schema] | T-001 | Builder | [github/vercel/oracle/local-docs-only] | [ ] |
+| T-003 | M-002 | [e.g. Implement GET /api/users] | T-002 | Builder | [github/vercel/oracle/local-docs-only] | [ ] |
 
-## ðŸ“‹ Sub-Agent Contracts
+## Module Plan References
+
+- `M-001`: `build-pack/module-plans/[module-file].md`
+- `M-002`: `build-pack/module-plans/[module-file].md`
+
+## Sub-Agent Contracts
 
 ### Contract: `[Task ID]`
 - **Input Contract**:
@@ -19,5 +24,7 @@
   - Requirements: `[description]`
 - **Output Contract**:
   - Files to modify/create: `[paths]`
-  - Local Validation Command: `[test command]`
-  - Test Metric: `[e.g. 100% statement coverage on user.service.ts]`
+  - Validation Location: `[github/vercel/oracle/local-docs-only/approved-runtime]`
+  - Validation Command or Hosted Check: `[command, PR check, deployment log, read-only runtime probe]`
+  - Test Metric: `[e.g. hosted check passes, Vercel build succeeds, Oracle read-only query succeeds]`
+  - Local Build Exception: `[No / explicit operator approval reference]`

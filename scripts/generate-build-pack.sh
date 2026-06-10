@@ -5,6 +5,7 @@
 echo "Generating build-pack directory..."
 mkdir -p build-pack
 mkdir -p build-pack/tasks
+mkdir -p build-pack/module-plans
 
 # Map templates to build-pack files
 cp .agents/templates/prd/confirmed-prd-template.md build-pack/00-confirmed-prd-summary.md
@@ -17,12 +18,13 @@ cp .agents/templates/contracts/database-contract-template.md build-pack/06-datab
 cp .agents/templates/contracts/api-contract-template.md build-pack/07-api-contract.md
 cp .agents/templates/contracts/ui-contract-template.md build-pack/08-ui-contract.md
 cp .agents/templates/contracts/permissions-contract-template.md build-pack/09-permissions-contract.md
-cp .agents/templates/tasks/module-plan-template.md build-pack/10-implementation-plan.md
+cp .agents/templates/tasks/implementation-plan-template.md build-pack/10-implementation-plan.md
 cp .agents/templates/tasks/task-graph-template.md build-pack/11-task-graph.md
 cp .agents/templates/qa/test-plan-template.md build-pack/12-test-plan.md
 cp .agents/templates/qa/review-gate-template.md build-pack/13-review-gate.md
 cp .agents/templates/qa/rollback-plan-template.md build-pack/14-rollback-plan.md
 cp .agents/safeguards/pre-ship-checklist.md build-pack/15-pre-ship-checklist.md
 cp .agents/templates/qa/definition-of-done-template.md build-pack/16-definition-of-done.md
+cp .agents/templates/tasks/module-plan-template.md build-pack/module-plans/M-000-module-plan-template.md
 
-echo "Build pack documents generated under build-pack/"
+echo "Build pack documents and module-plans generated under build-pack/"

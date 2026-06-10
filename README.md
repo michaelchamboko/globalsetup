@@ -20,7 +20,7 @@ Traditional AI coding agents often suffer from **Context Debt** and **Architectu
 
 ## 📋 The Post-PRD Pipeline
 
-Every feature or build pack follows a rigorous 14-step workflow:
+Every feature or build pack follows a rigorous 15-step workflow:
 
 ```
 Confirmed PRD
@@ -29,16 +29,19 @@ Confirmed PRD
   ├── 3. Existing Codebase Discovery (Never write code blind)
   ├── 4. Architecture Map & Component Diagramming
   ├── 5. Data, API, UI, Permission, & Integration Contracts
-  ├── 6. Task Graph Construction & Dependency Analysis
-  ├── 7. Fresh-Context Task Cards Creation
-  ├── 8. Isolated Task Execution (TDD Red-Green-Refactor)
-  ├── 9. Automated Testing (Unit, Integration, E2E)
-  ├── 10. Specialist Reviews (Security, Performance, DB, UI)
-  ├── 11. Bug Fixes & Refinement
-  ├── 12. Final Definition of Done Verification
-  ├── 13. Pre-Ship Safeguards Check
-  └── 14. Branch Commit, Push, and PR Creation
+  ├── 6. Module Plan Generation (one plan per implementation module)
+  ├── 7. Task Graph Construction & Dependency Analysis
+  ├── 8. Fresh-Context Task Cards Creation
+  ├── 9. Intended-Location Task Execution
+  ├── 10. Automated Testing / Hosted Validation
+  ├── 11. Specialist Reviews (Security, Performance, DB, UI)
+  ├── 12. Bug Fixes & Refinement
+  ├── 13. Final Definition of Done Verification
+  ├── 14. Pre-Ship Safeguards Check
+  └── 15. Branch Commit, Push, and PR Creation
 ```
+
+GlobalSetup is deployment-first by default. Agents must not install dependencies or build applications on the operator's workstation unless the operator explicitly opts into local preview. Source changes are committed to GitHub, and build/deploy verification happens in the intended runtime such as Vercel, GitHub Actions, Oracle, Render, or another approved target.
 
 ---
 
@@ -56,6 +59,7 @@ globalsetup/
 │   ├── universal-agent-rules.md # Master 12 principles
 │   ├── karpathy-guidelines.md   # Karpathy build discipline
 │   ├── post-prd-build-rules.md  # Rules governing the build pack pipeline
+│   ├── deployment-first-validation.md # No local app builds; validate in intended runtime
 │   ├── code-quality.md          # Clean code, naming conventions, formatting
 │   ├── testing.md               # Arrange-Act-Assert, TDD guidelines
 │   ├── database.md              # Migration safety, indexing rules
@@ -112,12 +116,16 @@ bash /path/to/globalsetup/scripts/setup-globalsetup.sh .
 
 This creates a local `.agents/` folder containing the rules, skills, templates, reviewers, and safeguards, and copies [AGENTS.md](AGENTS.md) to your root.
 
+This setup step copies planning assets only. It must not install application dependencies, run application builds, or start local application runtimes.
+
 ### 2. Put Your Confirmed PRD in Your Project
 Place your confirmed PRD at `docs/confirmed-prd.md` (or the project root).
 
 ### 3. Let Your Agent Build the Pack
 Instruct your agent:
 > *"Read [AGENTS.md](file:///path/to/project/AGENTS.md) and execute the `prd-to-build-pack` skill to generate the complete build pack for our confirmed PRD."*
+
+The generated build pack must include module-level plans under `build-pack/module-plans/` before task cards are approved.
 
 ---
 
@@ -127,7 +135,9 @@ Instruct your agent:
 2. **Post-PRD Focused**: Engaging only after requirements are fully locked to eliminate scope creep.
 3. **Discovery Before Action**: Force codebase inspection before any code modifications.
 4. **Contract-Driven**: APIs, Schemas, and UI layouts are agreed upon in markdown contracts *before* code is written.
-5. **Fresh-Context Friendly**: Large features are split into task cards small enough to be executed by an agent in a brand-new, clean shell session.
+5. **Module-Planned**: Large systems are first split into module plans, then dependency-ordered task cards.
+6. **Fresh-Context Friendly**: Large features are split into task cards small enough to be executed by an agent in a brand-new, clean shell session.
+7. **Deployment-First**: Build and deployment validation runs where the application is intended to live, not on the operator's machine by default.
 
 ---
 

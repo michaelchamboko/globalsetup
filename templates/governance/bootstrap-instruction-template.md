@@ -9,8 +9,8 @@ You are working on **[PROJECT_NAME]** under **[ORCHESTRATOR_NAME]** orchestratio
 This prompt is sent to resume or initialize a fresh-session task loop. Ensure you start in a clean context space before proceeding.
 
 ### 🌟 Simulated Persistent Goal Mode & Autonomy
-* **Full Autonomy (No Human-in-the-Loop)**: You do **NOT** need operator approval to transition between task cards, commit local changes, spawn sub-agents, or run test suites. Proceed through the tasks completely autonomously.
-* **Persistent Build Goal**: Build the complete planned [PROJECT_NAME] solution end-to-end. Do not halt after ordinary micro-tasks, branch commits, PR updates, or local milestones.
+* **Full Autonomy (No Human-in-the-Loop)**: You do **NOT** need operator approval to transition between task cards, commit/push planned changes, spawn sub-agents, or run approved hosted/runtime validation. Proceed through the tasks completely autonomously.
+* **Persistent Build Goal**: Build the complete planned [PROJECT_NAME] solution end-to-end. Do not halt after ordinary micro-tasks, branch commits, PR updates, or hosted validation milestones.
 * **Sequential & Modular Methods**: Build the codebase in a modular method strictly following the sequence established in Step 1. Leverage specialized sub-agent roles (`Planner-Agent`, `Builder-Agent`, `Review-Agent`), trace dependencies via `CodeGraph`, manage lifecycles via `task-master`, and keep logical continuity via `Sequential Thinking`.
 
 
@@ -32,6 +32,7 @@ Before modifying any files or proposing changes, you MUST complete this checklis
    - `state.md` (current state alignment file)
    - `findings.md` (known issues, security debt, and landmines)
    - `task_plan.md` (the master task graph and checklist sequence)
+   - `build-pack/module-plans/` (module-level implementation plans)
 2. **Review System Blueprint**:
    - Read the implementation plans and component contracts under `build-pack/`.
    - Inspect the latest handover note or ledger entries when present.
@@ -58,7 +59,7 @@ Adhere strictly to the Zero-Assumption Execution Policy during implementation:
 #### 2. Task-Master Orchestration & Delegation
 * Use the **task-master MCP** (or simulated role separation) to register the parent build goal and map all micro-tasks.
 * Define strict Input/Output contracts for every task.
-* Enforce Review-Agent verification of localized unit tests before allowing local git commits.
+* Enforce Review-Agent verification of the declared validation location before allowing delivery to advance.
 
 #### 3. Execution & Context Management
 * Maintain a linear thought sequence via Sequential Thinking. Do not deviate from the planned phase ordering.
@@ -67,10 +68,11 @@ Adhere strictly to the Zero-Assumption Execution Policy during implementation:
 #### 4. Governance, Testing, & Delivery
 * Log all architectural changes in `state.md`.
 * Treat files and specifications as the absolute source of truth.
-* Enforce **Two-Tier Testing**:
-  1. Localized micro-tests must pass successfully to clear a local git commit.
-  2. Holistic validation suites (full builds, global tests, typechecks, security reviews) must pass before pushing code to GitHub.
-* If deployment is in scope, run command-line checks to verify build/deployment health (e.g., CLI inspection, checking log errors).
+* Enforce **Intended-Location Validation**:
+  1. Each micro-task must pass the validation check declared on its task card.
+  2. Hosted applications must build and deploy in their intended platform, such as Vercel or GitHub Actions.
+  3. Databases, workers, and infrastructure must be validated only in their approved target runtime.
+* Do not run local dependency installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
 ---
 

@@ -17,9 +17,9 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 * **MCP Integration:** Use the **task-master MCP** to manage the lifecycle of all objectives and dynamically route granular work to specialized sub-agents based on cognitive load:
     * `[Planner-Agent]`: Responsible for architectural mapping, sequence diagramming, and strict task breakdown. Must decompose large tasks into the smallest possible atomic, quantifiable units (Micro-Tasks). Each Micro-Task must be independently testable and sized for low-risk, conflict-free GitHub commits.
     * `[Builder-Agent]`: Responsible for strict implementation of the Planner's specifications, executing work strictly within the scope of one Micro-Task at a time.
-    * `[Review-Agent]`: Responsible for adversarial code review, type-safety checks, and validating isolated test execution for the current Micro-Task. **Must ensure the micro-change passes localized unit validation before approving a local git commit.**
+    * `[Review-Agent]`: Responsible for adversarial code review, type-safety checks, and validating isolated test execution for the current Micro-Task. **Must ensure the micro-change passes the validation location defined by the task card before approving commit/push.**
 * **Strict I/O Contracts:** Use the task-master MCP to define and enforce clear Input (current state, exact requirements) and Output (expected artifacts, validation criteria) contracts before spawning a sub-agent. Every contract must include an isolated, quantifiable testing metric for that specific unit of work.
-* **Synthesis:** The Master Agent evaluates sub-agent outputs against the task-master's I/O contract. Reject and respawn sub-agents if outputs violate constraints, fail local micro-tests, or introduce scope creep.
+* **Synthesis:** The Master Agent evaluates sub-agent outputs against the task-master's I/O contract. Reject and respawn sub-agents if outputs violate constraints, fail intended-location validation, or introduce scope creep.
 
 ### 3. Execution & Context Management
 * **Sequential Thinking:** Use the Sequential Thinking MCP in tandem with the task-master MCP to maintain logical continuity. Do not deviate from the established sequence without using task-master to explicitly update `task_plan.md`.
@@ -27,7 +27,8 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 
 ### 4. Governance & Integrity
 * **State Alignment:** Every architectural change must be logged in `state.md` and verified against the established project blueprint via task-master tracking.
-* **Validation & Delivery Gate:** Code is only considered complete if it passes the project-specific validation suites. **We enforce a Two-Tier Testing model: (1) Localized Micro-Task tests must pass to clear a local git commit. (2) The holistic validation suite (full typecheck, project build, and global integration tests) must pass successfully before those accumulated micro-commits are pushed to GitHub.**
+* **Validation & Delivery Gate:** Code is only considered complete if it passes the project-specific validation suites in the approved runtime. **We enforce an Intended-Location Validation model: (1) Micro-Task validation runs where the task card says it belongs. (2) Hosted/global validation such as GitHub Actions, Vercel build logs, Oracle read-only probes, or another approved target must pass before delivery is called complete.**
+* **No Local Build Default:** Do not run local application dependency installs, production builds, typechecks, dev servers, or app runtimes on the operator's workstation unless the operator explicitly opts into local preview for that project.
 * **Persistent Memory:** Treat the codebase and documentation files as your 'Source of Truth'. Access them on-demand via CodeGraph to ensure 100% architectural fidelity.
 
 ---
@@ -44,8 +45,9 @@ This step is focused entirely on preparing, blueprinting, and validating the imp
 3. **Existing Codebase Discovery** (Inspect existing patterns, symbols, and files via `CodeGraph`)
 4. **Architecture Map & Component Diagramming** (Component modeling and ADR design decisions)
 5. **Data, API, UI, Permission, & Integration Contracts** (Interface definitions before logic)
-6. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
-7. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
+6. **Module Plan Generation** (One module plan per implementation area under `build-pack/module-plans/`)
+7. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
+8. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
 
 #### ⚠️ Step 1 Execution Policies:
 * **Zero-Assumption Policy**: If any details are not specified in the PRD, or if you identify a better architectural/implementation approach, you **MUST** pause, present a detailed recommendation, and ask the user for feedback. **Auto-approvals are strictly prohibited at this stage.**
@@ -57,16 +59,16 @@ This step is focused entirely on preparing, blueprinting, and validating the imp
 ### Step 2: Iterative Execution & Deployment (Autonomous Loop)
 This step is focused on implementing the approved task cards one by one using a clean execution loop under any agent harness.
 
-8. **Isolated Task Execution** (TDD Red-Green-Refactor on a single task card)
-9. **Automated Testing** (Running unit, integration, and E2E validation)
-10. **Specialist Reviews** (Code, security, database, performance checklists)
-11. **Bug Fixes & Refinement** (Addressing review feedback)
-12. **Final Definition of Done Verification** (Checking DoD requirements)
-13. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
-14. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
+9. **Isolated Task Execution** (Spec-first implementation on a single task card)
+10. **Automated Testing / Hosted Validation** (Running task-card validation in the intended location)
+11. **Specialist Reviews** (Code, security, database, performance checklists)
+12. **Bug Fixes & Refinement** (Addressing review feedback)
+13. **Final Definition of Done Verification** (Checking DoD requirements)
+14. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
+15. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
 
 #### 🚀 Step 2 Execution Policies (Autonomous Loop):
-* **Autonomous Execution (No Human-in-the-Loop)**: Unlike Step 1, the development/execution loop in Step 2 runs with **full autonomy**. You do **NOT** need human operator approval or confirmation to move between task cards, commit local changes, transition between sub-agent roles, or run test suites. Proceed autonomously through the tasks unless you encounter a crucial unreviewed requirement or a severe structural blocker.
+* **Autonomous Execution (No Human-in-the-Loop)**: Unlike Step 1, the development/execution loop in Step 2 runs with **full autonomy**. You do **NOT** need human operator approval or confirmation to move between task cards, transition between sub-agent roles, or run approved hosted validation suites. Proceed autonomously through the tasks unless you encounter a crucial unreviewed requirement, a severe structural blocker, or a local-build request that lacks explicit operator opt-in.
 * **Simulated Persistent Goal Mode**: Treat the build objective as a persistent goal. Do not halt after individual micro-tasks, branch updates, or commits. Automatically proceed through all planned task cards sequentially until the final goal is met.
 * **Sequential & Modular Progress**: Build the solution sequentially and modularly following the approved plans. Use specialized sub-agents (`[Planner-Agent]`, `[Builder-Agent]`, `[Review-Agent]`), dependency tracing via `CodeGraph`, task lifecycle management via `task-master`, and logical tracking via `Sequential Thinking`.
 * **Fresh Context Resume Checklist**: At the start of a fresh session or context reset, you must complete the resume checklist (verify status, load only baseline files, inspect Git state, and write a ledger resume summary).
@@ -99,6 +101,7 @@ Use this map to navigate the build system:
   * `universal-agent-rules.md` — Explains the 12 universal principles.
   * `karpathy-guidelines.md` — Details build discipline guidelines.
   * `post-prd-build-rules.md` — Strict rules for the post-PRD workflow.
+  * `deployment-first-validation.md` — Rules that prevent local app builds and require intended-runtime validation.
   * `context-management.md` — Rules for stateless scaling (45% capacity reset).
   * `mcp-integration-rules.md` — Rules for using CodeGraph, task-master, Sequential Thinking, and Caveman.
   * `code-quality.md`, `testing.md`, `database.md`, `security.md`, `frontend.md`, `error-handling.md`, `git-workflow.md`.
@@ -126,7 +129,7 @@ Use this map to navigate the build system:
 
 ### When initiating a new project build (Step 1):
 1. **Initialize Step 1**: Locate the PRD file (e.g., `PRD.md`) at the project root.
-2. **Execute Planning Pipelines**: Run tasks 1 through 7 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`.
+2. **Execute Planning Pipelines**: Run tasks 1 through 8 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including module plans under `build-pack/module-plans/`.
 3. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
 4. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
 5. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.

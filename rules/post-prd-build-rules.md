@@ -18,8 +18,9 @@ A complete build pack must consist of:
 2. Codebase Discovery Report (mapping tech stack, structure, and constraints via CodeGraph)
 3. Architecture Map (components, data flow, integrations)
 4. Data, API, UI, and Permission Contracts
-5. Task Graph (ordered checklist with dependency mappings)
-6. Task Cards (for fresh-context execution)
+5. Module Plans (one plan per implementation module under `build-pack/module-plans/`)
+6. Task Graph (ordered checklist with dependency mappings and module-plan references)
+7. Task Cards (for fresh-context execution)
 
 ## 3. Task Decomposition & Orchestration
 * All features must be split into independent tasks, prioritized by dependencies.
@@ -31,8 +32,10 @@ A complete build pack must consist of:
 * When executing a build, tasks must be run in fresh context sessions using the `fresh-context-execution` skill.
 * Do not carry forward context debt or open handles from completed tasks.
 * **Spec-First Execution**: Before modifying any functional code, verify that the test suite representing the specification (Must-Haves/Observable Truths) is in place and failing (Red). If no tests exist, write unit/integration tests representing the spec first.
-* **Verification Command Gate**: You must execute the specific verification command defined on the task card. The command must run successfully (exit code 0) to verify the implementation (Green) before staging or committing changes.
-* We enforce a **Two-Tier Testing** model:
-  1. Localized Micro-Task tests (via the task card's verification command) must pass successfully to clear a local git commit.
-  2. The holistic validation suite (full typecheck, project build, and global integration tests) must pass successfully before micro-commits are pushed to GitHub.
+* **Verification Command Gate**: You must execute the specific verification command or hosted validation check defined on the task card. It must run in the declared validation location and succeed before delivery is called complete.
+* We enforce an **Intended-Location Validation** model:
+  1. Micro-Task validation must run in the task card's declared validation location.
+  2. For hosted applications, source changes are pushed to GitHub and build validation occurs in the intended platform such as Vercel or GitHub Actions.
+  3. For external runtimes such as databases, workers, and infrastructure, validation occurs only in the approved target environment and only within the project's explicit permission boundary.
+  4. Local app installs, local production builds, local dev servers, and local full-project typechecks are prohibited by default unless the operator explicitly opts into local preview.
 

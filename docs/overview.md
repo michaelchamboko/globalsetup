@@ -27,10 +27,11 @@ Confirmed PRD
 → Existing Codebase Discovery
 → Architecture Map
 → Data/API/UI/Permission Contracts
+→ Module Plans
 → Task Graph
 → Fresh-Context Task Cards
-→ Implementation
-→ Tests
+→ Intended-Location Implementation
+→ Hosted / Runtime Validation
 → Specialist Review
 → Fixes
 → Final Verification
@@ -58,7 +59,7 @@ Skills are reusable workflow definitions that guide an agent through a specific 
 
 ### Templates
 
-Templates provide fill-in-the-blank structures for every document in the build pack. Categories include PRD, build requirements, architecture, contracts, tasks, and QA.
+Templates provide fill-in-the-blank structures for every document in the build pack. Categories include PRD, build requirements, architecture, contracts, module plans, tasks, and QA.
 
 ### Reviewers
 
@@ -74,5 +75,7 @@ Safeguards define protective rules against dangerous operations: destructive com
 2. **Post-PRD focused**: Assumes requirements are confirmed before the system engages
 3. **Discovery before implementation**: Always inspect the existing codebase first
 4. **Contract-driven**: Define data, API, UI, and permission contracts before coding
-5. **Fresh-context friendly**: Large builds split into independent, self-contained tasks
-6. **Review-gated**: Specialist reviews at defined checkpoints before shipping
+5. **Module-planned**: Every implementation area gets a module plan before task cards
+6. **Deployment-first**: Hosted apps validate in their intended platform, not through local builds by default
+7. **Fresh-context friendly**: Large builds split into independent, self-contained tasks
+8. **Review-gated**: Specialist reviews at defined checkpoints before shipping

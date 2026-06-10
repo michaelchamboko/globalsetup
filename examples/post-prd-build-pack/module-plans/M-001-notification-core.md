@@ -27,7 +27,7 @@ Defines notification persistence, API routes, and real-time delivery contracts f
 ## Dependencies
 
 - Upstream modules: none.
-- Downstream modules: M-002 notification UI, M-003 release validation.
+- Downstream modules: M-002 notification UI/UX, M-003 release validation.
 - External services: approved database runtime.
 
 ## Task Breakdown

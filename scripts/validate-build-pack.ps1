@@ -39,12 +39,24 @@ foreach ($file in $files) {
 }
 
 if ($missing -eq 0) {
+    $buildPlanFiles = @(
+      "build-pack\build-plans\01-build-plan-index.md",
+      "build-pack\build-plans\02-ui-ux-build-plan.md"
+    )
+
+    foreach ($buildPlan in $buildPlanFiles) {
+        if (!(Test-Path $buildPlan)) {
+            Write-Host "[missing] $buildPlan" -ForegroundColor Red
+            exit 1
+        }
+    }
+
     $modulePlans = Get-ChildItem "build-pack\module-plans" -Filter "M-*.md" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike "M-000-*" }
     if ($modulePlans.Count -lt 1) {
         Write-Host "[missing] real build-pack\module-plans\M-*.md module plans beyond the M-000 template" -ForegroundColor Red
         exit 1
     }
-    Write-Host "[ok] All 17 build pack files and module plans are present" -ForegroundColor Green
+    Write-Host "[ok] All 17 build pack files, build plans, and module plans are present" -ForegroundColor Green
     exit 0
 } else {
     Write-Host "[missing] $missing build pack file(s)" -ForegroundColor Red

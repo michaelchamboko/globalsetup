@@ -36,11 +36,20 @@ for file in \
 done
 
 if [ "$MISSING" -eq 0 ]; then
+  for build_plan in \
+    build-pack/build-plans/01-build-plan-index.md \
+    build-pack/build-plans/02-ui-ux-build-plan.md; do
+    if [ ! -f "$build_plan" ]; then
+      echo "[missing] $build_plan"
+      exit 1
+    fi
+  done
+
   if ! find build-pack/module-plans -maxdepth 1 -name 'M-*.md' ! -name 'M-000-*' | grep -q .; then
     echo "[missing] real build-pack/module-plans/M-*.md module plans beyond the M-000 template"
     exit 1
   fi
-  echo "[ok] All 17 build pack files and module plans are present"
+  echo "[ok] All 17 build pack files, build plans, and module plans are present"
   exit 0
 else
   echo "[missing] $MISSING build pack file(s)"

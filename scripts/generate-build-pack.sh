@@ -4,6 +4,7 @@
 
 echo "Generating build-pack directory..."
 mkdir -p build-pack
+mkdir -p build-pack/build-plans
 mkdir -p build-pack/tasks
 mkdir -p build-pack/module-plans
 
@@ -25,6 +26,9 @@ cp .agents/templates/qa/review-gate-template.md build-pack/13-review-gate.md
 cp .agents/templates/qa/rollback-plan-template.md build-pack/14-rollback-plan.md
 cp .agents/safeguards/pre-ship-checklist.md build-pack/15-pre-ship-checklist.md
 cp .agents/templates/qa/definition-of-done-template.md build-pack/16-definition-of-done.md
+cp .agents/templates/build-plans/build-plan-index-template.md build-pack/build-plans/01-build-plan-index.md
+cp .agents/templates/build-plans/ui-ux-build-plan-template.md build-pack/build-plans/02-ui-ux-build-plan.md
 cp .agents/templates/tasks/module-plan-template.md build-pack/module-plans/M-000-module-plan-template.md
+cp .agents/templates/tasks/ui-ux-module-plan-template.md build-pack/module-plans/M-000-ui-ux-module-plan-template.md
 
-echo "Build pack documents and module-plans generated under build-pack/"
+echo "Build pack documents, build-plans, and module-plans generated under build-pack/"

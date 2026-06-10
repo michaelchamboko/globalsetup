@@ -26,17 +26,25 @@ Model component relationships and write Architectural Decision Records (ADRs) us
 ### Phase 5: Interface Contracts
 Define and write data schemas, API routes, UI components, permission matrices, and external service contracts under `templates/contracts/`.
 
-### Phase 6: Module Plans
+### Phase 6: Build Plans
+Create visible build plans under `build-pack/build-plans/`.
+
+Required build plans:
+* `01-build-plan-index.md` — modular build index, runtimes, validation locations, and task ownership.
+* `02-ui-ux-build-plan.md` — required for user-facing products; defines IA, screen workflows, interaction patterns, design posture, accessibility, and hosted validation.
+
+### Phase 7: Module Plans
 Create one module plan per implementation area under `build-pack/module-plans/` using `templates/tasks/module-plan-template.md`.
 Each module plan must define ownership, boundaries, files likely involved, dependencies, target runtime, validation location, and task breakdown.
+User-facing projects must include a dedicated UI/UX module plan using `templates/tasks/ui-ux-module-plan-template.md`.
 
-### Phase 7: Task Graph & Sizing Heuristics
+### Phase 8: Task Graph & Sizing Heuristics
 Decompose plans into ordered task graphs.
 * Apply task-sizing heuristics: No single task card may modify more than **3 source files** or require more than **3 implementation steps**.
 * Isolate infrastructure and database test fixtures into separate "Foundation" task cards.
 * Every task must reference the module plan it belongs to.
 
-### Phase 8: Task Card Specification & Test Matrices
+### Phase 9: Task Card Specification & Test Matrices
 Generate the final execution task cards. Each card must define:
 * Scoped context files (Context Baseline).
 * Must-Haves (Observable Truths & Target Artifacts).

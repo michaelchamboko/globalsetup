@@ -2,6 +2,7 @@
 
 Write-Host "Generating build-pack directory..."
 New-Item -ItemType Directory -Path "build-pack" -Force | Out-Null
+New-Item -ItemType Directory -Path "build-pack\build-plans" -Force | Out-Null
 New-Item -ItemType Directory -Path "build-pack\tasks" -Force | Out-Null
 New-Item -ItemType Directory -Path "build-pack\module-plans" -Force | Out-Null
 
@@ -22,6 +23,9 @@ Copy-Item .agents\templates\qa\review-gate-template.md build-pack\13-review-gate
 Copy-Item .agents\templates\qa\rollback-plan-template.md build-pack\14-rollback-plan.md -Force
 Copy-Item .agents\safeguards\pre-ship-checklist.md build-pack\15-pre-ship-checklist.md -Force
 Copy-Item .agents\templates\qa\definition-of-done-template.md build-pack\16-definition-of-done.md -Force
+Copy-Item .agents\templates\build-plans\build-plan-index-template.md build-pack\build-plans\01-build-plan-index.md -Force
+Copy-Item .agents\templates\build-plans\ui-ux-build-plan-template.md build-pack\build-plans\02-ui-ux-build-plan.md -Force
 Copy-Item .agents\templates\tasks\module-plan-template.md build-pack\module-plans\M-000-module-plan-template.md -Force
+Copy-Item .agents\templates\tasks\ui-ux-module-plan-template.md build-pack\module-plans\M-000-ui-ux-module-plan-template.md -Force
 
-Write-Host "Build pack documents and module-plans generated under build-pack/"
+Write-Host "Build pack documents, build-plans, and module-plans generated under build-pack/"

@@ -45,9 +45,10 @@ This step is focused entirely on preparing, blueprinting, and validating the imp
 3. **Existing Codebase Discovery** (Inspect existing patterns, symbols, and files via `CodeGraph`)
 4. **Architecture Map & Component Diagramming** (Component modeling and ADR design decisions)
 5. **Data, API, UI, Permission, & Integration Contracts** (Interface definitions before logic)
-6. **Module Plan Generation** (One module plan per implementation area under `build-pack/module-plans/`)
-7. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
-8. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
+6. **Build Plan Generation** (Visible build plans under `build-pack/build-plans/`, including UI/UX when user-facing)
+7. **Module Plan Generation** (One module plan per implementation area under `build-pack/module-plans/`)
+8. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
+9. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
 
 #### ⚠️ Step 1 Execution Policies:
 * **Zero-Assumption Policy**: If any details are not specified in the PRD, or if you identify a better architectural/implementation approach, you **MUST** pause, present a detailed recommendation, and ask the user for feedback. **Auto-approvals are strictly prohibited at this stage.**
@@ -59,13 +60,13 @@ This step is focused entirely on preparing, blueprinting, and validating the imp
 ### Step 2: Iterative Execution & Deployment (Autonomous Loop)
 This step is focused on implementing the approved task cards one by one using a clean execution loop under any agent harness.
 
-9. **Isolated Task Execution** (Spec-first implementation on a single task card)
-10. **Automated Testing / Hosted Validation** (Running task-card validation in the intended location)
-11. **Specialist Reviews** (Code, security, database, performance checklists)
-12. **Bug Fixes & Refinement** (Addressing review feedback)
-13. **Final Definition of Done Verification** (Checking DoD requirements)
-14. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
-15. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
+10. **Isolated Task Execution** (Spec-first implementation on a single task card)
+11. **Automated Testing / Hosted Validation** (Running task-card validation in the intended location)
+12. **Specialist Reviews** (Code, security, database, performance checklists)
+13. **Bug Fixes & Refinement** (Addressing review feedback)
+14. **Final Definition of Done Verification** (Checking DoD requirements)
+15. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
+16. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
 
 #### 🚀 Step 2 Execution Policies (Autonomous Loop):
 * **Autonomous Execution (No Human-in-the-Loop)**: Unlike Step 1, the development/execution loop in Step 2 runs with **full autonomy**. You do **NOT** need human operator approval or confirmation to move between task cards, transition between sub-agent roles, or run approved hosted validation suites. Proceed autonomously through the tasks unless you encounter a crucial unreviewed requirement, a severe structural blocker, or a local-build request that lacks explicit operator opt-in.
@@ -129,7 +130,7 @@ Use this map to navigate the build system:
 
 ### When initiating a new project build (Step 1):
 1. **Initialize Step 1**: Locate the PRD file (e.g., `PRD.md`) at the project root.
-2. **Execute Planning Pipelines**: Run tasks 1 through 8 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including module plans under `build-pack/module-plans/`.
+2. **Execute Planning Pipelines**: Run tasks 1 through 9 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including build plans under `build-pack/build-plans/` and module plans under `build-pack/module-plans/`.
 3. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
 4. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
 5. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.

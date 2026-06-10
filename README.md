@@ -20,7 +20,7 @@ Traditional AI coding agents often suffer from **Context Debt** and **Architectu
 
 ## 📋 The Post-PRD Pipeline
 
-Every feature or build pack follows a rigorous 15-step workflow:
+Every feature or build pack follows a rigorous 16-step workflow:
 
 ```
 Confirmed PRD
@@ -29,16 +29,17 @@ Confirmed PRD
   ├── 3. Existing Codebase Discovery (Never write code blind)
   ├── 4. Architecture Map & Component Diagramming
   ├── 5. Data, API, UI, Permission, & Integration Contracts
-  ├── 6. Module Plan Generation (one plan per implementation module)
-  ├── 7. Task Graph Construction & Dependency Analysis
-  ├── 8. Fresh-Context Task Cards Creation
-  ├── 9. Intended-Location Task Execution
-  ├── 10. Automated Testing / Hosted Validation
-  ├── 11. Specialist Reviews (Security, Performance, DB, UI)
-  ├── 12. Bug Fixes & Refinement
-  ├── 13. Final Definition of Done Verification
-  ├── 14. Pre-Ship Safeguards Check
-  └── 15. Branch Commit, Push, and PR Creation
+  ├── 6. Build Plan Generation (module index, sequencing, UI/UX plan)
+  ├── 7. Module Plan Generation (one plan per implementation module)
+  ├── 8. Task Graph Construction & Dependency Analysis
+  ├── 9. Fresh-Context Task Cards Creation
+  ├── 10. Intended-Location Task Execution
+  ├── 11. Automated Testing / Hosted Validation
+  ├── 12. Specialist Reviews (Security, Performance, DB, UI)
+  ├── 13. Bug Fixes & Refinement
+  ├── 14. Final Definition of Done Verification
+  ├── 15. Pre-Ship Safeguards Check
+  └── 16. Branch Commit, Push, and PR Creation
 ```
 
 GlobalSetup is deployment-first by default. Agents must not install dependencies or build applications on the operator's workstation unless the operator explicitly opts into local preview. Source changes are committed to GitHub, and build/deploy verification happens in the intended runtime such as Vercel, GitHub Actions, Oracle, Render, or another approved target.
@@ -80,6 +81,7 @@ globalsetup/
 │   ├── build-requirements/      # Build briefs, implementation contracts
 │   ├── architecture/            # Architecture map, ADRs, discovery reports
 │   ├── contracts/               # API, database, UI, and permission contracts
+│   ├── build-plans/             # Build-plan index and UI/UX build plan templates
 │   ├── tasks/                   # Task graph and individual task card templates
 │   └── qa/                      # Test plans, DoD, rollback plans
 ├── reviewers/                  # Specialist checklists (formerly subagents)
@@ -125,7 +127,7 @@ Place your confirmed PRD at `docs/confirmed-prd.md` (or the project root).
 Instruct your agent:
 > *"Read [AGENTS.md](file:///path/to/project/AGENTS.md) and execute the `prd-to-build-pack` skill to generate the complete build pack for our confirmed PRD."*
 
-The generated build pack must include module-level plans under `build-pack/module-plans/` before task cards are approved.
+The generated build pack must include visible build plans under `build-pack/build-plans/` and module-level plans under `build-pack/module-plans/` before task cards are approved.
 
 ---
 
@@ -135,9 +137,11 @@ The generated build pack must include module-level plans under `build-pack/modul
 2. **Post-PRD Focused**: Engaging only after requirements are fully locked to eliminate scope creep.
 3. **Discovery Before Action**: Force codebase inspection before any code modifications.
 4. **Contract-Driven**: APIs, Schemas, and UI layouts are agreed upon in markdown contracts *before* code is written.
-5. **Module-Planned**: Large systems are first split into module plans, then dependency-ordered task cards.
-6. **Fresh-Context Friendly**: Large features are split into task cards small enough to be executed by an agent in a brand-new, clean shell session.
-7. **Deployment-First**: Build and deployment validation runs where the application is intended to live, not on the operator's machine by default.
+5. **Build-Planned**: Every project has visible build plans before task cards.
+6. **Module-Planned**: Large systems are first split into module plans, then dependency-ordered task cards.
+7. **UI/UX-Planned**: User-facing projects must include a UI/UX build plan and module.
+8. **Fresh-Context Friendly**: Large features are split into task cards small enough to be executed by an agent in a brand-new, clean shell session.
+9. **Deployment-First**: Build and deployment validation runs where the application is intended to live, not on the operator's machine by default.
 
 ---
 

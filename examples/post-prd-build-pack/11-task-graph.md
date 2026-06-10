@@ -8,7 +8,7 @@ T-001 (Schema) â”€â”€â–¶ T-002 (API) â”€â”€â–¶ T-003
 ## Module Plans
 
 - `M-001`: `module-plans/M-001-notification-core.md`
-- `M-002`: `module-plans/M-002-notification-ui.md`
+- `M-002`: `module-plans/M-002-notification-ui-ux.md`
 - `M-003`: `module-plans/M-003-release-validation.md`
 
 ## Tasks

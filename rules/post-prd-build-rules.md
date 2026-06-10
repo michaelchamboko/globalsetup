@@ -18,9 +18,12 @@ A complete build pack must consist of:
 2. Codebase Discovery Report (mapping tech stack, structure, and constraints via CodeGraph)
 3. Architecture Map (components, data flow, integrations)
 4. Data, API, UI, and Permission Contracts
-5. Module Plans (one plan per implementation module under `build-pack/module-plans/`)
-6. Task Graph (ordered checklist with dependency mappings and module-plan references)
-7. Task Cards (for fresh-context execution)
+5. Build Plans (visible sequencing and experience plans under `build-pack/build-plans/`)
+6. UI/UX Build Plan for user-facing products
+7. Module Plans (one plan per implementation module under `build-pack/module-plans/`)
+8. UI/UX Module Plan for user-facing products
+9. Task Graph (ordered checklist with dependency mappings and module-plan references)
+10. Task Cards (for fresh-context execution)
 
 ## 3. Task Decomposition & Orchestration
 * All features must be split into independent tasks, prioritized by dependencies.

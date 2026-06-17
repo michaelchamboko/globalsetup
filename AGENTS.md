@@ -35,7 +35,7 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 
 ## 📋 The Post-PRD Pipeline (Two-Step Workflow)
 
-You must guide the build through a two-step pipeline divided into strict planning and execution phases. For detailed step-by-step instructions on each phase, refer to [Post-PRD Workflow](file:///C:/Users/micha.MICHAEL/Desktop/Antigravity%20Applications%20Created/Setup/docs/post-prd-workflow.md).
+You must guide the build through a two-step pipeline divided into strict planning and execution phases. For detailed step-by-step instructions on each phase, refer to [Post-PRD Workflow](docs/post-prd-workflow.md).
 
 ### Step 1: Planning, Blueprinting, & Dependency Alignment (Human-in-the-Loop)
 This step is focused entirely on preparing, blueprinting, and validating the implementation documents, plans, and test cases. **No coding or modifications of target production code may occur in this phase.**
@@ -76,6 +76,8 @@ This step is focused on implementing the approved task cards one by one using a 
 * **Stateless Scaling (Caveman resets)**: When context utilization reaches 45%, serialize the active state to `state.md` and hand over execution to a fresh session to maintain reasoning quality.
 
 
+
+---
 
 ## 🧠 The 12 Universal Principles
 

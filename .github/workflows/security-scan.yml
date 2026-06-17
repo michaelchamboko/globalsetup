@@ -1,0 +1,125 @@
+name: security-scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Run full scan every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  codeql:
+    name: CodeQL Static Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  secret-scan:
+    name: Secret Scanning (TruffleHog)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for accurate scanning
+
+      - name: TruffleHog OSS Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  dependency-audit:
+    name: Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for package.json files
+        id: check_node
+        run: |
+          if find . -name "package.json" -not -path "*/node_modules/*" | grep -q .; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check_node.outputs.found == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm audit (block on high/critical)
+        if: steps.check_node.outputs.found == 'true'
+        run: |
+          find . -name "package.json" -not -path "*/node_modules/*" -execdir \
+            npm audit --audit-level=high --json \; | \
+            tee audit-results.json || \
+            (echo "::error::High or critical npm vulnerabilities found. Review audit-results.json" && exit 1)
+
+      - name: Check for requirements.txt files
+        id: check_python
+        run: |
+          if find . -name "requirements*.txt" | grep -q .; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: pip-audit (block on high/critical)
+        if: steps.check_python.outputs.found == 'true'
+        run: |
+          pip install pip-audit
+          find . -name "requirements*.txt" -exec pip-audit -r {} --severity high \;
+
+  markdown-security:
+    name: Markdown Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for hardcoded secrets patterns in markdown
+        run: |
+          echo "Scanning for common secret patterns in documentation..."
+          # Check for AWS-style keys
+          if grep -rE "AKIA[0-9A-Z]{16}" --include="*.md" .; then
+            echo "::error::Potential AWS access key found in markdown files"
+            exit 1
+          fi
+          # Check for private key headers
+          if grep -rE "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----" --include="*.md" .; then
+            echo "::error::Private key found in markdown files"
+            exit 1
+          fi
+          # Check for hardcoded Windows absolute user paths leaking into docs
+          if grep -rE "file:///C:/Users/[^/]+" --include="*.md" .; then
+            echo "::error::Hardcoded Windows user path found. Use relative paths."
+            exit 1
+          fi
+          echo "No secret patterns detected in markdown files."

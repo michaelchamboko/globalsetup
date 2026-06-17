@@ -19,7 +19,7 @@ bash globalsetup/scripts/setup-globalsetup.sh /path/to/your/project
 
 **Windows (PowerShell):**
 ```powershell
-.\\globalsetup\\scripts\\setup-globalsetup.ps1 -TargetDir C:\\path\\to\\your\\project
+.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\your\project
 ```
 
 This copies the following into your project:
@@ -46,7 +46,7 @@ bash scripts/generate-build-pack.sh
 
 **Windows (PowerShell):**
 ```powershell
-.\\scripts\\generate-build-pack.ps1
+.\scripts\generate-build-pack.ps1
 ```
 
 This creates a `build-pack/` directory with blank templates for all 17 build pack documents.

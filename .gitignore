@@ -1,16 +1,63 @@
+# -------------------------------------------------------------------
+# Generated build-pack artifacts (project-specific, not for this repo)
+# -------------------------------------------------------------------
+build-pack/
+state.md
+findings.md
+task_plan.md
+
+# -------------------------------------------------------------------
+# Backup files created by setup script
+# -------------------------------------------------------------------
+*.bak
+.agents/*.bak/
+.agents/rules.bak/
+.agents/skills.bak/
+.agents/templates.bak/
+.agents/reviewers.bak/
+.agents/safeguards.bak/
+AGENTS.md.bak
+
+# -------------------------------------------------------------------
 # Local overrides (not shared with team)
+# -------------------------------------------------------------------
 settings.local.json
 CLAUDE.local.md
+project_rules.md
+*.local.md
 
+# -------------------------------------------------------------------
 # OS artifacts
+# -------------------------------------------------------------------
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Editor artifacts
+# -------------------------------------------------------------------
+# Editor and IDE artifacts
+# -------------------------------------------------------------------
 *.swp
 *~
 .devswarm-temp/
+.vscode/
+.idea/
+*.suo
+*.user
 
+# -------------------------------------------------------------------
 # Accidental web-page saves
+# -------------------------------------------------------------------
 hooks/*.html
 hooks/*_files/
+
+# -------------------------------------------------------------------
+# Secrets and environment (should never be committed)
+# -------------------------------------------------------------------
+.env
+.env.local
+.env.production
+.env.staging
+*.pem
+*.key
+id_rsa
+credentials.json

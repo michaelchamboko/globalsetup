@@ -12,6 +12,5 @@ The following files and directories are protected and must **NEVER** be modified
 
 ## Rules for Protected Files
 
-1. If you need to add an environment variable, add it to .env.example or the documentation, never edit .env directly.
-2. If you need to add a dependency, use the package manager CLI (e.g. 
-pm install), never edit package.json manually without running installation afterwards.
+1. If you need to add an environment variable, add it to `.env.example` or the documentation, never edit `.env` directly.
+2. If you need to add a dependency, use the package manager CLI (e.g., `npm install`, `pnpm add`, `yarn add`), never edit `package.json` manually without running installation afterwards.

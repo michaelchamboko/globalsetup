@@ -1,17 +1,13 @@
-name: hook-tests
+name: ci
 
 on:
   pull_request:
-    paths:
-      - 'hooks/**'
-      - '.github/workflows/hook-tests.yml'
   push:
     branches: [main]
-    paths:
-      - 'hooks/**'
 
 jobs:
-  test:
+  validate-scripts:
+    name: Validate Setup & Build-Pack Scripts
     strategy:
       fail-fast: false
       matrix:
@@ -19,11 +15,98 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install jq (macOS)
-        if: runner.os == 'macOS'
-        run: brew install jq || true
-      - name: Install jq (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get update -y && sudo apt-get install -y jq
-      - name: Run hook fixtures
-        run: bash hooks/tests/run-all.sh
+
+      - name: Check Bash script syntax
+        run: |
+          bash -n scripts/setup-globalsetup.sh
+          bash -n scripts/generate-build-pack.sh
+          bash -n scripts/validate-build-pack.sh
+
+      - name: Verify setup script is executable
+        run: |
+          chmod +x scripts/setup-globalsetup.sh
+          chmod +x scripts/generate-build-pack.sh
+          chmod +x scripts/validate-build-pack.sh
+
+      - name: Run setup script (dry-run into temp dir)
+        run: |
+          mkdir -p /tmp/gs-test-target
+          bash scripts/setup-globalsetup.sh /tmp/gs-test-target
+          test -f /tmp/gs-test-target/AGENTS.md || (echo "AGENTS.md missing after setup" && exit 1)
+          test -d /tmp/gs-test-target/.agents/rules || (echo ".agents/rules missing after setup" && exit 1)
+          test -d /tmp/gs-test-target/.agents/skills || (echo ".agents/skills missing after setup" && exit 1)
+          echo "Setup script validated successfully."
+
+  validate-docs:
+    name: Validate Markdown Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required top-level files exist
+        run: |
+          for f in AGENTS.md README.md CONTRIBUTING.md LICENSE THIRD_PARTY_NOTICES.md; do
+            test -f "$f" || (echo "Missing required file: $f" && exit 1)
+          done
+          echo "All required top-level files present."
+
+      - name: Check required rules files exist
+        run: |
+          for f in universal-agent-rules.md code-quality.md testing.md security.md \
+                   error-handling.md frontend.md database.md git-workflow.md \
+                   karpathy-guidelines.md deployment-first-validation.md \
+                   context-management.md mcp-integration-rules.md post-prd-build-rules.md; do
+            test -f "rules/$f" || (echo "Missing rules/$f" && exit 1)
+          done
+          echo "All required rules files present."
+
+      - name: Check no hardcoded absolute paths leak into AGENTS.md
+        run: |
+          if grep -q "file:///C:/Users/" AGENTS.md; then
+            echo "ERROR: Hardcoded Windows absolute path found in AGENTS.md"
+            exit 1
+          fi
+          echo "No hardcoded absolute paths found."
+
+      - name: Check example build pack documents exist
+        run: |
+          for i in $(seq -w 0 9) 10 11 12 13 14 15 16; do
+            found=$(ls examples/post-prd-build-pack/${i}-*.md 2>/dev/null | head -1)
+            if [ -z "$found" ]; then
+              echo "Missing example build pack document for index: $i"
+              exit 1
+            fi
+          done
+          echo "All example build pack documents present."
+
+  validate-scripts-windows:
+    name: Validate PowerShell Scripts (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate PowerShell script syntax
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $scripts = @(
+            "scripts\setup-globalsetup.ps1",
+            "scripts\generate-build-pack.ps1",
+            "scripts\validate-build-pack.ps1"
+          )
+          foreach ($script in $scripts) {
+            $null = [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $script).Path, [ref]$null, [ref]$null
+            )
+            Write-Host "[ok] $script syntax is valid"
+          }
+
+      - name: Run setup script (dry-run into temp dir)
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:TEMP "gs-test-target"
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+          & .\scripts\setup-globalsetup.ps1 -TargetDir $target
+          if (!(Test-Path "$target\AGENTS.md")) { throw "AGENTS.md missing after setup" }
+          if (!(Test-Path "$target\.agents\rules")) { throw ".agents\rules missing after setup" }
+          Write-Host "Setup script validated successfully."

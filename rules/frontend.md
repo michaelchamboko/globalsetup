@@ -75,3 +75,59 @@ Use whatever the project already has. Don't mix competing libraries.
 - Animations: `transform` and `opacity` only.
 - Large lists: virtualize at 100+ items.
 - Bundle size: never import a whole library for one function.
+
+## Event-Driven Network & State Bounds
+
+Any component intercepting high-frequency user-driven events that trigger network calls or global state updates must strictly adhere to the following rules:
+
+### Event Handling Audit Checklist
+
+| Event Type | Action Type | Required Resiliency Pattern | Default Constraint |
+| :--- | :--- | :--- | :--- |
+| **High-Frequency Input** (`onChange`, text filters, search boxes) | Network requests / Global state updates | Debouncing helper mechanism | **Minimum 300ms** threshold window |
+| **High-Frequency Actions** (`onScroll`, `onMouseMove`, `resize`) | Layout changes, DOM manipulation, state writes | Throttling helper / Frame-bound scheduling | Bounded by frame layouts (e.g., `requestAnimationFrame`) |
+| **Infinite Scroll Listeners** | Pagination / Fetching next batch of items | Throttle strategy + event handler detachment | Bounded by frame layouts, detach on container unmount |
+
+### Rules for Event-Driven Resiliency
+
+- **No Raw Input Loops**: Directly calling an API or dispatching directly to a global state store from a raw `onChange` handler without debouncing is strictly outlawed. Automated lint/validation checks must flag all raw client input loops communicating un-debounced with downstream routers.
+- **Throttling Precision**: Use `requestAnimationFrame` or high-performance layout-aware throttlers for visual viewport/scroll operations.
+
+---
+
+## Asynchronous Hooks & Race Protection
+
+Any client component executing asynchronous operations or hook-based requests must prevent memory leaks and out-of-order execution states.
+
+### Asynchronous Resiliency Checklist
+
+- [ ] **Mandatory Cleanup Destructors**: Every asynchronous operation or event listener initialized during a component's mount phase (e.g., React `useEffect`, Socket.io listeners) **MUST** return/define a teardown destructor callback.
+  - *Example:* Unsubscribe from events, close WebSockets, clear timers (`clearInterval`, `clearTimeout`).
+- [ ] **Race Condition Safeguards**: Concurrent fetch managers and async state setters must protect against out-of-order network threads overwriting newer state with stale responses.
+- [ ] **Native Abort Controllers**: Use standard `AbortController` to cancel active requests when parameters change or components unmount.
+- [ ] **State Transaction Tokens / Request Keys**: When `AbortController` cannot be used, implement sequential request key matching or ignore state transitions if the request token is outdated.
+
+### Recommended Abort Pattern Example (React)
+
+```tsx
+useEffect(() => {
+  const controller = new AbortController();
+  
+  async function fetchData() {
+    try {
+      const response = await fetch('/api/data', { signal: controller.signal });
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        // Handle actual network or API errors
+        handleError(error);
+      }
+    }
+  }
+
+  fetchData();
+  return () => controller.abort(); // Cleanup/teardown destructor
+}, [query]);
+```
+

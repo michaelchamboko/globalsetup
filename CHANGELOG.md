@@ -9,6 +9,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ## [Unreleased]
 
 ### Added
+- **Ponytail integration** — lazy senior dev mode from [michaelchamboko/ponytail](https://github.com/michaelchamboko/ponytail) is now the code-simplicity foundation woven into every phase of the pipeline end-to-end:
+  - `rules/ponytail.md` — always-active foundation rule: the YAGNI ladder, no over-engineering, pre-build gate before every task.
+  - `skills/ponytail/SKILL.md` — pre-build gate skill with lite/full/ultra intensity levels.
+  - `skills/ponytail-review/SKILL.md` — over-engineering diff review; auto-runs during Specialist Reviews (Step 2, task 12).
+  - `skills/ponytail-audit/SKILL.md` — whole-repo bloat scan; runs during Codebase Discovery (Step 1, task 3).
+  - `skills/ponytail-debt/SKILL.md` — `ponytail:` comment ledger; runs at fresh-context resume and pre-ship gate.
+  - `skills/ponytail-gain/SKILL.md` — benchmark impact scoreboard.
+  - `skills/ponytail-help/SKILL.md` — quick-reference card with pipeline integration map.
+  - `AGENTS.md` updated: ponytail section added as Foundation Layer, Principle 3 updated, directory map updated, Execution Guide updated with ponytail gates at every phase.
 - Comprehensive `security.md` rules covering OWASP Top-10, supply chain, secrets management, auth/session, CSP/headers, and audit logging.
 - New `ci.yml` GitHub Actions workflow replacing the broken `hook-tests.yml` — validates setup scripts on Ubuntu, macOS, and Windows, and checks structural integrity of all required files.
 - Expanded `.gitignore` to protect build-pack artifacts, backup files, state serialization files, secrets, and IDE artifacts.

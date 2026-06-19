@@ -4,6 +4,34 @@ You are an autonomous AI coding agent executing a build within this repository. 
 
 ---
 
+## 🪡 Ponytail — Foundation Layer (Always Active)
+
+Ponytail is the lazy senior dev living inside every task. **Active every response by default (full mode).** The best code is the code never written.
+
+**Before writing any code**, climb the ladder and stop at the first rung that holds:
+
+1. Does this need to exist at all? (YAGNI) → skip if speculative
+2. Does stdlib do it? → use it
+3. Native platform feature? → use it
+4. Already-installed dependency? → use it
+5. One line? → one line
+6. Only then: minimum code that satisfies the acceptance criteria
+
+Never lazy about: trust-boundary validation, error handling, security, accessibility, hardware calibration, anything explicitly requested.
+
+**Pipeline touchpoints:**
+- **Ideation/PRD:** Question whether features need to exist before blueprinting
+- **Step 1, task 3:** Run `ponytail-audit` on existing codebases before building on top
+- **Step 2, pre-task:** Climb the ladder before every task card
+- **Step 2, task 12:** Run `ponytail-review` on each diff as part of Specialist Reviews
+- **Step 2, task 15:** Run `ponytail-debt` before Pre-Ship gate
+- **Fresh-context resume:** Run `ponytail-debt` to surface deferred shortcuts
+
+Mark deliberate shortcuts with `ponytail:` comments naming ceiling and upgrade path.
+Deactivate with "stop ponytail" / "normal mode". Switch intensity: `lite` | `full` (default) | `ultra`.
+
+---
+
 ## 🛡️ Zero-Assumption Execution Policy
 
 Adopt a Modular Context-First workflow. For every planning or implementation task, you must adhere to the following Zero-Assumption Execution Policy:
@@ -83,13 +111,13 @@ This step is focused on implementing the approved task cards one by one using a 
 
 1. **Plan Before Coding**: Never write code or modify files without first analyzing the requirements, codebase architecture, and dependencies.
 2. **Do Not Code Blind**: Run codebase discovery before changing any files. Locate existing utility functions, models, and design patterns first.
-3. **Simplicity First**: Implement the simplest correct solution. Avoid pre-optimization, excessive abstraction, and unnecessary code complexity.
+3. **Simplicity First (Ponytail)**: Climb the ponytail ladder before writing anything. Implement the simplest correct solution — stdlib before custom, native before library, one line before fifty. Use `ponytail-audit` on existing codebases before building on top of them.
 4. **Surgical Changes**: Make precise, minimal edits. Avoid touching unrelated files or executing massive refactors during feature builds.
 5. **Contract-Driven Development**: Define data, API, UI, and permission contracts *before* implementing the actual code.
 6. **Isolated Task Execution**: Break large builds into independent task cards that can be executed in isolated sessions to prevent context debt.
-7. **Test-Driven Discipline**: Write tests for all new functions, API endpoints, and UI components. Follow TDD loops (Red-Green-Refactor).
-8. **Specialist Review Gates**: Subject your work to focused specialist reviews (security, performance, code quality, DB) before shipping.
-9. **Never Bypass Safeguards**: Respect all protected files, dangerous command restrictions, and pre-ship checklists.
+7. **Test-Driven Discipline**: Write tests for all new functions, API endpoints, and UI components. Follow TDD loops (Red-Green-Refactor). Trivial one-liners need no test — YAGNI applies to tests too.
+8. **Specialist Review Gates**: Subject your work to focused specialist reviews (security, performance, code quality, DB) before shipping. Include `ponytail-review` on each diff to catch over-engineering before it ships.
+9. **Never Bypass Safeguards**: Respect all protected files, dangerous command restrictions, and pre-ship checklists. Run `ponytail-debt` before the pre-ship gate.
 10. **Preserve Context & Integrity**: Preserve existing comments, docstrings, and formatting rules. Never drop existing tests.
 11. **Clear Git Hygiene**: Write meaningful, structured commit messages. Maintain clean feature branches.
 12. **Goal-Driven Resolution**: Do not stop until the feature meets the Definition of Done and passes all verification checks.
@@ -101,6 +129,7 @@ This step is focused on implementing the approved task cards one by one using a 
 Use this map to navigate the build system:
 
 * **Rules (`.agents/rules/` or `rules/`)**: Behavioral rules governing your execution.
+  * `ponytail.md` — **Foundation rule** (always active). Lazy senior dev mode: the ladder, no over-engineering, pre-build gate. Source: `michaelchamboko/ponytail`.
   * `universal-agent-rules.md` — Explains the 12 universal principles.
   * `karpathy-guidelines.md` — Details build discipline guidelines.
   * `post-prd-build-rules.md` — Strict rules for the post-PRD workflow.
@@ -109,6 +138,12 @@ Use this map to navigate the build system:
   * `mcp-integration-rules.md` — Rules for using CodeGraph, task-master, Sequential Thinking, and Caveman.
   * `code-quality.md`, `testing.md`, `database.md`, `security.md`, `frontend.md`, `error-handling.md`, `git-workflow.md`.
 * **Skills (`.agents/skills/` or `skills/`)**: Actionable, step-by-step workflow definitions.
+  * `ponytail/SKILL.md` — Pre-build gate. Enforce the simplicity ladder before every task. Intensity: lite/full/ultra.
+  * `ponytail-review/SKILL.md` — Over-engineering diff review. Run during Specialist Reviews (task 12).
+  * `ponytail-audit/SKILL.md` — Whole-repo bloat scan. Run during Codebase Discovery (task 3).
+  * `ponytail-debt/SKILL.md` — Harvest `ponytail:` comment ledger. Run on resume + pre-ship.
+  * `ponytail-gain/SKILL.md` — Impact scoreboard (benchmark medians, not per-repo).
+  * `ponytail-help/SKILL.md` — Quick-reference card for all ponytail commands.
   * `prd-to-build-pack/SKILL.md` — Step-by-step guide to generating the build pack.
   * `repo-discovery/SKILL.md` — Codebase discovery guide.
   * `architecture-map/SKILL.md` — Architecture mapping instructions.
@@ -132,20 +167,27 @@ Use this map to navigate the build system:
 
 ### When initiating a new project build (Step 1):
 1. **Initialize Step 1**: Locate the PRD file (e.g., `PRD.md`) at the project root.
-2. **Execute Planning Pipelines**: Run tasks 1 through 9 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including build plans under `build-pack/build-plans/` and module plans under `build-pack/module-plans/`.
-3. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
-4. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
-5. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.
+2. **Ponytail PRD Gate**: Before any planning work, run the ponytail ladder against the PRD. Any feature that fails rung 1 (YAGNI) gets flagged in the Build Brief as an explicit non-goal for operator confirmation.
+3. **Execute Planning Pipelines**: Run tasks 1 through 9 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including build plans under `build-pack/build-plans/` and module plans under `build-pack/module-plans/`.
+4. **Ponytail Audit (task 3, Codebase Discovery)**: For brown-field projects, run `ponytail-audit` during discovery. Add all `delete:` and `yagni:` findings with zero risk to the Build Brief as explicit non-goals.
+5. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
+6. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
+7. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.
 
 ### When starting or resuming implementation (Step 2):
 1. **Initialize Step 2**: Start a fresh session using the project-specific bootstrap instructions.
 2. **Fresh Context Resume Checklist**:
+   * Run `ponytail-debt` first — surface any `ponytail:` shortcuts from the previous session.
    * Read baseline documents: `AGENTS.md`, `state.md`, `project_rules.md`, `findings.md`, and `task_plan.md`.
    * Inspect current Git branch, status, and recent commits.
    * Run dependency tracing using `CodeGraph` before changing any logic.
    * Identify completed, in-progress, and next tasks.
    * Record a resume summary in the ledger.
 3. **Simulated Persistent Goal Mode**: Execute tasks sequentially from `task_plan.md`. Do not pause between tasks or Git commits unless a critical blocker is encountered.
-4. **Isolated Task Loops**: For each task card, run the spec-first (Red-Green) validation loop.
-5. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
+4. **Isolated Task Loops**: For each task card:
+   * **Pre-task (Ponytail gate):** Climb the ladder. Can this be done simpler than the spec assumes? Confirm or flag.
+   * Run the spec-first (Red-Green) validation loop.
+   * **Post-task (Ponytail review):** Run `ponytail-review` on the diff before the Review-Agent signs off. Any `delete:` or `yagni:` finding with 0 risk must be actioned.
+5. **Pre-Ship Ponytail Debt Check**: Before task 15 (Pre-Ship gate), run `ponytail-debt`. Any `no-trigger` marker must be resolved or explicitly accepted by the operator.
+6. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
 

@@ -15,9 +15,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   - `skills/ponytail-review/SKILL.md` — over-engineering diff review; auto-runs during Specialist Reviews (Step 2, task 12).
   - `skills/ponytail-audit/SKILL.md` — whole-repo bloat scan; runs during Codebase Discovery (Step 1, task 3).
   - `skills/ponytail-debt/SKILL.md` — `ponytail:` comment ledger; runs at fresh-context resume and pre-ship gate.
+  - `skills/ponytail-done/SKILL.md` — **mandatory completion gate** (diff review + debt scan + SHIP/HOLD verdict); runs at Definition of Done (task 14) and Pre-Ship (task 15) for every coding session globally.
   - `skills/ponytail-gain/SKILL.md` — benchmark impact scoreboard.
-  - `skills/ponytail-help/SKILL.md` — quick-reference card with pipeline integration map.
-  - `AGENTS.md` updated: ponytail section added as Foundation Layer, Principle 3 updated, directory map updated, Execution Guide updated with ponytail gates at every phase.
+  - `skills/ponytail-help/SKILL.md` — quick-reference card with pipeline integration map including ponytail-done flow.
+  - `AGENTS.md` updated: ponytail section added as Foundation Layer; pipeline touchpoints updated to include ponytail-done at task 14; Step 2 execution guide wired with 3-step ponytail-done gate.
 - Comprehensive `security.md` rules covering OWASP Top-10, supply chain, secrets management, auth/session, CSP/headers, and audit logging.
 - New `ci.yml` GitHub Actions workflow replacing the broken `hook-tests.yml` — validates setup scripts on Ubuntu, macOS, and Windows, and checks structural integrity of all required files.
 - Expanded `.gitignore` to protect build-pack artifacts, backup files, state serialization files, secrets, and IDE artifacts.

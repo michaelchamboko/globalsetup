@@ -24,7 +24,8 @@ Never lazy about: trust-boundary validation, error handling, security, accessibi
 - **Step 1, task 3:** Run `ponytail-audit` on existing codebases before building on top
 - **Step 2, pre-task:** Climb the ladder before every task card
 - **Step 2, task 12:** Run `ponytail-review` on each diff as part of Specialist Reviews
-- **Step 2, task 15:** Run `ponytail-debt` before Pre-Ship gate
+- **Step 2, task 14:** Run `ponytail-done` as the Definition of Done completion gate
+- **Step 2, task 15:** Confirm SHIP verdict from `ponytail-done` before Pre-Ship gate
 - **Fresh-context resume:** Run `ponytail-debt` to surface deferred shortcuts
 
 Mark deliberate shortcuts with `ponytail:` comments naming ceiling and upgrade path.
@@ -142,6 +143,7 @@ Use this map to navigate the build system:
   * `ponytail-review/SKILL.md` — Over-engineering diff review. Run during Specialist Reviews (task 12).
   * `ponytail-audit/SKILL.md` — Whole-repo bloat scan. Run during Codebase Discovery (task 3).
   * `ponytail-debt/SKILL.md` — Harvest `ponytail:` comment ledger. Run on resume + pre-ship.
+  * `ponytail-done/SKILL.md` — **Completion gate** (diff review + debt scan + SHIP/HOLD verdict). Run at task 14 and task 15.
   * `ponytail-gain/SKILL.md` — Impact scoreboard (benchmark medians, not per-repo).
   * `ponytail-help/SKILL.md` — Quick-reference card for all ponytail commands.
   * `prd-to-build-pack/SKILL.md` — Step-by-step guide to generating the build pack.
@@ -188,6 +190,10 @@ Use this map to navigate the build system:
    * **Pre-task (Ponytail gate):** Climb the ladder. Can this be done simpler than the spec assumes? Confirm or flag.
    * Run the spec-first (Red-Green) validation loop.
    * **Post-task (Ponytail review):** Run `ponytail-review` on the diff before the Review-Agent signs off. Any `delete:` or `yagni:` finding with 0 risk must be actioned.
-5. **Pre-Ship Ponytail Debt Check**: Before task 15 (Pre-Ship gate), run `ponytail-debt`. Any `no-trigger` marker must be resolved or explicitly accepted by the operator.
-6. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
+5. **Ponytail Done Gate (task 14 — Definition of Done):** Run `ponytail-done` on the completed feature:
+   * Step 1: `ponytail-review` on the full session diff
+   * Step 2: `ponytail-debt` scan — resolve or accept all `no-trigger` markers
+   * Step 3: SHIP verdict required before moving to task 15
+6. **Pre-Ship Ponytail Debt Check**: Before task 15 (Pre-Ship gate), confirm the `ponytail-done` verdict is **SHIP**. Any `no-trigger` marker must be resolved or explicitly accepted by the operator.
+7. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
 

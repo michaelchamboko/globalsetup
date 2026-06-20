@@ -17,9 +17,17 @@ These rules represent the baseline behavioral standards for any agent executing 
 * Eagerly search and inspect files related to the task before making modifications.
 * Identify existing utility functions, APIs, database tables, and design conventions to ensure new code aligns with them.
 
-### 3. Simplicity First
-* Write readable, straightforward code. Avoid over-engineering, needless abstractions, or custom utility libraries when language features or existing helpers suffice.
-* Prefer clean inline code over single-use, complex utility functions.
+### 3. Simplicity First (🪡 Ponytail Ladder)
+Before writing any code, climb the ladder and stop at the first rung that holds:
+1. Does this need to exist at all? (YAGNI) → skip it
+2. Does stdlib do it? → use it
+3. Native platform feature? → use it
+4. Already-installed dependency? → use it
+5. Can it be one line? → one line
+6. Only then: minimum code that satisfies the requirement
+
+For existing codebases: run `ponytail-audit` during discovery to map bloat before building on top.
+Mark deliberate shortcuts with `// ponytail: <ceiling>, <upgrade path>`.
 
 ### 4. Surgical Changes
 * Limit modifications strictly to files within the scoped task area.

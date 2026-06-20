@@ -13,12 +13,14 @@ Verify the PRD is actionable using `templates/prd/prd-review-checklist.md`:
 * All requirements are specific, measurable, and testable.
 * Constraints, non-goals, and edge cases are documented.
 * Stakeholders have approved the PRD.
+* **🪡 Ponytail YAGNI gate**: For every feature in the PRD, ask: "Does this need to exist?" Any feature that fails rung 1 of the ponytail ladder is flagged as an explicit non-goal in the Build Brief for operator confirmation.
 
 ### Phase 2: Build Brief
 Create a technical build brief translating the PRD into architecture-level details using `templates/build-requirements/build-brief-template.md`.
 
 ### Phase 3: Existing Codebase Discovery
 Before starting architecture mapping, inspect the target project using the `repo-discovery` skill and `CodeGraph`. Output findings to `build-pack/04-existing-codebase-discovery.md`.
+**🪡 Ponytail-audit**: At the end of discovery, run `ponytail-audit` on the existing codebase. All `delete:` and `yagni:` findings with zero risk are added to the Build Brief as explicit non-goals. Record the `net: -N lines, -M deps possible` score in the discovery doc. Do not plan new features on top of identified bloat.
 
 ### Phase 4: Architecture Map & ADRs
 Model component relationships and write Architectural Decision Records (ADRs) using `templates/architecture/architecture-map-template.md`.
@@ -64,15 +66,19 @@ Step 2 is the iterative implementation of the approved task cards. This phase is
 
 ### Phase 8: Isolated Task Execution (TDD Loop)
 For each task card, the agent starts a fresh context session and follows the spec-first loop:
-1. **Read Task Card**: Inspect must-haves, context baseline, and verification CLI command.
-2. **Red State Check**: Use the declared validation location to confirm the spec is unmet or that tests/checks are in place. If missing, create the minimum spec check first.
-3. **Implement**: Write the minimum code necessary to satisfy the truths.
-4. **Green State Check**: Run or observe the declared validation check in the intended location.
-5. **Regression Check**: Use hosted or target-runtime validation, not local app builds by default.
-6. **Commit/Push**: Save changes and push so the intended platform can validate them.
+1. **🪡 Ponytail-debt scan**: Run `ponytail-debt` first. Resolve or accept any `no-trigger` shortcuts from prior sessions.
+2. **🪡 Ponytail ladder (pre-build gate)**: Before writing any code, climb: YAGNI → stdlib → native → installed dep → one line → minimum. Stop at the first rung that holds.
+3. **Read Task Card**: Inspect must-haves, context baseline, and verification CLI command.
+4. **Red State Check**: Use the declared validation location to confirm the spec is unmet or that tests/checks are in place. If missing, create the minimum spec check first.
+5. **Implement**: Write the minimum code necessary to satisfy the truths.
+6. **Green State Check**: Run or observe the declared validation check in the intended location.
+7. **Regression Check**: Use hosted or target-runtime validation, not local app builds by default.
+8. **🪡 Ponytail-review (post-build)**: Run `ponytail-review` on the diff. Action any `delete:` or `yagni:` finding with 0 risk before committing.
+9. **Commit/Push**: Save changes and push so the intended platform can validate them.
 
 ### Phase 9: Automated Testing & Specialist Review
 Run targeted reviews (security, performance, code style, database) on the diff and re-verify the changes before final staging.
+**🪡 Ponytail-review** is the first specialist check: run it before any other reviewer, record findings with tags, append `net: -N lines possible` score. Findings in `reviewers/code-reviewer.md` already include the ponytail-review pass as step one.
 
 ### Phase 10: Stateless Scaling (Caveman Resets)
 During long execution sessions:
@@ -86,7 +92,8 @@ During long execution sessions:
 * Do not run local application installs, production builds, dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
 ### Phase 12: Ship
-Push the short-lived branch/PR to GitHub, verify status checks, and prepare for human code merge.
+1. **🪡 Ponytail Done (mandatory gate)**: Run `ponytail-done`. Must return `SHIP.` before any commit or PR is created. If `HOLD`, resolve the listed items first.
+2. Push the short-lived branch/PR to GitHub, verify status checks, and prepare for human code merge.
 
 ### 🚀 Step 2 Autonomous Policies (CRITICAL):
 1. **Autonomous Development**: The agent executes Step 2 with **full autonomy**. Human-in-the-loop approvals are **NOT** required for ordinary commits, task-to-task transitions, sub-agent spawning, hosted validation checks, or plan traversal.

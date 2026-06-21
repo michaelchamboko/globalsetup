@@ -132,7 +132,8 @@ Use this map to navigate the build system:
 * **Rules (`.agents/rules/` or `rules/`)**: Behavioral rules governing your execution.
   * `ponytail.md` — **Foundation rule** (always active). Lazy senior dev mode: the ladder, no over-engineering, pre-build gate. Source: `michaelchamboko/ponytail`.
   * `universal-agent-rules.md` — Explains the 12 universal principles.
-  * `karpathy-guidelines.md` — Details build discipline guidelines.
+  * `karpathy-guidelines.md` — Build discipline: think before coding, simplicity, surgical changes, goal-driven execution.
+  * `karpathy-workspace-norms.md` — **Workspace safety layer** (always active). Spec interviews, upfront verification gates, explicit decision checkpoints, and workspace action boundaries (Autopilot / Guarded / Forbidden). Extends `karpathy-guidelines.md`.
   * `post-prd-build-rules.md` — Strict rules for the post-PRD workflow.
   * `deployment-first-validation.md` — Rules that prevent local app builds and require intended-runtime validation.
   * `context-management.md` — Rules for stateless scaling (45% capacity reset).
@@ -156,12 +157,19 @@ Use this map to navigate the build system:
   * `tdd/SKILL.md`, `pr-review/SKILL.md`, `ship/SKILL.md`.
 * **Templates (`.agents/templates/` or `templates/`)**: Build pack templates to fill in.
   * `prd/`, `build-requirements/`, `architecture/`, `contracts/`, `tasks/`, `qa/`, `governance/`.
+  * `governance/verification-schema.json` — **Upfront verification gate schema**. Every task card must satisfy this JSON Schema before a Builder-Agent begins writing code. Fields: `target_goal`, `measurable_criteria`, `validation_methods`, `failure_modes`, `pre_execution_checklist`.
 * **Reviewers (`.agents/reviewers/` or `reviewers/`)**: Specialist checklists.
   * `code-reviewer.md`, `security-reviewer.md`, `performance-reviewer.md`, `database-reviewer.md`, `qa-reviewer.md`.
 * **Safeguards (`.agents/safeguards/` or `safeguards/`)**:
   * `dangerous-command-rules.md` — Protected command rules.
-  * `protected-files.md` — Protected files list.
+  * `protected-files.md` — Protected files list (referenced by `scripts/pre-tool-hook.ps1`).
   * `pre-ship-checklist.md` — Check before commit and push.
+  * `destructive-change-policy.md` — Policy for rm, chmod, and system-level config changes.
+* **Scripts (`scripts/`)**: Automation and validation utilities.
+  * `pre-tool-hook.ps1` — **Runtime guardrail hook**. Call before Write/Delete/Chmod actions to enforce protected-path access controls. Supports `-DryRun` mode. Exit 0 = pass, Exit 1 = blocked.
+  * `validate-build-pack.ps1` / `validate-build-pack.sh` — Build pack completeness validator.
+  * `generate-build-pack.ps1` / `generate-build-pack.sh` — Scaffold build pack documents.
+  * `setup-globalsetup.ps1` / `setup-globalsetup.sh` — Bootstrap this repo into a project.
 
 ---
 

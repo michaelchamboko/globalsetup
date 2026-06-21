@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KarpathyVerificationSchema",
+  "description": "Upfront quality gates mandated before any execution phase begins. Every task card must satisfy this schema before a Builder-Agent begins writing code.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["target_goal", "measurable_criteria", "validation_methods"],
+  "properties": {
+    "target_goal": {
+      "type": "string",
+      "minLength": 10,
+      "description": "The true decision, business conclusion, or architectural outcome this work delivers. Must be stated in user-outcome terms, not technical implementation terms."
+    },
+    "measurable_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 5
+      },
+      "description": "Precise, non-vague rubrics determining what a successful result looks like. Each criterion must be independently verifiable. Avoid criteria like 'works correctly' — prefer 'all unit tests pass with 0 failures'."
+    },
+    "validation_methods": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "unit-tests",
+          "integration-tests",
+          "e2e-tests",
+          "schema-validation",
+          "dual-model-consensus",
+          "ci-pipeline",
+          "manual-review",
+          "build-pack-validation",
+          "hosted-deployment-check",
+          "static-analysis",
+          "security-scan",
+          "performance-benchmark"
+        ]
+      },
+      "description": "Declared methods used to verify the output. Must name at least one automated validation method."
+    },
+    "failure_modes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional. Explicit descriptions of what a broken or incomplete result would look like. Enumerating failure modes surfaces blind spots before execution begins."
+    },
+    "pre_execution_checklist": {
+      "type": "object",
+      "description": "Optional pre-execution checklist confirming the agent has completed upfront verification steps.",
+      "properties": {
+        "spec_reviewed": {
+          "type": "boolean",
+          "description": "Spec interview completed and scope is fully understood."
+        },
+        "decision_checkpoints_confirmed": {
+          "type": "boolean",
+          "description": "All guarded architectural decisions have explicit operator approval."
+        },
+        "protected_files_checked": {
+          "type": "boolean",
+          "description": "safeguards/protected-files.md has been reviewed against the target file list."
+        },
+        "pre_tool_hook_dry_run": {
+          "type": "boolean",
+          "description": "scripts/pre-tool-hook.ps1 dry run passed for all target files."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "target_goal": "Add user authentication to the API so that only registered users can access protected endpoints.",
+      "measurable_criteria": [
+        "All protected endpoints return HTTP 401 for unauthenticated requests",
+        "All unit tests pass with 0 failures",
+        "JWT token expiry is enforced at 15 minutes",
+        "Login endpoint returns a token within 200ms at p95"
+      ],
+      "validation_methods": ["unit-tests", "integration-tests", "ci-pipeline"],
+      "failure_modes": [
+        "Protected endpoints return 200 for unauthenticated requests",
+        "Token validation is skipped in certain code paths",
+        "CI pipeline fails due to missing environment variables"
+      ],
+      "pre_execution_checklist": {
+        "spec_reviewed": true,
+        "decision_checkpoints_confirmed": true,
+        "protected_files_checked": true,
+        "pre_tool_hook_dry_run": true
+      }
+    }
+  ]
+}

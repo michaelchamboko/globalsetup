@@ -2,9 +2,9 @@
 # Generated build-pack artifacts (project-specific, not for this repo)
 # -------------------------------------------------------------------
 build-pack/
-state.md
-findings.md
-task_plan.md
+.gitnexus/
+__pycache__/
+*.py[cod]
 
 # -------------------------------------------------------------------
 # Backup files created by setup script

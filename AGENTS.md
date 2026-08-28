@@ -1,207 +1,102 @@
-# AGENTS.md — Universal Agent Instructions
+# GlobalSetup Agent Contract
 
-You are an autonomous AI coding agent executing a build within this repository. You must adhere to the rules, workflows, and guidelines defined in this document at all times.
+## Purpose
 
----
+This repository is bootstrapped once after the source PRD and supporting product documents are approved. Setup installs the build pack, safety hook, GitNexus, and the model-agnostic BuildRunner. Implementation planning is phase 1; autonomous implementation is phase 2. There is no second setup.
 
-## 🪡 Ponytail — Foundation Layer (Always Active)
+## Sources of truth
 
-Ponytail is the lazy senior dev living inside every task. **Active every response by default (full mode).** The best code is the code never written.
+Use these in order:
 
-**Before writing any code**, climb the ladder and stop at the first rung that holds:
+1. `build-pack/execution-state.json` — task dependencies, risk, status, and evidence.
+2. The active task card and its referenced module plan.
+3. Approved contracts and plans under `build-pack/`.
+4. The code and current GitNexus graph.
 
-1. Does this need to exist at all? (YAGNI) → skip if speculative
-2. Does stdlib do it? → use it
-3. Native platform feature? → use it
-4. Already-installed dependency? → use it
-5. One line? → one line
-6. Only then: minimum code that satisfies the acceptance criteria
+Markdown checklists explain intent. BuildRunner owns execution state. Do not maintain a competing task ledger.
 
-Never lazy about: trust-boundary validation, error handling, security, accessibility, hardware calibration, anything explicitly requested.
+## Start or resume
 
-**Pipeline touchpoints:**
-- **Ideation/PRD:** Question whether features need to exist before blueprinting
-- **Step 1, task 3:** Run `ponytail-audit` on existing codebases before building on top
-- **Step 2, pre-task:** Climb the ladder before every task card
-- **Step 2, task 12:** Run `ponytail-review` on each diff as part of Specialist Reviews
-- **Step 2, task 14:** Run `ponytail-done` as the Definition of Done completion gate
-- **Step 2, task 15:** Confirm SHIP verdict from `ponytail-done` before Pre-Ship gate
-- **Fresh-context resume:** Run `ponytail-debt` to surface deferred shortcuts
+1. Read this file and the next task only; load deeper rules when the task requires them.
+2. Inspect Git status and preserve unrelated or user-owned changes.
+3. Run `scripts/build-runner.py --root . validate`.
+4. Run `gitnexus status`. If missing or stale, run `gitnexus analyze` before trusting graph results.
+5. Run `scripts/build-runner.py --root . next` and work on exactly that ready task.
 
-Mark deliberate shortcuts with `ponytail:` comments naming ceiling and upgrade path.
-Deactivate with "stop ponytail" / "normal mode". Switch intensity: `lite` | `full` (default) | `ultra`.
+If a harness cannot invoke Python directly, use `scripts/build-runner.ps1` or `scripts/build-runner.sh` with the same arguments.
 
----
+## Phase 1: compile the approved build
 
-## 🛡️ Zero-Assumption Execution Policy
+- Do not implement production code from a raw PRD.
+- Complete the build brief, discovery, architecture, contracts, module plans, task graph, task cards, and test plan.
+- Compile every approved task into `build-pack/execution-state.json` with dependencies, risk, source-change intent, and argument-array validation commands.
+- Ask the operator only about material product or architecture choices not resolved by approved documents.
+- Phase 1 ends when the operator approves the plans and BuildRunner validation passes.
 
-Adopt a Modular Context-First workflow. For every planning or implementation task, you must adhere to the following Zero-Assumption Execution Policy:
+## Phase 2: execute end to end
 
-### 1. Pre-Flight Validation & Threat Modeling (Mandatory)
-* **Graph-Validate:** Before modifying any logic, use the `CodeGraph` tool to trace all dependency impacts. Do not rely on internal training memory.
-* **Constraint-Check:** Validate all proposals against the project’s specific `project_rules.md`, `state.md`, and `findings.md` files.
-* **Adversarial Critique:** Before writing code or finalizing a plan, explicitly identify 3 potential failure vectors (e.g., race conditions, breaking downstream dependencies, type-safety gaps, or performance regressions). Refuse to proceed if the risk of side effects exceeds 5%.
+For each task:
 
-### 2. Task-Master Orchestration & Delegation
-* **MCP Integration:** Use the **task-master MCP** to manage the lifecycle of all objectives and dynamically route granular work to specialized sub-agents based on cognitive load:
-    * `[Planner-Agent]`: Responsible for architectural mapping, sequence diagramming, and strict task breakdown. Must decompose large tasks into the smallest possible atomic, quantifiable units (Micro-Tasks). Each Micro-Task must be independently testable and sized for low-risk, conflict-free GitHub commits.
-    * `[Builder-Agent]`: Responsible for strict implementation of the Planner's specifications, executing work strictly within the scope of one Micro-Task at a time.
-    * `[Review-Agent]`: Responsible for adversarial code review, type-safety checks, and validating isolated test execution for the current Micro-Task. **Must ensure the micro-change passes the validation location defined by the task card before approving commit/push.**
-* **Strict I/O Contracts:** Use the task-master MCP to define and enforce clear Input (current state, exact requirements) and Output (expected artifacts, validation criteria) contracts before spawning a sub-agent. Every contract must include an isolated, quantifiable testing metric for that specific unit of work.
-* **Synthesis:** The Master Agent evaluates sub-agent outputs against the task-master's I/O contract. Reject and respawn sub-agents if outputs violate constraints, fail intended-location validation, or introduce scope creep.
+1. `next` — select the next dependency-ready task.
+2. Use GitNexus query/context and impact analysis to locate the smallest safe change.
+3. `start TASK_ID` — claims the one allowed in-progress task after graph preflight.
+4. Implement only the task contract. Prefer the simplest working change and test the required behavior.
+5. `verify TASK_ID` — runs the task's risk-tiered checks and records evidence.
+6. For high-risk work, record an independent review with `review TASK_ID`.
+7. `complete TASK_ID` — automatically updates GitNexus, records a fresh graph receipt, closes the task, and unlocks dependants. Completion fails if GitNexus cannot update.
+8. Continue immediately until the approved graph is done or a real stop condition occurs.
 
-### 3. Execution & Context Management
-* **Sequential Thinking:** Use the Sequential Thinking MCP in tandem with the task-master MCP to maintain logical continuity. Do not deviate from the established sequence without using task-master to explicitly update `task_plan.md`.
-* **Stateless Scaling:** When context reaches 45% capacity, trigger Caveman to prune redundant logs, serialize current state artifacts to `state.md`, and force a context reset/handover to a fresh Master or Sub-agent.
+Never edit task status by hand during execution. Use `block TASK_ID --reason ...` for a genuine blocker and `unblock TASK_ID --resolution ...` once it is resolved.
 
-### 4. Governance & Integrity
-* **State Alignment:** Every architectural change must be logged in `state.md` and verified against the established project blueprint via task-master tracking.
-* **Validation & Delivery Gate:** Code is only considered complete if it passes the project-specific validation suites in the approved runtime. **We enforce an Intended-Location Validation model: (1) Micro-Task validation runs where the task card says it belongs. (2) Hosted/global validation such as Vercel build logs, Oracle read-only probes, or another approved target must pass before delivery is called complete. GitHub is source control and code review only; GitHub Actions require separate explicit operator approval.**
-* **No Local Build Default:** Do not run local application dependency installs, production builds, typechecks, dev servers, or app runtimes on the operator's workstation unless the operator explicitly opts into local preview for that project.
-* **Persistent Memory:** Treat the codebase and documentation files as your 'Source of Truth'. Access them on-demand via CodeGraph to ensure 100% architectural fidelity.
+## Proportional verification
 
----
+- `low`: focused task check only.
+- `medium`: focused plus affected-area checks.
+- `high`: focused, affected, full-system checks, and independent review.
 
-## 📋 The Post-PRD Pipeline (Two-Step Workflow)
+Do not turn every task into a release gate. A failing required check blocks that task; unrelated heavyweight checks do not block low- or medium-risk MVP progress.
 
-You must guide the build through a two-step pipeline divided into strict planning and execution phases. For detailed step-by-step instructions on each phase, refer to [Post-PRD Workflow](docs/post-prd-workflow.md).
+## GitNexus contract
 
-### Step 1: Planning, Blueprinting, & Dependency Alignment (Human-in-the-Loop)
-This step is focused entirely on preparing, blueprinting, and validating the implementation documents, plans, and test cases. **No coding or modifications of target production code may occur in this phase.**
+GitNexus is mandatory and is used under the repository's declared noncommercial scope.
 
-1. **PRD Review & Completeness Check** (Reviewing PRD requirements using `prd-review-checklist.md`)
-2. **Build Brief Generation** (Translating PRD to technical brief, defining goals and non-goals)
-3. **Existing Codebase Discovery** (Inspect existing patterns, symbols, and files via `CodeGraph`)
-4. **Architecture Map & Component Diagramming** (Component modeling and ADR design decisions)
-5. **Data, API, UI, Permission, & Integration Contracts** (Interface definitions before logic)
-6. **Build Plan Generation** (Visible build plans under `build-pack/build-plans/`, including UI/UX when user-facing)
-7. **Module Plan Generation** (One module plan per implementation area under `build-pack/module-plans/`)
-8. **Task Graph Construction & Dependency Analysis** (Mapping module tasks and plans)
-9. **Fresh-Context Task Cards Creation** (Defining task-card specs with clear test cases)
+- Query the graph before broad text search when learning architecture or flows.
+- Run impact analysis before changing an existing symbol or interface.
+- Run change detection before committing when the CLI or MCP adapter supports it.
+- Every `complete` command must re-index GitNexus and record a fresh receipt, even for a task that declares no source changes. The local `.gitnexus/` index is never committed.
+- If GitNexus is unavailable, stop instead of inventing graph results or silently falling back.
 
-#### ⚠️ Step 1 Execution Policies:
-* **Zero-Assumption Policy**: If any details are not specified in the PRD, or if you identify a better architectural/implementation approach, you **MUST** pause, present a detailed recommendation, and ask the user for feedback. **Auto-approvals are strictly prohibited at this stage.**
-* **Plan Dependency Ripple Review**: If a change is made to one part of a plan or module, you **MUST** immediately review and adjust all other plans/modules that have dependencies on it to ensure global architectural alignment.
-* **Completion Gate**: Step 1 is only completed when all plans, contracts, and test cases are fully generated, cross-referenced, and manually approved by the human operator.
+## Engineering rules
 
----
+- State assumptions before consequential edits; verify cheap facts from the repository.
+- Keep changes surgical. Do not add abstractions, dependencies, personas, or infrastructure without demonstrated need.
+- Preserve existing tests, comments, formatting, and unrelated work.
+- Use argument arrays and non-shell process execution for repository-owned automation.
+- Never expose secrets. Respect the permission and destructive-change contracts.
+- Use fresh context at task boundaries when helpful; durable state lives in the repository, not conversation history.
 
-### Step 2: Iterative Execution & Deployment (Autonomous Loop)
-This step is focused on implementing the approved task cards one by one using a clean execution loop under any agent harness.
+## Delivery boundary
 
-10. **Isolated Task Execution** (Spec-first implementation on a single task card)
-11. **Automated Testing / Hosted Validation** (Running task-card validation in the intended location)
-12. **Specialist Reviews** (Code, security, database, performance checklists)
-13. **Bug Fixes & Refinement** (Addressing review feedback)
-14. **Final Definition of Done Verification** (Checking DoD requirements)
-15. **Pre-Ship Safeguards Check** (Running pre-ship checklist gates)
-16. **Branch Commit, Push, and PR Creation** (Short-lived branches/PRs to GitHub)
+- GitHub is for source updates, branches, pull requests, and manual review.
+- GitHub Actions workflows and hosted runners are prohibited. GitHub is source control and manual review only.
+- Run validation in the location named by the task contract. Do not substitute a local check for required hosted or production evidence.
+- Do not install application dependencies, start application runtimes, or run production builds locally unless the task contract or operator explicitly permits it. GlobalSetup's own bootstrap tools are the exception.
 
-#### 🚀 Step 2 Execution Policies (Autonomous Loop):
-* **Autonomous Execution (No Human-in-the-Loop)**: Unlike Step 1, the development/execution loop in Step 2 runs with **full autonomy**. You do **NOT** need human operator approval or confirmation to move between task cards, transition between sub-agent roles, or run approved hosted validation suites. Proceed autonomously through the tasks unless you encounter a crucial unreviewed requirement, a severe structural blocker, or a local-build request that lacks explicit operator opt-in.
-* **Simulated Persistent Goal Mode**: Treat the build objective as a persistent goal. Do not halt after individual micro-tasks, branch updates, or commits. Automatically proceed through all planned task cards sequentially until the final goal is met.
-* **Sequential & Modular Progress**: Build the solution sequentially and modularly following the approved plans. Use specialized sub-agents (`[Planner-Agent]`, `[Builder-Agent]`, `[Review-Agent]`), dependency tracing via `CodeGraph`, task lifecycle management via `task-master`, and logical tracking via `Sequential Thinking`.
-* **Fresh Context Resume Checklist**: At the start of a fresh session or context reset, you must complete the resume checklist (verify status, load only baseline files, inspect Git state, and write a ledger resume summary).
-* **Stateless Scaling (Caveman resets)**: When context utilization reaches 45%, serialize the active state to `state.md` and hand over execution to a fresh session to maintain reasoning quality.
+## Load detailed guidance only when applicable
 
+- Planning: `.agents/rules/post-prd-build-rules.md` and `.agents/skills/prd-to-build-pack/SKILL.md`.
+- Task execution: `.agents/skills/mcp-orchestration/SKILL.md` and `.agents/skills/fresh-context-execution/SKILL.md`.
+- Graph work: `.agents/rules/mcp-integration-rules.md` and `.agents/skills/repo-discovery/SKILL.md`.
+- Testing, security, database, frontend, performance, accessibility, deployment, and incident work: load only the matching rule, skill, and reviewer.
+- Before delivery: `.agents/safeguards/pre-ship-checklist.md` and the relevant risk-tier reviewers.
 
+## Stop conditions
 
----
+Stop and report one precise blocker only when:
 
-## 🧠 The 12 Universal Principles
+- an approved requirement is materially ambiguous or contradictory;
+- required authority, credentials, runtime, or GitNexus is unavailable;
+- a required validation or high-risk review fails; or
+- continuing would exceed the task's permission boundary.
 
-1. **Plan Before Coding**: Never write code or modify files without first analyzing the requirements, codebase architecture, and dependencies.
-2. **Do Not Code Blind**: Run codebase discovery before changing any files. Locate existing utility functions, models, and design patterns first.
-3. **Simplicity First (Ponytail)**: Climb the ponytail ladder before writing anything. Implement the simplest correct solution — stdlib before custom, native before library, one line before fifty. Use `ponytail-audit` on existing codebases before building on top of them.
-4. **Surgical Changes**: Make precise, minimal edits. Avoid touching unrelated files or executing massive refactors during feature builds.
-5. **Contract-Driven Development**: Define data, API, UI, and permission contracts *before* implementing the actual code.
-6. **Isolated Task Execution**: Break large builds into independent task cards that can be executed in isolated sessions to prevent context debt.
-7. **Test-Driven Discipline**: Write tests for all new functions, API endpoints, and UI components. Follow TDD loops (Red-Green-Refactor). Trivial one-liners need no test — YAGNI applies to tests too.
-8. **Specialist Review Gates**: Subject your work to focused specialist reviews (security, performance, code quality, DB) before shipping. Include `ponytail-review` on each diff to catch over-engineering before it ships.
-9. **Never Bypass Safeguards**: Respect all protected files, dangerous command restrictions, and pre-ship checklists. Run `ponytail-debt` before the pre-ship gate.
-10. **Preserve Context & Integrity**: Preserve existing comments, docstrings, and formatting rules. Never drop existing tests.
-11. **Clear Git Hygiene**: Write meaningful, structured commit messages. Maintain clean feature branches.
-12. **Goal-Driven Resolution**: Do not stop until the feature meets the Definition of Done and passes all verification checks.
-
----
-
-## 📂 System Directory Map
-
-Use this map to navigate the build system:
-
-* **Rules (`.agents/rules/` or `rules/`)**: Behavioral rules governing your execution.
-  * `ponytail.md` — **Foundation rule** (always active). Lazy senior dev mode: the ladder, no over-engineering, pre-build gate. Source: `michaelchamboko/ponytail`.
-  * `universal-agent-rules.md` — Explains the 12 universal principles.
-  * `karpathy-guidelines.md` — Build discipline: think before coding, simplicity, surgical changes, goal-driven execution.
-  * `karpathy-workspace-norms.md` — **Workspace safety layer** (always active). Spec interviews, upfront verification gates, explicit decision checkpoints, and workspace action boundaries (Autopilot / Guarded / Forbidden). Extends `karpathy-guidelines.md`.
-  * `post-prd-build-rules.md` — Strict rules for the post-PRD workflow.
-  * `deployment-first-validation.md` — Rules that prevent local app builds and require intended-runtime validation.
-  * `context-management.md` — Rules for stateless scaling (45% capacity reset).
-  * `mcp-integration-rules.md` — Rules for using CodeGraph, task-master, Sequential Thinking, and Caveman.
-  * `code-quality.md`, `testing.md`, `database.md`, `security.md`, `frontend.md`, `error-handling.md`, `git-workflow.md`.
-* **Skills (`.agents/skills/` or `skills/`)**: Actionable, step-by-step workflow definitions.
-  * `ponytail/SKILL.md` — Pre-build gate. Enforce the simplicity ladder before every task. Intensity: lite/full/ultra.
-  * `ponytail-review/SKILL.md` — Over-engineering diff review. Run during Specialist Reviews (task 12).
-  * `ponytail-audit/SKILL.md` — Whole-repo bloat scan. Run during Codebase Discovery (task 3).
-  * `ponytail-debt/SKILL.md` — Harvest `ponytail:` comment ledger. Run on resume + pre-ship.
-  * `ponytail-done/SKILL.md` — **Completion gate** (diff review + debt scan + SHIP/HOLD verdict). Run at task 14 and task 15.
-  * `ponytail-gain/SKILL.md` — Impact scoreboard (benchmark medians, not per-repo).
-  * `ponytail-help/SKILL.md` — Quick-reference card for all ponytail commands.
-  * `prd-to-build-pack/SKILL.md` — Step-by-step guide to generating the build pack.
-  * `repo-discovery/SKILL.md` — Codebase discovery guide.
-  * `architecture-map/SKILL.md` — Architecture mapping instructions.
-  * `task-graph/SKILL.md` — Task decomposition and task card creation.
-  * `fresh-context-execution/SKILL.md` — Execution of task cards in fresh context.
-  * `mcp-orchestration/SKILL.md` — Task-master sub-agent routing.
-  * `context-scaling/SKILL.md` — Caveman log pruning and stateless context handovers.
-  * `tdd/SKILL.md`, `pr-review/SKILL.md`, `ship/SKILL.md`.
-* **Templates (`.agents/templates/` or `templates/`)**: Build pack templates to fill in.
-  * `prd/`, `build-requirements/`, `architecture/`, `contracts/`, `tasks/`, `qa/`, `governance/`.
-  * `governance/verification-schema.json` — **Upfront verification gate schema**. Every task card must satisfy this JSON Schema before a Builder-Agent begins writing code. Fields: `target_goal`, `measurable_criteria`, `validation_methods`, `failure_modes`, `pre_execution_checklist`.
-* **Reviewers (`.agents/reviewers/` or `reviewers/`)**: Specialist checklists.
-  * `code-reviewer.md`, `security-reviewer.md`, `performance-reviewer.md`, `database-reviewer.md`, `qa-reviewer.md`.
-* **Safeguards (`.agents/safeguards/` or `safeguards/`)**:
-  * `dangerous-command-rules.md` — Protected command rules.
-  * `protected-files.md` — Protected files list (referenced by `scripts/pre-tool-hook.ps1`).
-  * `pre-ship-checklist.md` — Check before commit and push.
-  * `destructive-change-policy.md` — Policy for rm, chmod, and system-level config changes.
-* **Scripts (`scripts/`)**: Automation and validation utilities.
-  * `pre-tool-hook.ps1` — **Runtime guardrail hook**. Call before Write/Delete/Chmod actions to enforce protected-path access controls. Supports `-DryRun` mode. Exit 0 = pass, Exit 1 = blocked.
-  * `validate-build-pack.ps1` / `validate-build-pack.sh` — Build pack completeness validator.
-  * `generate-build-pack.ps1` / `generate-build-pack.sh` — Scaffold build pack documents.
-  * `setup-globalsetup.ps1` / `setup-globalsetup.sh` — Bootstrap this repo into a project.
-
----
-
-## 🚀 Execution Guide
-
-### When initiating a new project build (Step 1):
-1. **Initialize Step 1**: Locate the PRD file (e.g., `PRD.md`) at the project root.
-2. **Ponytail PRD Gate**: Before any planning work, run the ponytail ladder against the PRD. Any feature that fails rung 1 (YAGNI) gets flagged in the Build Brief as an explicit non-goal for operator confirmation.
-3. **Execute Planning Pipelines**: Run tasks 1 through 9 of the Post-PRD Pipeline to create the build pack documents in `build-pack/`, including build plans under `build-pack/build-plans/` and module plans under `build-pack/module-plans/`.
-4. **Ponytail Audit (task 3, Codebase Discovery)**: For brown-field projects, run `ponytail-audit` during discovery. Add all `delete:` and `yagni:` findings with zero risk to the Build Brief as explicit non-goals.
-5. **No-Assumptions Policy**: Proactively verify all requirements. If there is ambiguity or a design improvement, **pause immediately, document your recommendation, and await explicit operator approval**. Never assume.
-6. **Dependency Audits**: Ensure that any plan modification triggers a review of dependent plans. Define precise test cases for every module.
-7. **Freeze Plans**: Do not write production code until all plans and test matrices are approved.
-
-### When starting or resuming implementation (Step 2):
-1. **Initialize Step 2**: Start a fresh session using the project-specific bootstrap instructions.
-2. **Fresh Context Resume Checklist**:
-   * Run `ponytail-debt` first — surface any `ponytail:` shortcuts from the previous session.
-   * Read baseline documents: `AGENTS.md`, `state.md`, `project_rules.md`, `findings.md`, and `task_plan.md`.
-   * Inspect current Git branch, status, and recent commits.
-   * Run dependency tracing using `CodeGraph` before changing any logic.
-   * Identify completed, in-progress, and next tasks.
-   * Record a resume summary in the ledger.
-3. **Simulated Persistent Goal Mode**: Execute tasks sequentially from `task_plan.md`. Do not pause between tasks or Git commits unless a critical blocker is encountered.
-4. **Isolated Task Loops**: For each task card:
-   * **Pre-task (Ponytail gate):** Climb the ladder. Can this be done simpler than the spec assumes? Confirm or flag.
-   * Run the spec-first (Red-Green) validation loop.
-   * **Post-task (Ponytail review):** Run `ponytail-review` on the diff before the Review-Agent signs off. Any `delete:` or `yagni:` finding with 0 risk must be actioned.
-5. **Ponytail Done Gate (task 14 — Definition of Done):** Run `ponytail-done` on the completed feature:
-   * Step 1: `ponytail-review` on the full session diff
-   * Step 2: `ponytail-debt` scan — resolve or accept all `no-trigger` markers
-   * Step 3: SHIP verdict required before moving to task 15
-6. **Pre-Ship Ponytail Debt Check**: Before task 15 (Pre-Ship gate), confirm the `ponytail-done` verdict is **SHIP**. Any `no-trigger` marker must be resolved or explicitly accepted by the operator.
-7. **Context Resets**: Monitor token capacity; trigger `Caveman` log pruning and serialize progress to `state.md` at 45% capacity. Hand over to a fresh context session.
-
+Ordinary task completion, commits, context boundaries, and passing checks are not reasons to stop before the approved build is complete.

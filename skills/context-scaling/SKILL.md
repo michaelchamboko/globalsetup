@@ -1,39 +1,14 @@
 ---
 name: context-scaling
-description: Monitor context capacity, execute log pruning via Caveman, and coordinate stateless handovers.
+description: Resume long-horizon work from durable BuildRunner state with task-bounded context.
 ---
 
-Follow these steps to manage and scale agent context dynamically:
+# Context scaling
 
-## Step 1: Monitor Active Context Size
-1. Periodically calculate the estimated token count of your active conversation session (history + loaded files).
-2. Flag when the active context approaches **35% of maximum capacity** (Warning Threshold). If exceeded, evaluate if the current task needs to be split or if you need to prepare for a reset.
-3. Trigger a handover when the active context reaches **45% of maximum capacity** (Critical Reset Threshold).
+1. Finish the active bounded task when it remains safe and understandable to do so.
+2. Record verification, graph evidence, review, completion, or a precise blocker through BuildRunner.
+3. Start a fresh context at a task boundary, or earlier only when the current context can no longer execute the task reliably.
+4. In the fresh context, read `AGENTS.md`, run BuildRunner `validate` and `next`, inspect Git status, and load only the selected task plus relevant GitNexus context.
+5. Never reconstruct task status from chat history or maintain a parallel handover ledger.
 
-## Step 2: Prune Logs (Caveman)
-1. Run `Caveman` to prune redundant logs, console outputs, and verbose test tracebacks from your session memory.
-2. Verify that critical planning metadata remains intact.
-
-## Step 3: Serialize State (Caveman Handover Payload)
-If context size remains above 45% after pruning, serialize the session state into `state.md` at the project root using this exact template:
-```markdown
-## Handover State
-* **Active Task**: [Task Card ID] - [Task Title]
-* **Modified Files (Staged/Committed)**:
-  - `[file/path/1]` (modified)
-  - `[file/path/2]` (added)
-* **Consolidated Context**: [2-3 sentences summarizing the exact achievements, architectural decisions, and verified logic in this session]
-* **Target Files for Next Session**:
-  - `[file/path/3]`
-  - `[file/path/4]`
-* **Next Action**: Execute [Next Task Card ID] - [Next Task Title]
-```
-3. Save and commit `state.md`.
-
-## Step 4: Context Handover
-1. Terminate the current session and spawn a fresh Master agent session (or reset the conversation history).
-2. The fresh session must:
-   - Read `state.md` and `project_rules.md` as its primary bootstrap instructions.
-   - Load only the files listed under **Target Files for Next Session** in `state.md`.
-   - Resume execution of the next task immediately with a clean history.
-
+Split tasks at real dependency, risk, validation, or permission boundaries. Do not force resets at arbitrary token percentages.

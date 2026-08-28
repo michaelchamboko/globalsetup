@@ -3,7 +3,7 @@
 ## ðŸ“ Current Session Context
 - **Active Branch**: `[branch-name]`
 - **Last Commit**: `[commit-hash]`
-- **Current Objective**: `[task-master objective description]`
+- **Current Objective**: `[active BuildRunner task id and title]`
 
 ## ðŸ—ï¸ Active Architecture State
 - Database Migrations: [e.g. Up to date as of 2025-01-15]

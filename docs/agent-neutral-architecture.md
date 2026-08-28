@@ -1,67 +1,30 @@
 # Agent-Neutral Architecture
 
-GlobalSetup is designed to work with any capable coding agent. This document explains the architectural decisions that make this possible.
+GlobalSetup separates durable repository state from the model or harness executing it.
 
-## Why Harness-Neutral?
+## Portable core
 
-The software industry has multiple coding agents and harnesses:
+- `AGENTS.md` is a short routing contract readable by any coding model.
+- `build-pack/execution-state.json` is the task lifecycle source of truth.
+- `build-pack/capabilities.json` records required tools and safe argument arrays.
+- `scripts/build-runner.py` uses only the Python standard library and has PowerShell and Bash wrappers.
+- Markdown plans, task cards, rules, and reviewers remain human-readable.
+- `scripts/pre-tool-hook.ps1` is an executable guard for harnesses that support pre-tool hooks; declarative safeguards remain available to all others.
 
-- IDE-integrated agents
-- CLI-based agents
-- Cloud-hosted agents
-- Custom agent frameworks
+The runner does not call a model API, require a vendor-specific persona system, or store reasoning transcripts. A capable model needs only file access, command execution, and the ability to follow one bounded task contract.
 
-Tying a build system to a specific harness limits adoption and creates vendor lock-in. GlobalSetup avoids this by:
+## One setup, two phases
 
-1. Using only plain markdown files for instructions
-2. Defining workflows as human-readable processes, not harness-specific commands
-3. Using templates that any agent can fill in
-4. Defining reviewer profiles as checklists, not tool-specific invocations
-5. Expressing safeguards as rules, not executable hooks
+Setup runs once after the PRD is approved. It installs the repository contract, BuildRunner, safety files, GitNexus, and the initial build pack. Phase 1 compiles approved documents into the task graph. Phase 2 repeatedly selects, executes, verifies, and completes tasks; completion performs and records the GitNexus update.
 
-## The AGENTS.md Contract
+There is no GitHub runner. GitHub remains source control and manual review only.
 
-`AGENTS.md` is the single root instruction file. Any agent that can read markdown can follow its instructions. It contains:
+## GitNexus adapter
 
-- The complete workflow from PRD to ship
-- Universal principles
-- A directory map pointing to rules, skills, templates, reviewers, and safeguards
+GitNexus is the required code-intelligence layer for this noncommercial workflow. The CLI gives every harness the same status and re-index commands; MCP-aware harnesses also receive graph query, context, flow, and impact tools after `gitnexus setup`.
 
-## How Different Agents Use GlobalSetup
+The committed `.gitnexusrc` uses index-only mode so GitNexus cannot rewrite the repository's model-agnostic instructions. The generated `.gitnexus/` index stays local and ignored by Git.
 
-### Agents with Skill Systems
+## Harness adapters
 
-If your agent supports skills or plugins, the `skills/` directory contains SKILL.md files with YAML frontmatter that many agent systems can parse natively.
-
-### Agents with Rule Systems
-
-If your agent supports rule files, the `rules/` directory contains standalone rule files that can be loaded as behavioral constraints.
-
-### Agents Without Specialized Systems
-
-If your agent is a general-purpose LLM with file access, it can:
-
-1. Read `AGENTS.md` for the overall workflow
-2. Read individual skill files for step-by-step processes
-3. Read templates and fill them in
-4. Read reviewer profiles and apply them as checklists
-5. Read safeguard rules and follow them as constraints
-
-## Adapting for Specific Harnesses
-
-If you want to optimize GlobalSetup for a specific agent:
-
-1. Keep the generic files as-is
-2. Add a harness-specific wrapper in a separate directory (e.g., `.claude/`, `.cursor/`)
-3. The wrapper can reference the generic files and add harness-specific features
-4. The generic files remain the source of truth
-
-This approach allows teams using different agents to share the same build system.
-
-## File Format Conventions
-
-- **Rules**: Markdown files. May include YAML frontmatter for metadata.
-- **Skills**: `SKILL.md` files in named directories. YAML frontmatter with `name` and `description`.
-- **Templates**: Markdown files with placeholders in `[brackets]` or `<!-- TODO -->` comments.
-- **Reviewers**: Markdown files with checklists and review criteria.
-- **Safeguards**: Markdown files with declarative rules.
+A harness may add its own thin adapter, but it must not replace the JSON state, weaken the risk gates, or create a second task ledger. If an MCP integration is unavailable, the agent may use the GitNexus CLI. If GitNexus itself is unavailable, execution fails closed.

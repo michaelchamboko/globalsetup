@@ -5,12 +5,12 @@
 
 ## Requirements
 
-The following specialist reviews must be completed and signed off:
+Select only reviews required by the task risk or an explicit contract. High-risk work requires a genuinely independent review; low- and medium-risk work is not blocked by unrelated reviewer checklists.
 
-- [ ] **Code Quality Review**: [Reviewer checklist reference]
-- [ ] **Security Review**: [Reviewer checklist reference]
-- [ ] **Performance Review**: [Reviewer checklist reference]
-- [ ] **Database Review**: [Reviewer checklist reference]
+- [ ] **Independent High-Risk Review**: [Reviewer and evidence, or N/A]
+- [ ] **Security Review**: [Required by risk/contract, or N/A]
+- [ ] **Performance Review**: [Required by risk/contract, or N/A]
+- [ ] **Database Review**: [Required by risk/contract, or N/A]
 
 ## Findings Log
 

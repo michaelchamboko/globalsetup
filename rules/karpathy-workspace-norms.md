@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Karpathy Workspace Norms — Agent Operating Architecture
@@ -50,7 +50,7 @@ Force explicit user confirmation before proceeding with any of the following:
 - External system writes (API calls that mutate remote state)
 - Changes to files listed in `safeguards/protected-files.md`
 
-**Never let changes drift through assumptions.** If confirmation cannot be obtained, treat the action as blocked and log it in `state.md`.
+**Never let changes drift through assumptions.** If confirmation cannot be obtained, block the active task through BuildRunner with one precise reason.
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Deployment-First Validation Rules
@@ -27,9 +27,9 @@ Task cards must declare where validation runs:
 - `render`, `supabase`, `neon`, or another explicitly approved runtime
 - `local-docs-only`: markdown/template validation that does not install dependencies or build an app
 
-## GitHub Actions Exception
+## GitHub Actions Prohibition
 
-GitHub Actions must not be added or used by default. A task card may use GitHub Actions only when the operator explicitly approves that workflow, its trigger, and its runner cost. Without that approval, use GitHub for source control only and validate in the intended hosting runtime.
+GitHub Actions workflows and hosted runners must not be added or used. Use GitHub for source control and manual review only, and validate in the intended hosting runtime.
 
 ## Allowed Local Work
 

@@ -10,8 +10,8 @@ Review changes for logic correctness, maintainability, clean code patterns, test
 - [ ] **Net score recorded**: Append `net: -N lines possible` (or `Lean already. Ship.`) to the review report.
 
 ### Code Quality
-- [ ] **Dependency Impact**: Confirm that CodeGraph was used to trace all dependency impacts.
-- [ ] **Governance Check**: Verify that the code conforms to constraints in `project_rules.md`, `state.md`, and `findings.md`.
+- [ ] **Dependency Impact**: Confirm that GitNexus impact and change analysis covers the modified symbols and flows.
+- [ ] **Governance Check**: Verify that the code conforms to the active task and approved build-pack contracts.
 - [ ] **Readability**: Code is easy to understand. Variable and function names are self-descriptive.
 - [ ] **DRY (Don't Repeat Yourself)**: No duplicate code blocks. Reuse existing functions and classes.
 - [ ] **Surgical Edits**: No changes outside the scoped task area. No trailing whitespaces or temporary console logs.

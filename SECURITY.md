@@ -57,4 +57,4 @@ GlobalSetup is an **agentic build system** — its rules and skills are executed
 1. Pin GlobalSetup to a specific commit SHA rather than tracking `main` in automated pipelines.
 2. Review the `CHANGELOG.md` before upgrading to understand what rules changed.
 3. Use the `safeguards/dangerous-command-rules.md` as a baseline — extend it for your organization's specific constraints.
-4. Run the CI workflow (`ci.yml`) in your fork before deploying updates to your team.
+4. Run the repository's validation commands locally or in its declared hosting runtime before deploying updates to your team; do not add GitHub Actions.

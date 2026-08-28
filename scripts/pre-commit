@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+set -eu
+
+REPOSITORY_ROOT="$(git rev-parse --show-toplevel)"
+PYTHON_BIN=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+    PYTHON_BIN="$candidate"
+    break
+  fi
+done
+if [ -z "$PYTHON_BIN" ]; then
+  echo "repository guard requires Python 3.10 or newer" >&2
+  exit 2
+fi
+
+"$PYTHON_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.py" --root "$REPOSITORY_ROOT" --staged
+
+if [ -x "$REPOSITORY_ROOT/.githooks/pre-commit.user" ]; then
+  "$REPOSITORY_ROOT/.githooks/pre-commit.user"
+fi

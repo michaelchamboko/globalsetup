@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "mode": "mvp",
+  "capabilities_file": "build-pack/capabilities.json",
+  "tasks": []
+}

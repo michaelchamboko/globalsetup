@@ -30,10 +30,10 @@
 ### How to Deploy
 
 ```bash
-# Standard deployment (uses CI/CD)
+# Standard deployment (uses the approved hosting runtime)
 # 1. Merge PR to main
-# 2. CI/CD pipeline triggers automatically
-# 3. Monitor deployment: [link to CI/CD dashboard]
+# 2. Start or observe deployment in the declared runtime
+# 3. Monitor deployment: [link to runtime dashboard]
 
 # Manual deployment (emergency only — document why in the incident)
 [deployment command here]

@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Ponytail — Lazy Senior Dev Mode (Foundation Rule)

@@ -14,5 +14,7 @@ Follow these steps to transform a confirmed Product Requirements Document (PRD) 
 6. **Generate Build Plans**: Create `build-pack/build-plans/01-build-plan-index.md` and, for user-facing products, `build-pack/build-plans/02-ui-ux-build-plan.md`.
 7. **Generate Module Plans**: Create one module plan per implementation area under `build-pack/module-plans/` using `templates/tasks/module-plan-template.md`. User-facing products must include a UI/UX module plan using `templates/tasks/ui-ux-module-plan-template.md`.
 8. **Generate the Task Graph**: Define the dependency-ordered task graph and reference every module plan.
-9. **Generate Task Cards**: Create fresh-context task cards that reference module plans and declare validation location.
-10. **Enforce Deployment-First Validation**: Do not include local application installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
+9. **Generate Task Cards**: Create fresh-context task cards that reference module plans and declare risk plus validation location.
+10. **Compile Execution State**: Mirror the approved task graph into `build-pack/execution-state.json` with argument-array commands and GitNexus as the required capability.
+11. **Validate the Contract**: Run BuildRunner `validate` and resolve every structural error before requesting operator approval.
+12. **Enforce Deployment-First Validation**: Do not include local application installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.

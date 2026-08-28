@@ -1,26 +1,26 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
-# MCP Integration Rules
+# GitNexus and BuildRunner Integration Rules
 
-These rules govern the integration and use of MCP tools (CodeGraph, task-master, Sequential Thinking, and Caveman) during task execution.
+## GitNexus is required
 
-## 1. CodeGraph (Dependency & Context Mapping)
-* **Verify, Don't Guess**: Before modifying any logic or interface, you must run CodeGraph to trace all dependency impacts. Do not rely on internal model training data.
-* **Imports Tracing**: When adding or updating imports, trace all consumer files to verify that the change does not break downstream compilation or types.
-* **Persistent Memory Access**: Treat the codebase as your active physical memory. Retrieve file content and definitions dynamically via CodeGraph search rather than asking the user or assuming structure.
+- The declared provider in `build-pack/capabilities.json` must be `gitnexus` with acknowledged noncommercial use.
+- Run `gitnexus status` before starting a task. Re-index if the index is absent or stale.
+- Use graph query/context for unfamiliar flows and impact analysis before editing an existing symbol or interface.
+- Run change detection before commit when supported. Every `complete` call must update GitNexus and record a fresh receipt; completion fails closed if the update fails.
+- Never invent graph results or silently fall back to text search when GitNexus is unavailable.
 
-## 2. task-master (Lifecycle & Objective Orchestration)
-* **Define I/O Contracts**: Before delegating tasks or spawning sub-agents (Planner, Builder, Reviewer), use the `task-master` MCP to establish strict input/output contracts. Contracts must specify exact input files, output files, and test commands.
-* **Task Lifecycle Management**: Log all tasks and sub-tasks in `task-plan.md` via `task-master`. Update their statuses dynamically (Not Started, In Progress, Complete).
-* **Granular Decompositions**: Planner-Agent must split large objectives into independent, testable Micro-Tasks sized for low-risk commits.
+Text search remains appropriate for exact strings and filenames after the relevant graph context is known.
 
-## 3. Sequential Thinking (Logical Continuity)
-* **Maintain Linearity**: Maintain a sequential thought chain. Do not jump between distant components without logical transitions.
-* **Plan Deviations**: If you discover that the task plan must be altered, use `task-master` to explicitly update `task_plan.md` first before executing the deviation.
+## BuildRunner is authoritative
 
-## 4. Caveman (Stateless Scaling & Context Resets)
-* **Pruning Triggers**: Track your active context size. When context reaches 45% capacity, call `Caveman` to prune redundant logs.
-* **State Serialization**: Before resetting context, serialize all progress, architectural decisions, and current states into `state.md`.
-* **Context Handover**: Force a context reset and hand over execution to a fresh Master or Sub-agent session, loading only the baseline files listed in `state.md`.
+- `build-pack/execution-state.json` is the only lifecycle ledger.
+- Use `validate`, `next`, `start`, `verify`, `review`, `complete`, `block`, and `unblock` for transitions. `graph-sync` remains available for an explicit mid-task refresh, but `complete` always performs the final update.
+- Commands stored in state must be argument arrays. The runner executes them without a shell.
+- Exactly one task may be `in_progress`; dependencies must be done before a task becomes ready.
+
+## Harnesses are adapters
+
+MCP, skills, plugins, or sub-agents may help execute a bounded task, but none are mandatory lifecycle dependencies. They must not create a second task graph, weaken verification, or claim state not recorded by BuildRunner.

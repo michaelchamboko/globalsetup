@@ -15,7 +15,7 @@ Run `ponytail-done` on the session's full diff. This gate must return **SHIP** b
 
 ## 1. Micro-Task Readiness (Tier 1 Check)
 - [ ] **Surgical Changes**: All modifications are strictly within the Micro-Task scope.
-- [ ] **Constraint Check**: Code conforms to `project_rules.md`, `state.md`, and `findings.md`.
+- [ ] **Constraint Check**: Code conforms to the active task and approved build-pack contracts.
 - [ ] **Module Plan Link**: Each task maps to an approved module plan.
 - [ ] **Micro-Task Validation**: The declared validation location/check for the changed module passes.
 - [ ] **Code Quality review**: Checked against `reviewers/code-reviewer.md` checklist (includes ponytail-review pass).
@@ -27,6 +27,6 @@ Run `ponytail-done` on the session's full diff. This gate must return **SHIP** b
 - [ ] **Specialist Reviews**: Relevant reviews (security, performance, database) have passed and signed off.
 - [ ] **Protected Files check**: Confirm no secrets, credentials, `.env` files, or lockfiles are staged.
 - [ ] **Rollback Plan**: Rollback steps are verified and documented.
-- [ ] **State Alignment**: All architectural changes are logged in `state.md` and verified.
+- [ ] **State Alignment**: BuildRunner state, validation evidence, graph evidence, and required review are current.
 - [ ] **No Local Build Drift**: No local install/build artifacts are required for delivery unless explicitly approved.
-- [ ] **No GitHub Actions Drift**: No GitHub Actions workflow or runner use was added without explicit operator approval.
+- [ ] **No GitHub Actions Drift**: No GitHub Actions workflow or hosted runner exists or is used.

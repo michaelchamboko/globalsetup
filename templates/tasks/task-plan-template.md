@@ -1,6 +1,6 @@
 # Task Plan & Micro-Task Tracking
 
-**Objective**: `[task-master high-level objective]`  
+**Objective**: `[approved build objective represented in execution-state.json]`
 **Last Updated**: `[YYYY-MM-DD]`  
 
 ## Micro-Task List

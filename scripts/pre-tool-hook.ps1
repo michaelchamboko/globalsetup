@@ -65,6 +65,8 @@ $ProtectedExact = @(
 $ProtectedPatterns = @(
     "rules\*.md",
     "safeguards\*.md",
+    ".agents\rules\*.md",
+    ".agents\safeguards\*.md",
     ".github\workflows\*",
     "*.env",
     "*.env.*",
@@ -77,10 +79,24 @@ $ProtectedPatterns = @(
     "pnpm-lock.yaml"
 )
 
-$GuardedActions = @("Write", "Delete", "Chmod")
+$GuardedActions = @("Write", "Delete", "Execute", "Chmod")
 
 # ─── Normalise Target Path ────────────────────────────────────────────────────
-$normTarget = $TargetFile.Replace("/", "\").TrimStart(".\").TrimStart("\")
+$repositoryRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
+if ([System.IO.Path]::IsPathRooted($TargetFile)) {
+    $fullTarget = [System.IO.Path]::GetFullPath($TargetFile)
+}
+else {
+    $fullTarget = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot $TargetFile))
+}
+$relativeTarget = [System.IO.Path]::GetRelativePath($repositoryRoot, $fullTarget)
+$isOutsideRepository = (
+    [System.IO.Path]::IsPathRooted($relativeTarget) -or
+    $relativeTarget -eq ".." -or
+    $relativeTarget.StartsWith("..\") -or
+    $relativeTarget.StartsWith("../")
+)
+$normTarget = $relativeTarget.Replace("/", "\")
 $fileName   = Split-Path $normTarget -Leaf
 
 # ─── Match Check ─────────────────────────────────────────────────────────────
@@ -101,7 +117,7 @@ function Test-IsProtected {
 }
 
 # ─── Core Guard Logic ─────────────────────────────────────────────────────────
-$isProtected   = Test-IsProtected -Target $normTarget -File $fileName
+$isProtected   = $isOutsideRepository -or (Test-IsProtected -Target $normTarget -File $fileName)
 $isGuardedAction = $GuardedActions -contains $ActionType
 
 if ($isProtected -and $isGuardedAction) {
@@ -116,8 +132,8 @@ if ($isProtected -and $isGuardedAction) {
 |               See: safeguards/protected-files.md
 |               See: rules/karpathy-workspace-norms.md
 |
-|  Resolution : Obtain explicit operator confirmation, then
-|               re-run with operator-approved override flag.
+|  Resolution : Stop. The operator must perform or separately
+|               authorize the protected-file change.
 +----------------------------------------------------------+
 "@
 

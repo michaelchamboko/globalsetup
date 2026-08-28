@@ -46,7 +46,7 @@ End with `<N> markers, <M> with no trigger.` Nothing found: `No ponytail: debt. 
 
 **Fresh-Context Resume (Step 2):** At the start of every new context session
 during Step 2, run ponytail-debt as part of the Fresh Context Resume Checklist
-(alongside reading `state.md`, `AGENTS.md`, and `task_plan.md`). This surfaces
+(alongside reading `AGENTS.md` and `build-pack/execution-state.json`). This surfaces
 any `ponytail:` shortcuts left in-progress before writing new code.
 
 **Pre-Ship Safeguards (Step 2, task 15):** Run ponytail-debt before the

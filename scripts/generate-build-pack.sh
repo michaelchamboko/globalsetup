@@ -2,6 +2,13 @@
 
 # Script to generate a fresh build-pack folder from templates.
 
+set -euo pipefail
+
+if [ -f build-pack/execution-state.json ]; then
+  echo "build-pack already exists; refusing to overwrite durable execution state." >&2
+  exit 2
+fi
+
 echo "Generating build-pack directory..."
 mkdir -p build-pack
 mkdir -p build-pack/build-plans
@@ -30,5 +37,7 @@ cp .agents/templates/build-plans/build-plan-index-template.md build-pack/build-p
 cp .agents/templates/build-plans/ui-ux-build-plan-template.md build-pack/build-plans/02-ui-ux-build-plan.md
 cp .agents/templates/tasks/module-plan-template.md build-pack/module-plans/M-000-module-plan-template.md
 cp .agents/templates/tasks/ui-ux-module-plan-template.md build-pack/module-plans/M-000-ui-ux-module-plan-template.md
+cp .agents/templates/governance/capabilities-template.json build-pack/capabilities.json
+cp .agents/templates/governance/execution-state-template.json build-pack/execution-state.json
 
-echo "Build pack documents, build-plans, and module-plans generated under build-pack/"
+echo "Build pack documents and machine-readable execution state generated under build-pack/"

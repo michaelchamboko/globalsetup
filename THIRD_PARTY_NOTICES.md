@@ -12,6 +12,11 @@ This project incorporates material from the following open-source projects:
 * **License:** MIT License
 * **Use:** Principles and guidelines for build discipline (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution) were adapted and incorporated into the universal rules and skills.
 
+## 3. GitNexus
+* **Source:** https://github.com/abhigyanpatwari/GitNexus
+* **License:** PolyForm Noncommercial 1.0.0
+* **Use:** Required repository code graph and impact-analysis engine for the declared noncommercial GlobalSetup workflow. GitNexus is installed separately and is not redistributed under GlobalSetup's MIT licence.
+
 ---
 
 ## Advisory and Disclaimer

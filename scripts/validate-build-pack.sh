@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Checks build pack completeness.
 
 echo "Validating build-pack documents..."
@@ -49,7 +51,19 @@ if [ "$MISSING" -eq 0 ]; then
     echo "[missing] real build-pack/module-plans/M-*.md module plans beyond the M-000 template"
     exit 1
   fi
-  echo "[ok] All 17 build pack files, build plans, and module plans are present"
+  PYTHON_BIN=""
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+      PYTHON_BIN="$candidate"
+      break
+    fi
+  done
+  if [ -z "$PYTHON_BIN" ]; then
+    echo "[missing] Python 3.10 or newer is required to validate execution state"
+    exit 1
+  fi
+  "$PYTHON_BIN" scripts/build-runner.py --root . validate
+  echo "[ok] Build pack documents and executable task state are valid"
   exit 0
 else
   echo "[missing] $MISSING build pack file(s)"

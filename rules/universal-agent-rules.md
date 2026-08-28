@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Universal Agent Rules
@@ -46,9 +46,9 @@ Mark deliberate shortcuts with `// ponytail: <ceiling>, <upgrade path>`.
 * Use the AAA (Arrange-Act-Assert) pattern and run or observe validation in the task card's declared location after every modification.
 * Do not run local dependency installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
-### 8. Specialist Review Gates
-* Use the checklists defined in the `reviewers/` folder.
-* Conduct structured reviews (code quality, security, performance, DB) before declaring a task or build complete.
+### 8. Proportional Review Gates
+* Load only reviewer checklists relevant to the task's risk and affected boundaries.
+* High-risk tasks require independent review. Low- and medium-risk tasks are not blocked by unrelated specialist reviews.
 
 ### 9. Never Bypass Safeguards
 * Do not run banned or dangerous commands under any circumstances (refer to the exact restrictions in `safeguards/dangerous-command-rules.md`).

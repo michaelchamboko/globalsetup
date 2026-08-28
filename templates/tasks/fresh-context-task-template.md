@@ -8,8 +8,8 @@ Before editing, retrieve and read:
 
 ## Execution Constraints
 - Do NOT read files outside the scoped paths.
-- Maintain a strict context budget: Monitor active capacity (plan splits at 35% warning check, trigger Caveman log pruning and stateless handover at 45% critical reset).
-- Limit implementation to a maximum of 3 source files and 3 discrete modifications.
+- Keep context bounded to this task. Resume from BuildRunner state in a fresh context when this task completes or the current context can no longer execute it reliably.
+- Keep the task coherent and independently verifiable; split only at a real dependency, risk, validation, or permission boundary.
 - Implement changes incrementally and run tests.
 
 ## Must-Haves (Spec-Driven Assertions)
@@ -22,11 +22,11 @@ Before editing, retrieve and read:
 1. [Action 1]
 2. [Action 2]
 
-## Local Verification
-- **Verification Command**: `[Exact test execution command]`
+## Intended-Location Verification
+- **Task-Tier Command or Hosted Check**: `[Exact focused validation]`
+- **Affected/Full Checks**: `[Add only when required by risk]`
 - **Expected Output**: `[Expected result, exit code 0]`
 
 ## Rollback Plan
-If verification fails and cannot be resolved quickly:
-- Execute: `git checkout -- [changed-files]`
+Describe a targeted, recoverable reversal that preserves unrelated and user-owned changes. Do not use a blanket checkout or reset.
 

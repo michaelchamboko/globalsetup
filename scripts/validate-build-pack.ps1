@@ -56,7 +56,21 @@ if ($missing -eq 0) {
         Write-Host "[missing] real build-pack\module-plans\M-*.md module plans beyond the M-000 template" -ForegroundColor Red
         exit 1
     }
-    Write-Host "[ok] All 17 build pack files, build plans, and module plans are present" -ForegroundColor Green
+    $python = $null
+    foreach ($candidateName in @("python3", "python")) {
+        $candidate = Get-Command $candidateName -ErrorAction SilentlyContinue
+        if ($candidate) {
+            & $candidate.Source -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" *> $null
+            if ($LASTEXITCODE -eq 0) { $python = $candidate; break }
+        }
+    }
+    if (!$python) {
+        Write-Host "[missing] Python 3.10 or newer is required to validate execution state" -ForegroundColor Red
+        exit 1
+    }
+    & $python.Source "scripts\build-runner.py" --root . validate
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Write-Host "[ok] Build pack documents and executable task state are valid" -ForegroundColor Green
     exit 0
 } else {
     Write-Host "[missing] $missing build pack file(s)" -ForegroundColor Red

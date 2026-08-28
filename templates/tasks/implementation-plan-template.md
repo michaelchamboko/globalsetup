@@ -37,7 +37,7 @@
 - [ ] GitHub branch pushed.
 - [ ] Hosted build/deploy check passed.
 - [ ] Target-runtime probes passed.
-- [ ] Specialist reviews complete.
+- [ ] Reviews required by task risk or contract are complete.
 
 ## Stage 4 - Release
 

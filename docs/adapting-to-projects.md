@@ -74,4 +74,4 @@ Add project-specific protected files and dangerous commands to `safeguards/`:
 
 - Add your production database credentials files to `safeguards/protected-files.md`
 - Add your production deployment commands to `safeguards/dangerous-command-rules.md`
-- Customize the pre-ship checklist for your CI/CD pipeline
+- Customize the pre-ship checklist for your approved deployment runtime

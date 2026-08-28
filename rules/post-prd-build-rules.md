@@ -1,44 +1,37 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
-# Post-PRD Build Rules & Zero-Assumption Execution Policy
+# Post-PRD Build Rules
 
-These rules govern the structured workflow from a confirmed Product Requirements Document (PRD) to implementation, implementing the Zero-Assumption Execution Policy.
+## Planning gate
 
-## 1. Pre-Flight Validation & Threat Modeling
-* **No Direct Coding**: You are strictly prohibited from implementing features directly from a raw PRD without first generating a build pack.
-* **Graph-Validate**: Before modifying any logic, use CodeGraph to trace all dependency impacts. Do not rely on internal training memory.
-* **Constraint-Check**: Validate all proposals against the project’s specific `project_rules.md`, `state.md`, and `findings.md`.
-* **Adversarial Critique**: Before writing code or finalizing a plan, explicitly identify 3 potential failure vectors (e.g., race conditions, breaking downstream dependencies, type-safety gaps, or performance regressions). Refuse to proceed if the risk of side effects exceeds 5%.
+- Do not implement production code directly from a raw or unapproved PRD.
+- Complete the build brief, discovery report, architecture, contracts, build plans, module plans, task graph, task cards, and test plan.
+- Resolve material product or architecture ambiguity with the operator during planning.
+- Compile the approved task graph into `build-pack/execution-state.json`; BuildRunner validation is the machine gate into execution.
 
-## 2. Build Pack Structure
-A complete build pack must consist of:
-1. Build Brief (technical translation, scope boundaries)
-2. Codebase Discovery Report (mapping tech stack, structure, and constraints via CodeGraph)
-3. Architecture Map (components, data flow, integrations)
-4. Data, API, UI, and Permission Contracts
-5. Build Plans (visible sequencing and experience plans under `build-pack/build-plans/`)
-6. UI/UX Build Plan for user-facing products
-7. Module Plans (one plan per implementation module under `build-pack/module-plans/`)
-8. UI/UX Module Plan for user-facing products
-9. Task Graph (ordered checklist with dependency mappings and module-plan references)
-10. Task Cards (for fresh-context execution)
+## Task contract
 
-## 3. Task Decomposition & Orchestration
-* All features must be split into independent tasks, prioritized by dependencies.
-* Foundation tasks (setup, DB schema, config) must be completed before API/UI layer tasks.
-* Each task card must have clear, testable acceptance criteria.
-* Use `task-master` MCP to establish strict Input/Output contracts and manage task lifecycles.
+Every task must declare:
 
-## 4. Execution & Spec-Driven Verification Gates
-* When executing a build, tasks must be run in fresh context sessions using the `fresh-context-execution` skill.
-* Do not carry forward context debt or open handles from completed tasks.
-* **Spec-First Execution**: Before modifying any functional code, verify that the test suite representing the specification (Must-Haves/Observable Truths) is in place and failing (Red). If no tests exist, write unit/integration tests representing the spec first.
-* **Verification Command Gate**: You must execute the specific verification command or hosted validation check defined on the task card. It must run in the declared validation location and succeed before delivery is called complete.
-* We enforce an **Intended-Location Validation** model:
-  1. Micro-Task validation must run in the task card's declared validation location.
-  2. For hosted applications, source changes are pushed to GitHub and build validation occurs in the intended platform such as Vercel. GitHub Actions require separate explicit operator approval.
-  3. For external runtimes such as databases, workers, and infrastructure, validation occurs only in the approved target environment and only within the project's explicit permission boundary.
-  4. Local app installs, local production builds, local dev servers, and local full-project typechecks are prohibited by default unless the operator explicitly opts into local preview.
+- a unique id, title, dependencies, and status;
+- `low`, `medium`, or `high` risk;
+- whether it changes source;
+- focused validation and the additional tiers required by its risk;
+- argument-array commands, intended validation location, and referenced plans.
 
+Keep tasks independently verifiable. Split by dependency or permission boundary, not by arbitrary file counts.
+
+## Execution gate
+
+- Use BuildRunner for every lifecycle transition; never maintain a competing status file.
+- Use GitNexus before editing existing symbols. BuildRunner completion must update GitNexus and record a fresh receipt after every task.
+- Work on one in-progress task at a time.
+- A failed required check blocks that task. Do not run unrelated full-suite gates for low- or medium-risk work.
+- High-risk work requires full validation and independent review before completion.
+- Continue through ready tasks without asking for routine approval.
+
+## Delivery boundary
+
+Validation must run where the approved task says it belongs. GitHub is source control and manual review only; GitHub Actions workflows and hosted runners are prohibited. Local application installs, servers, and production builds require an approved task exception. GlobalSetup and GitNexus bootstrap tools are allowed during setup.

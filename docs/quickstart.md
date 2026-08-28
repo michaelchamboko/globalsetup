@@ -1,98 +1,47 @@
 # Quickstart
 
-Get started with GlobalSetup in 5 minutes.
+## 1. Prepare the target
 
-## Step 1: Clone GlobalSetup
+Place the approved PRD and supporting documents in the target repository. Install Git, Python 3, npm, and a GitNexus-supported Node release.
 
-```bash
-git clone https://github.com/michaelchamboko/globalsetup.git
-```
+## 2. Run GlobalSetup once
 
-## Step 2: Copy Into Your Target Project
+Windows:
 
-Use the setup script to copy GlobalSetup files into your project:
-
-**Linux / macOS:**
-```bash
-bash globalsetup/scripts/setup-globalsetup.sh /path/to/your/project
-```
-
-**Windows (PowerShell):**
 ```powershell
-.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\your\project
+.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project
 ```
 
-This copies the following into your project:
-- `AGENTS.md` — Universal agent instructions
-- `docs/` — Documentation
-- `templates/` — All build pack templates
-- `rules/` — Agent behavior rules
-- `skills/` — Reusable workflow definitions
-- `reviewers/` — Specialist reviewer profiles
-- `safeguards/` — Protective rules and checklists
+Linux or macOS:
 
-Existing files in your project are never overwritten. If a conflict is detected, the setup script creates a `.bak` backup first.
-
-## Step 3: Add Your Confirmed PRD
-
-Place your confirmed PRD in the project root or a `docs/` directory. Use the template at `templates/prd/confirmed-prd-template.md` as a starting point.
-
-## Step 4: Generate the Build Pack
-
-**Linux / macOS:**
 ```bash
-bash scripts/generate-build-pack.sh
+bash globalsetup/scripts/setup-globalsetup.sh /path/to/project
 ```
 
-**Windows (PowerShell):**
-```powershell
-.\scripts\generate-build-pack.ps1
+The script backs up an existing root agent contract and existing `.agents` sections, then installs the BuildRunner, safety hook, GitNexus configuration, and initial build pack. It installs and indexes GitNexus and configures detected agent harnesses. It does not run application builds.
+
+## 3. Compile the approved plans
+
+Ask the agent to read `AGENTS.md`, run the `prd-to-build-pack` workflow, and fill every applicable build-pack document. The agent must then translate the approved task graph into `build-pack/execution-state.json` with dependencies, risk, source-change intent, and argument-array validation commands.
+
+Run:
+
+```bash
+python scripts/build-runner.py --root . validate
 ```
 
-This creates a `build-pack/` directory with blank templates for all 17 build pack documents.
-It also creates `build-pack/build-plans/` and `build-pack/module-plans/`, where build-level and module-level plans must be completed before task cards are approved.
+Planning is complete only after this passes and the operator approves the pack.
 
-GlobalSetup setup and build-pack generation do not install application dependencies or build the application locally.
+## 4. Execute end to end
 
-## Step 5: Fill In the Build Pack
+Start or resume with:
 
-Use the `prd-to-build-pack` skill to guide your agent through transforming the confirmed PRD into a complete build pack. The agent should:
+```bash
+python scripts/build-runner.py --root . next
+```
 
-1. Read the confirmed PRD
-2. Run the `repo-discovery` skill to inspect the existing codebase
-3. Fill in each build pack document using the templates
-4. Create build plans under `build-pack/build-plans/`
-5. Create module plans under `build-pack/module-plans/`
-6. Ensure user-facing products include the UI/UX build plan and UI/UX module plan
-7. Review the build pack for completeness
+For each returned task, use GitNexus for context and impact analysis, then use BuildRunner `start`, `verify`, optional high-risk `review`, and `complete`. Completion automatically updates GitNexus and records the receipt. Continue until the approved task graph is done.
 
-## Step 6: Execute the Task Graph
+## 5. Deliver
 
-Once the build pack is complete:
-
-1. Review the task graph (`build-pack/11-task-graph.md`)
-2. Review the build plans under `build-pack/build-plans/`
-3. Review the module plans under `build-pack/module-plans/`
-4. Execute tasks in dependency order using the `fresh-context-execution` skill
-5. Each task is self-contained with its own acceptance criteria and validation location
-6. Verify each task in the intended location before moving to the next
-
-## Step 7: Run Review Gates
-
-Before shipping:
-
-1. Run relevant specialist reviews using the reviewer profiles in `reviewers/`
-2. Address all findings
-3. Complete the pre-ship checklist in `safeguards/pre-ship-checklist.md`
-4. Verify the Definition of Done (`build-pack/16-definition-of-done.md`)
-
-## Step 8: Ship
-
-Use the `ship` skill to commit, push, and create a PR with safety checks at every step. Hosted applications should build in their intended platform, such as Vercel, not on the operator's workstation by default. GitHub Actions require separate explicit operator approval.
-
-## Next Steps
-
-- Read `docs/post-prd-workflow.md` for a detailed workflow walkthrough
-- Read `docs/adapting-to-projects.md` for project-specific customization
-- Review `rules/` for agent behavior rules
-- Explore `examples/post-prd-build-pack/` for a complete example build pack
+Run the pre-ship safeguards and validation required by the task graph. Push source to GitHub and validate hosted systems in their declared runtime. Do not add GitHub Actions workflows or runners.

@@ -1,34 +1,13 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Git Workflow Rules
 
-Maintain high git hygiene standards by following these conventions.
-
-## Branch Naming
-* Standard format: `<category>/<short-desc>`
-  - Feature branch: `feat/feature-name` or `feature/feature-name`
-  - Bug fix branch: `fix/bug-desc`
-  - Hotfix branch: `hotfix/critical-bug`
-  - Refactoring branch: `refactor/target-area`
-  - Documentation: `docs/doc-area`
-  - Chore / Setup: `chore/task-desc`
-
-## Commits
-* **Atomic Commits**: Commit changes in small, logical increments. Never bundle multiple features, or a feature and an unrelated bug fix, into a single commit.
-* **Commit Message Format**: Follow conventional commits style:
-  - Format: `<type>(<scope>): <subject>`
-  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
-  - Subject: Imperative, present tense, lowercase (e.g. `feat(auth): add JWT expiration handling`).
-
-## Pull Requests & Feature Branches
-* Always create a branch for your work. Never work directly on `main` or `master` branches.
-* **Autonomous Branch Pushes**: During Step 2 (autonomous execution), you commit and push local changes to the feature branch autonomously without halting for intermediate reviews.
-* **Final Delivery PR Review**: Once the complete build goal is met and all task cards are executed, create a Pull Request to merge the feature branch into `main`. This final PR requires explicit human review and approval.
-* The final PR description must include:
-  1. Summary of changes.
-  2. Requirements mapped (traceability).
-  3. Testing proof (screenshots, command logs, coverage report).
-  4. Rollback strategy.
-
+- Inspect status before editing, staging, committing, or pushing. Preserve unrelated and user-owned changes.
+- Follow the repository's accepted branch and review path. Do not invent a feature-branch or pull-request requirement when the operator has authorized direct source updates.
+- Keep commits coherent and scoped to completed task boundaries or another approved delivery checkpoint.
+- Use descriptive, imperative commit messages and required attribution or sign-off trailers.
+- Stage only files belonging to the current build objective and verify the staged diff before committing.
+- Push only with repository authority and only after required BuildRunner evidence is recorded.
+- GitHub is source control and manual review only. Do not add or use GitHub Actions workflows or hosted runners.

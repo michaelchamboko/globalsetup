@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Infrastructure & Deployment Engineering Rules
@@ -71,12 +71,12 @@ The best code running on flawed infrastructure fails in production. Infrastructu
 
 ---
 
-## 6. Secrets Management in CI/CD
+## 6. Secrets Management in Deployment Runtimes
 
-- All secrets in CI/CD pipelines must be stored as **encrypted secrets** in the pipeline provider (GitHub Actions Secrets, GitLab CI/CD Variables, Vault Agent).
-- Never print secrets in CI logs — use `::add-mask::$SECRET` in GitHub Actions to mask dynamically.
+- Store deployment secrets in the intended runtime's encrypted secret store or an approved secrets manager.
+- Never print secrets in deployment or runtime logs; use the provider's native masking controls.
 - Rotate secrets on a defined schedule. Automate rotation where possible.
-- Use **OIDC-based authentication** (Workload Identity Federation) for cloud provider access in CI — eliminates long-lived static credentials entirely.
+- Use **OIDC-based authentication** (Workload Identity Federation) for cloud provider access where available; avoid long-lived static credentials.
 - Separate secrets per environment: staging secrets must not be usable in production.
 
 ---

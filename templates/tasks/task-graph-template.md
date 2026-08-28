@@ -5,6 +5,8 @@
 **Total Tasks**: [N]
 **Estimated Effort**: [Low / Medium / High]
 
+BuildRunner state in `build-pack/execution-state.json` is authoritative. Status columns in this document are planning snapshots only and must not be updated during execution.
+
 ## Module Coverage
 
 | Module ID | Module Plan | Responsibility | Validation Location |
@@ -73,8 +75,10 @@
 
 ## Sizing Rule
 
-No single task card may modify more than three source files or require more than three implementation steps. If a task exceeds that size, split it before Step 2 execution.
+Split a task when it crosses an independent dependency, risk, validation, or permission boundary, or cannot be completed and verified as one coherent change. Do not split solely to satisfy an arbitrary file or step count.
 
 ## Validation Rule
 
 Every task must declare a validation location through its task card. Hosted applications validate in their intended platform; local application builds are prohibited unless explicitly approved by the operator.
+
+Before execution, mirror every approved task into `build-pack/execution-state.json` and run BuildRunner `validate`.

@@ -1,160 +1,59 @@
 # GlobalSetup
 
-A harness-neutral, post-PRD agentic build system for structured, disciplined software development. 
+GlobalSetup turns an approved PRD and repository documents into a model-agnostic, long-horizon build system. It runs once, installs the planning and execution contract, and then lets any capable coding agent execute the approved task graph end to end.
 
-GlobalSetup provides a robust set of rules, skills, templates, reviewers, and safeguards designed to guide **any capable coding agent** (or human developer) through the transition from a confirmed Product Requirements Document (PRD) to a fully verified, production-ready implementation.
+## What setup installs
 
----
+- a compact `AGENTS.md` routing contract;
+- planning rules, skills, templates, reviewers, and safeguards under `.agents/`;
+- a machine-readable build pack and durable task state;
+- a standard-library Python BuildRunner with PowerShell and Bash wrappers;
+- the executable protected-file hook;
+- GitNexus plus a local, Git-ignored repository index.
 
-## 🚀 The Core Problem it Solves
+GitNexus is used under the repository's declared noncommercial scope. The committed `.gitnexusrc` keeps indexing from rewriting GlobalSetup's agent instructions.
 
-Traditional AI coding agents often suffer from **Context Debt** and **Architecture Drift**:
-* They jump straight to coding from vague prompts, leading to broken APIs and mismatched UI.
-* They lack a systematic codebase discovery phase, rewriting existing utils rather than reusing them.
-* They struggle with large features, accumulating token/session bloat until they lose the thread.
-* They bypass testing, verification, and dedicated code quality reviews before shipping.
+## One setup, two phases
 
-**GlobalSetup** solves this by inserting a structured planning and verification pipeline directly between PRD confirmation and the first line of code.
+Phase 1 translates the approved PRD into discovery, architecture, contracts, build plans, module plans, task cards, risk tiers, and validation commands. The operator approves that complete plan.
 
----
+Phase 2 is an autonomous loop: select one dependency-ready task, inspect GitNexus context and impact, implement, run proportional verification, complete the task, and continue. Completion automatically updates GitNexus and records a fresh graph receipt for every task.
 
-## 📋 The Post-PRD Pipeline
+Task state is stored in `build-pack/execution-state.json`, not in conversation history or a proprietary task service. Low-risk MVP tasks run focused checks; medium-risk tasks add affected-area checks; high-risk tasks add full validation and independent review.
 
-Every feature or build pack follows a rigorous 16-step workflow:
+## Quickstart
 
-```
-Confirmed PRD
-  ├── 1. PRD Review & Completeness Check
-  ├── 2. Build Brief Generation
-  ├── 3. Existing Codebase Discovery (Never write code blind)
-  ├── 4. Architecture Map & Component Diagramming
-  ├── 5. Data, API, UI, Permission, & Integration Contracts
-  ├── 6. Build Plan Generation (module index, sequencing, UI/UX plan)
-  ├── 7. Module Plan Generation (one plan per implementation module)
-  ├── 8. Task Graph Construction & Dependency Analysis
-  ├── 9. Fresh-Context Task Cards Creation
-  ├── 10. Intended-Location Task Execution
-  ├── 11. Automated Testing / Hosted Validation
-  ├── 12. Specialist Reviews (Security, Performance, DB, UI)
-  ├── 13. Bug Fixes & Refinement
-  ├── 14. Final Definition of Done Verification
-  ├── 15. Pre-Ship Safeguards Check
-  └── 16. Branch Commit, Push, and PR Creation
-```
+Prerequisites: Git, Python 3, npm, and a GitNexus-supported Node release (currently 22.18+ or 24.11+).
 
-GlobalSetup is deployment-first by default. Agents must not install dependencies or build applications on the operator's workstation unless the operator explicitly opts into local preview. GitHub is used for source updates, branches, pull requests, and code review only. Build and deploy verification happens in the intended hosting runtime such as Vercel, Oracle, Render, or another approved target; GitHub Actions require separate explicit operator approval.
+Windows:
 
----
-
-## 🛠️ Repository Structure
-
-GlobalSetup is completely modular, flat, and agent-neutral. The universal source of truth is [AGENTS.md](AGENTS.md):
-
-```
-globalsetup/
-├── AGENTS.md                    # Root agent instructions (universal contract)
-├── README.md                    # This file
-├── LICENSE                     # MIT License
-├── THIRD_PARTY_NOTICES.md       # Attribution to upstream sources (dotclaude, Karpathy)
-├── rules/                      # Core behavioral guidelines
-│   ├── universal-agent-rules.md # Master 12 principles
-│   ├── karpathy-guidelines.md   # Karpathy build discipline
-│   ├── post-prd-build-rules.md  # Rules governing the build pack pipeline
-│   ├── deployment-first-validation.md # No local app builds; validate in intended runtime
-│   ├── code-quality.md          # Clean code, naming conventions, formatting
-│   ├── testing.md               # Arrange-Act-Assert, TDD guidelines
-│   ├── database.md              # Migration safety, indexing rules
-│   ├── frontend.md              # Responsive layout, accessibility rules
-│   ├── error-handling.md        # Resilient error propagation patterns
-│   └── git-workflow.md          # Branch naming, clean commits, and PR standards
-├── skills/                     # Reusable step-by-step workflow definitions
-│   ├── prd-to-build-pack/       # Translates confirmed PRDs to build packs
-│   ├── repo-discovery/          # Codebase mapping and technology detection
-│   ├── architecture-map/        # Component structure mapping
-│   ├── task-graph/              # Splitting builds into task graphs
-│   ├── fresh-context-execution/ # Isolated task execution guidelines
-│   ├── tdd/                     # Red-Green-Refactor execution loops
-│   ├── pr-review/               # Structured PR review synthesis
-│   └── ship/                    # Safe branch shipping workflow
-├── templates/                  # Fill-in-the-blank markdown build templates
-│   ├── prd/                     # PRD templates and checklists
-│   ├── build-requirements/      # Build briefs, implementation contracts
-│   ├── architecture/            # Architecture map, ADRs, discovery reports
-│   ├── contracts/               # API, database, UI, and permission contracts
-│   ├── build-plans/             # Build-plan index and UI/UX build plan templates
-│   ├── tasks/                   # Task graph and individual task card templates
-│   └── qa/                      # Test plans, DoD, rollback plans
-├── reviewers/                  # Specialist checklists (formerly subagents)
-│   ├── code-reviewer.md         # General logic, structure, and test coverage
-│   ├── security-reviewer.md     # OWASP top-10, sanitization, access control
-│   ├── performance-reviewer.md  # N+1 queries, leaks, render bottlenecks
-│   └── database-reviewer.md     # Indexing, schema migrations, lock prevention
-├── safeguards/                 # Declarative safety policies and checklists
-│   ├── dangerous-command-rules.md # CLI guardrails (e.g., rm, drop table, force push)
-│   └── protected-files.md       # Hard-blocked file edits (e.g., lockfiles, env)
-└── scripts/                    # Platform scripts to automate workspace setup
-    ├── setup-globalsetup.ps1    # PowerShell setup script for Windows
-    └── setup-globalsetup.sh     # Bash setup script for Linux/macOS
-```
-
----
-
-## ⚡ Quickstart
-
-Get started with GlobalSetup in 3 steps:
-
-### 1. Copy GlobalSetup Into Your Target Project
-Run the setup script from the root of your target project:
-
-**Linux / macOS (Bash):**
-```bash
-bash /path/to/globalsetup/scripts/setup-globalsetup.sh .
-```
-
-**Windows (PowerShell):**
 ```powershell
-& C:\path\to\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir .
+& C:\path\to\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project
 ```
 
-This creates a local `.agents/` folder containing the rules, skills, templates, reviewers, and safeguards, and copies [AGENTS.md](AGENTS.md) to your root.
+Linux or macOS:
 
-This setup step copies planning assets only. It must not install application dependencies, run application builds, or start local application runtimes.
+```bash
+bash /path/to/globalsetup/scripts/setup-globalsetup.sh /path/to/project
+```
 
-### 2. Put Your Confirmed PRD in Your Project
-Place your confirmed PRD at `docs/confirmed-prd.md` (or the project root).
+Setup initializes Git when needed, installs GitNexus when absent, indexes the repository, configures detected agent harnesses, and creates the initial build pack. It does not install application dependencies or run the application.
 
-### 3. Let Your Agent Build the Pack
-Instruct your agent:
-> *"Read [AGENTS.md](file:///path/to/project/AGENTS.md) and execute the `prd-to-build-pack` skill to generate the complete build pack for our confirmed PRD."*
+After the agent compiles the approved plans into execution state:
 
-The generated build pack must include visible build plans under `build-pack/build-plans/` and module-level plans under `build-pack/module-plans/` before task cards are approved.
+```bash
+python scripts/build-runner.py --root . validate
+python scripts/build-runner.py --root . next
+```
 
----
+See [the quickstart](docs/quickstart.md), [the workflow](docs/post-prd-workflow.md), and [the architecture](docs/agent-neutral-architecture.md).
 
-## 🧠 Design Principles
+## Delivery boundary
 
-1. **Harness-Neutral**: Does not use proprietary formatting. Works out-of-the-box with Claude Code, Cursor, Gemini, Codex, OpenCode, Qoder, or any other agentic environment.
-2. **Post-PRD Focused**: Engaging only after requirements are fully locked to eliminate scope creep.
-3. **Discovery Before Action**: Force codebase inspection before any code modifications.
-4. **Contract-Driven**: APIs, Schemas, and UI layouts are agreed upon in markdown contracts *before* code is written.
-5. **Build-Planned**: Every project has visible build plans before task cards.
-6. **Module-Planned**: Large systems are first split into module plans, then dependency-ordered task cards.
-7. **UI/UX-Planned**: User-facing projects must include a UI/UX build plan and module.
-8. **Fresh-Context Friendly**: Large features are split into task cards small enough to be executed by an agent in a brand-new, clean shell session.
-9. **Deployment-First**: Build and deployment validation runs where the application is intended to live, not on the operator's machine by default.
+GitHub is used for source updates, branches, pull requests, and manual review. GlobalSetup prohibits GitHub Actions workflows and hosted runners; validation runs in the task's declared runtime.
 
----
+Hosted or external validation runs in the location declared by each task. Local application installs, servers, and production builds are not the default.
 
-## 📜 Credits and Upstream Sources
+## Licence and attribution
 
-GlobalSetup is built on top of and inspired by:
-* **dotclaude** (MIT): Upstream rules, skills structure, templates, and hook-derived safeguard designs.
-* **andrej-karpathy-skills** (MIT): Karpathy-inspired build discipline.
-
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for full attribution.
-
----
-
-## 📄 License
-
-MIT. See [LICENSE](LICENSE).
+GlobalSetup is MIT-licensed. GitNexus remains separately licensed under PolyForm Noncommercial 1.0.0. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

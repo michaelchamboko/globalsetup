@@ -1,6 +1,6 @@
 # GlobalSetup Overview
 
-GlobalSetup is a harness-neutral post-PRD agentic build system. It provides a structured approach to converting confirmed Product Requirements Documents (PRDs) into implementable build packs that any capable coding agent can execute.
+GlobalSetup is a harness-neutral post-PRD planning and execution system. It converts confirmed Product Requirements Documents into an approved build pack, then uses durable repository state, BuildRunner, and GitNexus to let any capable coding agent execute the task graph end to end.
 
 ## What Problem Does This Solve?
 
@@ -14,7 +14,7 @@ Coding agents often receive vague requirements and jump straight to implementati
 - Incomplete testing
 - No review gates before shipping
 
-GlobalSetup solves this by inserting a structured planning phase between PRD confirmation and implementation.
+GlobalSetup solves this with a structured planning phase followed by a deterministic, risk-tiered execution loop.
 
 ## The Post-PRD Pipeline
 
@@ -70,6 +70,10 @@ Specialist reviewer profiles define focused review perspectives: code quality, s
 
 Safeguards define protective rules against dangerous operations: destructive commands, protected files, destructive change policies, and pre-ship checklists.
 
+### BuildRunner and GitNexus
+
+BuildRunner owns task transitions, dependency readiness, proportional verification evidence, graph-sync evidence, and high-risk review state in `build-pack/execution-state.json`. GitNexus supplies the mandatory local architecture, execution-flow, context, and impact graph for this declared noncommercial workflow.
+
 ## Design Principles
 
 1. **Harness-neutral**: Works with any coding agent, IDE, or execution environment
@@ -81,4 +85,4 @@ Safeguards define protective rules against dangerous operations: destructive com
 7. **UI/UX-planned**: User-facing systems get a dedicated UI/UX build plan and module
 8. **Deployment-first**: Hosted apps validate in their intended platform, not through local builds by default
 9. **Fresh-context friendly**: Large builds split into independent, self-contained tasks
-10. **Review-gated**: Specialist reviews at defined checkpoints before shipping
+10. **Risk-tiered**: Focused checks keep MVP tasks moving; full validation and independent review are reserved for high-risk work

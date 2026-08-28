@@ -1,23 +1,19 @@
 ---
 name: fresh-context-execution
-description: Guidelines for executing a single task card in isolation, including the ponytail pre-build gate
-argument-hint: [Task Card ID]
+description: Execute one BuildRunner task from durable state with bounded GitNexus context.
+argument-hint: [Task ID]
 ---
 
-Follow these guidelines to execute a single task card in a fresh, isolated session to prevent context debt:
+# Fresh-context task execution
 
-1. **🪡 Ponytail-debt scan (first)**: Run `ponytail-debt` before loading anything else. Surface any `ponytail:` shortcuts deferred from prior sessions. Any `no-trigger` marker must be resolved or accepted before new code is written.
-2. Read the task card completely (specifically the Must-Haves, Module Plan Reference, Validation Location, and Verification Command/Hosted Check).
-3. Load only the files listed under "Context Baseline".
-4. **🪡 Ponytail ladder (pre-build gate)**: Before writing a single line, climb the ladder:
-   - Does this task card need to produce new code at all, or does a stdlib/platform/installed-dep solution already exist?
-   - Can the requirement be satisfied in one line?
-   - Only if none of the above: write the minimum code to satisfy the card's acceptance criteria.
-5. **Run Spec-First Check**: Use the declared validation location to ensure the spec is currently unmet or that the required check exists. If a spec check is missing, add the minimum check first.
-6. Write/modify the minimum production code required to satisfy the card's objective and truths.
-7. **Run Verification Command / Hosted Check**: Run or observe the verification specified on the card in the declared validation location.
-8. Re-run or observe related hosted/runtime checks for regressions.
-9. **🪡 Ponytail-review (post-build)**: Run `ponytail-review` on the diff. Action any `delete:` or `yagni:` finding with 0 risk before committing.
-10. Commit and push according to the task card's delivery path, clear temporary variables, and prepare for the next task card.
+1. Run BuildRunner `validate` and confirm the requested task is the task returned by `next`.
+2. Read the task card, module plan, relevant contracts, and current Git status.
+3. Run `gitnexus status`; retrieve graph context and impact for existing symbols or interfaces in scope.
+4. Run `start TASK_ID`.
+5. Implement the smallest change that satisfies the task's observable requirements. Add a focused spec check first when needed.
+6. Run `verify TASK_ID`; fix only task-caused or task-required failures.
+7. For high-risk work, obtain and record the independent review required by the task.
+8. Run `complete TASK_ID`. Completion must update GitNexus and record a fresh receipt before the task becomes done.
+9. Commit or push only through the repository's approved delivery path, then continue with `next`.
 
-Do not run local dependency installs, local application builds, local dev servers, full local typechecks, or GitHub Actions unless the task card cites explicit operator approval for that exception.
+Do not manually update lifecycle status, discard unrelated changes, run unapproved local application builds, or add GitHub Actions.

@@ -26,11 +26,11 @@
 
 ## Routing Structure
 
-[Describe how routes are organized â€” file-based, config-based, etc.]
+[Describe how routes are organized — file-based, config-based, etc.]
 
 ## Component Patterns
 
-[Describe the existing component structure â€” atomic design, feature-based, page-based, etc.]
+[Describe the existing component structure — atomic design, feature-based, page-based, etc.]
 
 ## API Structure
 
@@ -42,21 +42,21 @@
 
 ## Authentication and Authorization
 
-[Describe how auth works â€” middleware, guards, decorators, etc.]
+[Describe how auth works — middleware, guards, decorators, etc.]
 
-## Naming Conventions
+## Observed Naming Conventions
 
 | Category | Convention |
 |----------|------------|
-| Files | [e.g., PascalCase for components, kebab-case for utils] |
-| Functions | [e.g., camelCase, verb-first] |
+| Files | [observed pattern and representative path] |
+| Functions | [observed pattern and representative path] |
 | Constants | [e.g., SCREAMING_SNAKE] |
-| Database tables | [e.g., snake_case, plural] |
+| Database tables | [observed pattern and representative schema] |
 
 ## Existing Patterns to Follow
 
-- [Pattern 1 â€” e.g., all API routes use a standard response wrapper]
-- [Pattern 2 â€” e.g., all components use CSS Modules]
+- [Pattern 1 — e.g., all API routes use a standard response wrapper]
+- [Pattern 2 — e.g., all components use CSS Modules]
 
 ## Environment Variables
 
@@ -66,8 +66,8 @@
 
 ## Areas That Must NOT Be Touched
 
-- [File or directory 1 â€” reason]
-- [File or directory 2 â€” reason]
+- [File or directory 1 — reason]
+- [File or directory 2 — reason]
 
 ## Existing Risks
 

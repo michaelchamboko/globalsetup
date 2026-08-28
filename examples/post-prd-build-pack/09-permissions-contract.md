@@ -1,4 +1,4 @@
-# Example Permissions Contract â€” User Notification System
+# Example Permissions Contract — User Notification System
 
 ## Roles
 - `USER`: Can view and read their own notifications.
@@ -7,6 +7,6 @@
 ## Permissions Matrix
 | Action | USER | ADMIN | Guest |
 |--------|------|-------|-------|
-| GET /api/notifications | âœ… | âœ… | âŒ |
-| PATCH /api/notifications/:id/read | âœ… | âœ… | âŒ |
-| POST /api/notifications (broadcast) | âŒ | âœ… | âŒ |
+| GET /api/notifications | ✅ | ✅ | ❌ |
+| PATCH /api/notifications/:id/read | ✅ | ✅ | ❌ |
+| POST /api/notifications (broadcast) | ❌ | ✅ | ❌ |

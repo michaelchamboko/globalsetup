@@ -72,7 +72,7 @@ Safeguards define protective rules against dangerous operations: destructive com
 
 ### BuildRunner and GitNexus
 
-BuildRunner owns task transitions, dependency readiness, proportional verification evidence, graph-sync evidence, and high-risk review state in `build-pack/execution-state.json`. GitNexus supplies the mandatory local architecture, execution-flow, context, and impact graph for this declared noncommercial workflow.
+BuildRunner owns task transitions, exact context routing, dependency readiness, proportional local-command and hosted-receipt evidence, source fingerprints, graph-sync evidence, and high-risk review state in `build-pack/execution-state.json`. GitNexus supplies the mandatory local architecture, execution-flow, context, and impact graph for this declared noncommercial workflow.
 
 ## Design Principles
 

@@ -1,6 +1,6 @@
 ---
 name: repo-discovery
-description: Inspect a target project through GitNexus before planning or changing code.
+description: Use when a task needs unfamiliar architecture, flow, dependency, convention, or blast-radius context.
 ---
 
 # Repository discovery

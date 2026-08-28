@@ -2,96 +2,29 @@
 alwaysApply: false
 ---
 
-# Karpathy Workspace Norms — Agent Operating Architecture
+# Karpathy workspace norms
 
-> Extends `karpathy-guidelines.md`. These norms enforce structured intent, explicit verification
-> loops, and environment safety guardrails across all agent sessions in this repository.
+Use these norms when a task has consequential assumptions, unclear success criteria, or pressure to broaden the change.
 
-## Development Philosophy: Modern Engineering
+## Before implementation
 
-- **You can outsource execution, but you cannot outsource understanding.**
-- Prioritize clear architectural intent and upfront verification over immediate code generation.
-- Never write multi-step loops or feature builds without an explicitly approved low-level specification.
-- Understanding the *why* behind a change is a prerequisite for writing the *what*.
+1. Read the active task and its `context_files`.
+2. State only assumptions that could change scope, architecture, permissions, risk, or validation.
+3. Resolve cheap facts from code, approved documents, and GitNexus.
+4. Return to phase 1 only when an unresolved choice would materially change the approved build.
 
----
+## During implementation
 
-## Core Behavioral Directives
+- Write code that reads like the surrounding code: match its comment density, naming, structure, and idiom.
+- Make the smallest change that satisfies the observable task contract.
+- Keep one BuildRunner task active and preserve unrelated work.
+- Treat dependency, schema, core configuration, and external-write decisions according to the task's declared authority and risk; do not create a second confirmation gate.
 
-### 1. The Spec Interview (Before Broad Tasks)
+## Verification
 
-If a task scope is broad, ambiguous, or lacks crisp architectural definitions, you **must** interview the user before writing code:
+- Low risk runs the task check.
+- Medium risk adds affected-area checks.
+- High risk adds full checks and a source-bound independent review receipt.
+- Record hosted evidence as a receipt from its declared runtime; record local commands as command evidence.
 
-- Prompt the user to uncover the **true high-level decision or goal** driving the request.
-- Ask targeted questions to expose constraints, edge cases, and success criteria.
-- Bias heavily toward **small, isolated, highly compartmentalized specifications**.
-- Document the final agreed specification before proceeding.
-
-**Trigger condition**: Task involves more than one module, touches a core config file, or has no measurable acceptance criteria defined.
-
-### 2. Upfront Verification Gate (Before Writing Code)
-
-Before writing a single line of execution or implementation code, explicitly define:
-
-1. **Evaluation criteria**: What measurable metrics define a high-quality result?
-2. **Success definition**: What does "done" look like in precise, observable terms?
-3. **Failure modes**: What would a broken or incomplete result look like?
-4. **Validation method**: How will the output be verified (dual-model consensus, schema validation, test suite, CI pass, etc.)?
-
-Document these in the task card or as a comment block at the top of the relevant build plan before implementation begins.
-
-### 3. Explicit Decision Checkpoints (Guarded Architectural Changes)
-
-Force explicit user confirmation before proceeding with any of the following:
-
-- Structural database schema modifications
-- Dependency additions or removals
-- Core configuration architecture edits
-- External system writes (API calls that mutate remote state)
-- Changes to files listed in `safeguards/protected-files.md`
-
-**Never let changes drift through assumptions.** If confirmation cannot be obtained, block the active task through BuildRunner with one precise reason.
-
----
-
-## Workspace Action Boundaries
-
-### ✅ Always Do [Autopilot]
-These actions are safe to perform without user confirmation:
-
-- Isolated lint fixes and formatting corrections
-- Localized documentation corrections (typos, grammar, broken links)
-- Simple data file reads and inspection
-- Adding or updating code comments and docstrings
-- Running read-only validation scripts (`validate-build-pack.ps1`, dry runs)
-
-### ⚠️ Ask First [Guarded]
-These actions require explicit user confirmation before execution:
-
-- Adding or upgrading dependencies (any package manager operation)
-- Modifying structural database schemas (migrations, table definitions)
-- Editing core configuration architectures (`AGENTS.md`, any `rules/*.md`, CI/CD workflows)
-- Executing external system writes (POST/PUT/DELETE to remote APIs)
-- Creating or removing directories at the repo root level
-
-### 🚫 Never Do [Forbidden]
-These actions are absolutely prohibited under all circumstances:
-
-- Bypassing pre-tool verification checks defined in `scripts/pre-tool-hook.ps1`
-- Sweeping untracked changes across multiple unrelated directories simultaneously
-- Modifying files listed in `safeguards/protected-files.md` without explicit operator instruction
-- Silently suppressing validation errors or test failures to make a task appear complete
-- Auto-approving Step 1 (Planning) decisions without human-in-the-loop confirmation
-
----
-
-## Integration with Existing Architecture
-
-| Norm | Cross-Referenced File |
-|------|-----------------------|
-| Spec Interview triggers | `rules/universal-agent-rules.md` § Plan Before Coding |
-| Upfront Verification Gate | `templates/governance/verification-schema.json` |
-| Explicit Decision Checkpoints | `safeguards/protected-files.md`, `safeguards/dangerous-command-rules.md` |
-| Autopilot boundary | `safeguards/pre-ship-checklist.md` |
-| Forbidden actions | `safeguards/destructive-change-policy.md` |
-| Pre-tool hook | `scripts/pre-tool-hook.ps1` |
+The task is complete only after BuildRunner accepts the evidence, refreshes GitNexus, and records the completion. A failed required check, unavailable authority, or material contract contradiction is a blocker; routine transitions are not.

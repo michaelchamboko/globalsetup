@@ -14,7 +14,7 @@ Each criterion uses Given/When/Then format:
 **When** [action]  
 **Then** [expected result]  
 
-**Verification**: [How to test â€” unit test, manual check, API call]
+**Verification**: [How to test — unit test, manual check, API call]
 
 ---
 

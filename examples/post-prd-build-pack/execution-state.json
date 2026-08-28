@@ -10,10 +10,16 @@
       "dependencies": [],
       "risk": "high",
       "source_changes": true,
+      "context_files": [
+        "build-pack/module-plans/M-001-notification-core.md",
+        "build-pack/06-database-contract.md",
+        ".agents/skills/fresh-context-execution/SKILL.md",
+        ".agents/rules/database.md"
+      ],
       "validation": [
-        {"name": "schema check", "tier": "task", "argv": ["npm", "test", "--", "notification-schema"]},
-        {"name": "data checks", "tier": "affected", "argv": ["npm", "test", "--", "data"]},
-        {"name": "full suite", "tier": "full", "argv": ["npm", "test"]}
+        {"name": "schema check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notification-schema"]},
+        {"name": "data checks", "tier": "affected", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "data"]},
+        {"name": "full suite", "tier": "full", "kind": "command", "location": "local", "argv": ["npm", "test"]}
       ],
       "evidence": []
     },
@@ -24,9 +30,15 @@
       "dependencies": ["T-001"],
       "risk": "medium",
       "source_changes": true,
+      "context_files": [
+        "build-pack/module-plans/M-001-notification-core.md",
+        "build-pack/07-api-contract.md",
+        ".agents/skills/fresh-context-execution/SKILL.md",
+        ".agents/rules/api-design.md"
+      ],
       "validation": [
-        {"name": "API check", "tier": "task", "argv": ["npm", "test", "--", "notifications-api"]},
-        {"name": "server checks", "tier": "affected", "argv": ["npm", "test", "--", "server"]}
+        {"name": "API check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notifications-api"]},
+        {"name": "server checks", "tier": "affected", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "server"]}
       ],
       "evidence": []
     },
@@ -37,9 +49,14 @@
       "dependencies": ["T-002"],
       "risk": "medium",
       "source_changes": true,
+      "context_files": [
+        "build-pack/module-plans/M-001-notification-core.md",
+        "build-pack/07-api-contract.md",
+        ".agents/skills/fresh-context-execution/SKILL.md"
+      ],
       "validation": [
-        {"name": "SSE check", "tier": "task", "argv": ["npm", "test", "--", "notifications-sse"]},
-        {"name": "server checks", "tier": "affected", "argv": ["npm", "test", "--", "server"]}
+        {"name": "SSE check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notifications-sse"]},
+        {"name": "server checks", "tier": "affected", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "server"]}
       ],
       "evidence": []
     },
@@ -50,8 +67,14 @@
       "dependencies": ["T-003"],
       "risk": "low",
       "source_changes": true,
+      "context_files": [
+        "build-pack/module-plans/M-002-notification-ui-ux.md",
+        "build-pack/08-ui-contract.md",
+        ".agents/skills/fresh-context-execution/SKILL.md",
+        ".agents/rules/frontend.md"
+      ],
       "validation": [
-        {"name": "bell component check", "tier": "task", "argv": ["npm", "test", "--", "notification-bell"]}
+        {"name": "bell component check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notification-bell"]}
       ],
       "evidence": []
     },
@@ -62,9 +85,15 @@
       "dependencies": ["T-004"],
       "risk": "medium",
       "source_changes": true,
+      "context_files": [
+        "build-pack/module-plans/M-002-notification-ui-ux.md",
+        "build-pack/08-ui-contract.md",
+        ".agents/skills/fresh-context-execution/SKILL.md",
+        ".agents/rules/frontend.md"
+      ],
       "validation": [
-        {"name": "panel component check", "tier": "task", "argv": ["npm", "test", "--", "notification-panel"]},
-        {"name": "notification UI checks", "tier": "affected", "argv": ["npm", "test", "--", "notification-ui"]}
+        {"name": "panel component check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notification-panel"]},
+        {"name": "notification UI checks", "tier": "affected", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notification-ui"]}
       ],
       "evidence": []
     },
@@ -75,10 +104,16 @@
       "dependencies": ["T-005"],
       "risk": "high",
       "source_changes": false,
+      "context_files": [
+        "build-pack/module-plans/M-003-release-validation.md",
+        "build-pack/15-pre-ship-checklist.md",
+        ".agents/skills/fresh-context-execution/SKILL.md",
+        ".agents/skills/ship/SKILL.md"
+      ],
       "validation": [
-        {"name": "release task check", "tier": "task", "argv": ["npm", "test", "--", "notifications-release"]},
-        {"name": "affected product checks", "tier": "affected", "argv": ["npm", "test", "--", "notifications"]},
-        {"name": "full suite", "tier": "full", "argv": ["npm", "test"]}
+        {"name": "release task check", "tier": "task", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notifications-release"]},
+        {"name": "affected product checks", "tier": "affected", "kind": "command", "location": "local", "argv": ["npm", "test", "--", "notifications"]},
+        {"name": "full suite", "tier": "full", "kind": "command", "location": "local", "argv": ["npm", "test"]}
       ],
       "evidence": []
     }

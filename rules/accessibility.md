@@ -133,10 +133,10 @@ Visible focus indicators are **non-negotiable**. Never use `outline: none` witho
 
 ## 9. Automated & Manual Testing
 
-### Automated (run in CI on every PR)
+### Automated (run in the task's declared browser or hosted runtime)
 
 - **axe-core** (via `@axe-core/playwright` or `jest-axe`): catches ~30–40% of WCAG issues automatically.
-- **Lighthouse Accessibility audit**: score must be ≥ 90 and not regress between PRs.
+- **Lighthouse Accessibility audit**: use the product's approved threshold and record regressions when relevant.
 - **Accessibility snapshot tests**: use Playwright's `page.accessibility.snapshot()` for component-level regression.
 
 ### Manual Testing Matrix (required before major releases)

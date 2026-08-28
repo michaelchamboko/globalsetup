@@ -7,6 +7,14 @@
 **Risk**: [low / medium / high]
 **Source Changes**: [true / false]
 
+## Context Files
+
+Mirror these exact repository-relative paths into the execution state's `context_files`. Include only the rule, skill, plan, contract, code, test, or reviewer files needed for this task.
+
+- `[build-pack/module-plans/M-NNN-module-name.md]`
+- `[build-pack/relevant-contract.md]`
+- `[existing/file/to-change]`
+
 ## Objective
 
 [One clear sentence: what this task accomplishes]
@@ -38,10 +46,9 @@
 
 ## Testing Plan & Verification
 
-* **Validation Location**: `[vercel / oracle / approved-runtime / local-docs-only]`
-* **Task-Tier Command or Hosted Check**: `[Exact focused check]`
-* **Affected-Tier Check**: `[Required for medium/high risk; otherwise N/A]`
-* **Full-Tier Check**: `[Required for high risk; otherwise N/A]`
+* **Task-Tier Validation**: `[kind: command, location: local, argv: [...]]` or `[kind: receipt, location: vercel/oracle/approved-runtime]`
+* **Affected-Tier Validation**: `[Required for medium/high risk; declare kind and location, otherwise N/A]`
+* **Full-Tier Validation**: `[Required for high risk; declare kind and location, otherwise N/A]`
 * **Expected Output**: `[Successful exit code 0 or positive verification indicator]`
 * **Manual Verification**: [Manual verification steps]
 * **Local Build Exception**: `[No by default. If yes, cite explicit operator approval and commands allowed.]`
@@ -54,6 +61,7 @@
 
 ## Execution-State Mapping
 
-- [ ] Dependencies, risk, source-change intent, and validation argument arrays match this card.
+- [ ] Dependencies, risk, source-change intent, `context_files`, and validation kinds/locations match this card.
+- [ ] Every local `command` has an argument array; every hosted/external `receipt` names its intended runtime and durable evidence source.
 - [ ] High-risk work names the independent review evidence required before completion.
 

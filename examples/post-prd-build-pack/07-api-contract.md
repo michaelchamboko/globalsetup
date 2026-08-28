@@ -1,4 +1,4 @@
-# Example API Contract â€” User Notification System
+# Example API Contract — User Notification System
 
 ## Endpoints
 

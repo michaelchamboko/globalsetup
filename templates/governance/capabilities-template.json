@@ -1,4 +1,5 @@
 {
+  "$schema": "./capabilities.schema.json",
   "schema_version": 1,
   "python": {
     "required": true,

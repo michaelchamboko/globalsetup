@@ -1,7 +1,7 @@
 # Fresh-Context Task Card: [T-NNN] [Title]
 
-## Context Baseline
-Before editing, retrieve and read:
+## Context Files
+Mirror these exact repository-relative paths into the execution state's `context_files`. Before editing, retrieve and read:
 - [ ] docs/architecture-map.md
 - [ ] build-pack/contracts/[relevant-contract].md
 - [ ] [existing-file-to-modify-or-reference]
@@ -23,8 +23,8 @@ Before editing, retrieve and read:
 2. [Action 2]
 
 ## Intended-Location Verification
-- **Task-Tier Command or Hosted Check**: `[Exact focused validation]`
-- **Affected/Full Checks**: `[Add only when required by risk]`
+- **Task-Tier Validation**: `[command + local argv, or receipt + hosted/external location]`
+- **Affected/Full Checks**: `[Add only when required by risk; declare kind and location]`
 - **Expected Output**: `[Expected result, exit code 0]`
 
 ## Rollback Plan

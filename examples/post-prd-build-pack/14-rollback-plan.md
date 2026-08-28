@@ -1,4 +1,4 @@
-# Example Rollback Plan â€” User Notification System
+# Example Rollback Plan — User Notification System
 
 ## Code Revert
 ```bash

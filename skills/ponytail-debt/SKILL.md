@@ -5,10 +5,8 @@ description: >
   deliberate shortcuts and deferrals ponytail leaves behind get tracked instead
   of rotting into "later means never". Use when the user says "ponytail debt",
   "/ponytail-debt", "what did ponytail defer", "list the shortcuts", "ponytail
-  ledger", or "what did we mark to do later". In the Setup pipeline, invoke
-  this at the start of every Step 2 fresh-context resume to surface any
-  shortcuts from the previous session before writing new code. One-shot report,
-  changes nothing.
+  ledger", or "what did we mark to do later". It is an opt-in, one-shot report
+  and changes nothing.
 ---
 
 # Ponytail Debt
@@ -41,17 +39,6 @@ Flag the rot risk: any `ponytail:` comment that names no upgrade path or
 trigger gets a `no-trigger` tag — those are the ones that silently rot.
 
 End with `<N> markers, <M> with no trigger.` Nothing found: `No ponytail: debt. Clean ledger.`
-
-## Integration with Setup Pipeline
-
-**Fresh-Context Resume (Step 2):** At the start of every new context session
-during Step 2, run ponytail-debt as part of the Fresh Context Resume Checklist
-(alongside reading `AGENTS.md` and `build-pack/execution-state.json`). This surfaces
-any `ponytail:` shortcuts left in-progress before writing new code.
-
-**Pre-Ship Safeguards (Step 2, task 15):** Run ponytail-debt before the
-pre-ship checklist gate. Any `no-trigger` marker must be resolved or
-explicitly accepted by the operator before delivery.
 
 To persist the ledger: ask and it writes to `PONYTAIL-DEBT.md`.
 

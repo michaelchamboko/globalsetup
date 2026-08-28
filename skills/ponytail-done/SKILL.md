@@ -1,22 +1,20 @@
 ---
 name: ponytail-done
 description: >
-  Mandatory completion gate that runs at the end of every coding/development/
-  building session before the work is declared done. Performs a three-part
+  Optional simplicity audit for the end of a coding/development/building
+  session. Performs a three-part
   ponytail exit check: (1) ponytail-review on the session's diff,
   (2) ponytail-debt scan of the whole repo, (3) a pass/fail verdict.
   Use when the user says "we're done", "done coding", "ready to ship",
   "mark as complete", "done building", "finished", or "work is done".
-  In the Setup pipeline: runs automatically at Step 2, task 14
-  (Final Definition of Done Verification) and task 15 (Pre-Ship Safeguards).
-  Produces a compact one-page report. If everything is clean: "Ship." only.
+  It is not an automatic BuildRunner or shipping gate. Produces a compact
+  one-page report. If everything is clean: "Ship." only.
 ---
 
 # Ponytail Done — Completion Gate
 
-The lazy senior dev's exit interview. Three checks, one verdict.
-Run this every time building / development / coding work is declared complete,
-before any commit, PR, or delivery.
+The lazy senior dev's optional exit interview. Run its three checks only when
+the operator requests Ponytail completion review.
 
 ---
 
@@ -66,17 +64,6 @@ VERDICT: [SHIP. | HOLD — <reason>]
 - Diff adds no net complexity without clear reason
 
 **HOLD** if any fail — name exactly what must change.
-
----
-
-## Integration with Setup Pipeline
-
-| Step | Role |
-|------|------|
-| Step 2, task 12 (Specialist Reviews) | Run ponytail-review as part of the review checklist |
-| Step 2, task 14 (Definition of Done) | Run the full ponytail-done gate |
-| Step 2, task 15 (Pre-Ship) | Confirm SHIP verdict before commit/push |
-| Step 2, task 16 (Commit) | Only commit after SHIP verdict |
 
 ---
 

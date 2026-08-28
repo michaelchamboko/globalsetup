@@ -89,7 +89,7 @@ const prompt = systemPrompt + userInput;
   - **Unit evals**: fixed input → expected output patterns (regex, exact match, or LLM-as-judge).
   - **Regression evals**: run against golden dataset of 50+ real production examples before every release.
   - **Adversarial evals**: red-team prompts — jailbreaks, injections, edge cases, competitor mentions.
-- Evals run in CI on every PR that modifies a prompt or AI pipeline.
+- Prompt or pipeline changes record eval evidence in their declared runtime before delivery; GitHub Actions are not used.
 - Track **eval scores over time** as metrics — set a minimum passing score (e.g., ≥ 95% accuracy on golden set).
 - Use **LLM-as-a-judge** for open-ended quality scoring, but validate the judge with human agreement scores first.
 

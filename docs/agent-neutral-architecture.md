@@ -5,7 +5,7 @@ GlobalSetup separates durable repository state from the model or harness executi
 ## Portable core
 
 - `AGENTS.md` is a short routing contract readable by any coding model.
-- `build-pack/execution-state.json` is the task lifecycle source of truth.
+- `build-pack/execution-state.json` is the task lifecycle source of truth and routes exact `context_files`.
 - `build-pack/capabilities.json` records required tools and safe argument arrays.
 - `scripts/build-runner.py` uses only the Python standard library and has PowerShell and Bash wrappers.
 - Markdown plans, task cards, rules, and reviewers remain human-readable.
@@ -15,7 +15,7 @@ The runner does not call a model API, require a vendor-specific persona system, 
 
 ## One setup, two phases
 
-Setup runs once after the PRD is approved. It installs the repository contract, BuildRunner, safety files, GitNexus, and the initial build pack. Phase 1 compiles approved documents into the task graph. Phase 2 repeatedly selects, executes, verifies, and completes tasks; completion performs and records the GitNexus update.
+Setup runs once after the PRD is approved. A fail-fast preflight validates prerequisites, UTF-8 text, and local references; a staged transaction installs the repository contract, BuildRunner, safety files, GitNexus configuration, and the initial build pack. Target mutations roll back on failure, and re-running setup preserves durable execution state. Phase 1 compiles approved documents into the task graph. Phase 2 repeatedly selects, executes, verifies, and completes tasks; completion performs and records the GitNexus update.
 
 There is no GitHub runner. GitHub remains source control and manual review only.
 
@@ -27,4 +27,6 @@ The committed `.gitnexusrc` uses index-only mode so GitNexus cannot rewrite the 
 
 ## Harness adapters
 
-A harness may add its own thin adapter, but it must not replace the JSON state, weaken the risk gates, or create a second task ledger. If an MCP integration is unavailable, the agent may use the GitNexus CLI. If GitNexus itself is unavailable, execution fails closed.
+A harness may add its own thin adapter, but it must not replace the JSON state, widen the returned context, weaken the risk gates, or create a second task ledger. The BuildRunner's stable JSON envelope is the adapter boundary. Local commands and hosted receipts remain distinct, and verification, independent review, and graph receipts bind to the exact source fingerprint. If an MCP integration is unavailable, the agent may use the repository-local GitNexus CLI runner. If GitNexus itself is unavailable, execution fails closed.
+
+`scripts/evaluate-portability.py` exercises this contract against Python, TypeScript, and Go-shaped repositories. It proves deterministic contract portability only; it does not claim equal model intelligence or implementation quality.

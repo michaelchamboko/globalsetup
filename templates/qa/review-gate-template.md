@@ -19,5 +19,5 @@ Select only reviews required by the task risk or an explicit contract. High-risk
 | F-01 | Low/Med/High | [File] | [Description] | [What to do] | Open/Resolved |
 
 ## Gate Verdict
-- [ ] **PASS** â€” Ready to proceed
-- [ ] **BLOCKED** â€” Critical issues must be resolved first
+- [ ] **PASS** — Ready to proceed
+- [ ] **BLOCKED** — Critical issues must be resolved first

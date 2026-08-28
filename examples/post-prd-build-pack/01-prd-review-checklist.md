@@ -1,4 +1,4 @@
-# Example PRD Review Checklist â€” User Notification System
+# Example PRD Review Checklist — User Notification System
 
 - [x] Problem statement is specific and describes the current pain point
 - [x] Target users are identified with concrete descriptions

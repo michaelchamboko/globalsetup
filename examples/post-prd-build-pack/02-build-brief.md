@@ -1,4 +1,4 @@
-# Example Build Brief â€” User Notification System
+# Example Build Brief — User Notification System
 
 **Feature**: User Notification System  
 **Estimated Complexity**: Medium (7 task cards)  

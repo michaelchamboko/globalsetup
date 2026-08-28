@@ -15,6 +15,7 @@ if [ -z "$PYTHON_BIN" ]; then
 fi
 
 "$PYTHON_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.py" --root "$REPOSITORY_ROOT" --staged
+"$PYTHON_BIN" "$REPOSITORY_ROOT/scripts/repository-text.py" --root "$REPOSITORY_ROOT" --staged
 
 if [ -x "$REPOSITORY_ROOT/.githooks/pre-commit.user" ]; then
   "$REPOSITORY_ROOT/.githooks/pre-commit.user"

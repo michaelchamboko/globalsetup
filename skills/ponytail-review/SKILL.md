@@ -6,9 +6,8 @@ description: >
   dead flexibility. One line per finding: location, what to cut, what replaces
   it. Use when the user says "review for over-engineering", "what can we
   delete", "is this over-engineered", "simplify review", or invokes
-  /ponytail-review. Also auto-invoked during the Review-Agent step (Step 2,
-  task 12) in the Setup pipeline to scan each task card's diff before sign-off.
-  Complements correctness-focused review — this one only hunts complexity.
+  /ponytail-review. It is opt-in and complements correctness-focused review;
+  this one only hunts complexity.
 ---
 
 # Ponytail Review
@@ -49,14 +48,6 @@ considered whether all these validation rules are needed at this stage?"
 End with the only metric that matters: `net: -<N> lines possible.`
 
 If there is nothing to cut, say `Lean already. Ship.` and stop.
-
-## Integration with Setup Pipeline
-
-During the Review-Agent step (Step 2, task 12 — Specialist Reviews), run
-ponytail-review on the task card's diff before the standard code-quality,
-security, and performance reviewers. Add findings to the review report under
-a **Ponytail Review** section. Any `yagni:` or `delete:` finding with
-0 risk must be actioned before the Builder-Agent moves to the next task.
 
 ## Boundaries
 

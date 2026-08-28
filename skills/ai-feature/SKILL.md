@@ -46,7 +46,7 @@ Follow this workflow for every AI-powered feature. Skipping any step risks shipp
    - Write 10+ adversarial evals (prompt injection, jailbreak attempts, edge cases).
    - Define a minimum passing score (e.g., ≥ 95% accuracy on regression evals).
 
-10. **Wire evals into CI**: Evals run automatically on every PR that modifies this prompt or pipeline.
+10. **Declare eval evidence**: Prompt or pipeline changes must record eval results from the approved runtime as a BuildRunner receipt before delivery.
 
 ## Review & Ship
 

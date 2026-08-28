@@ -103,7 +103,7 @@ User question: {{SANITIZED_USER_QUESTION}}
 | **Regression evals** (representative inputs) | [50+] | [≥ 95% pass] | `evals/[feature]/regression/` |
 | **Adversarial evals** (injection, jailbreak, edge cases) | [10+] | [100% blocked/handled] | `evals/[feature]/adversarial/` |
 
-**Eval CI gate**: Evals run on every PR modifying this feature's prompt or pipeline. PR blocks on failure.
+**Eval evidence gate**: Prompt or pipeline changes must record passing eval evidence from `[declared runtime]` before delivery. GitHub Actions runners are not used.
 
 ---
 

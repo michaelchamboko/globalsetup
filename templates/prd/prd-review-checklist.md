@@ -35,6 +35,6 @@
 ## Verdict
 
 - [ ] **Ready for build pack generation**
-- [ ] **Needs revision** â€” list items to address:
+- [ ] **Needs revision** — list items to address:
   - [Item 1]
   - [Item 2]

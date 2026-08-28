@@ -1,4 +1,4 @@
-# Example Database Contract â€” User Notification System
+# Example Database Contract — User Notification System
 
 ## Schema Changes
 

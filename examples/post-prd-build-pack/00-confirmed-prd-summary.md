@@ -1,4 +1,4 @@
-# Example PRD Summary â€” User Notification System
+# Example PRD Summary — User Notification System
 
 **Feature**: User Notification System  
 **Status**: Confirmed  

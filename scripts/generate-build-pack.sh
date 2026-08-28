@@ -39,5 +39,7 @@ cp .agents/templates/tasks/module-plan-template.md build-pack/module-plans/M-000
 cp .agents/templates/tasks/ui-ux-module-plan-template.md build-pack/module-plans/M-000-ui-ux-module-plan-template.md
 cp .agents/templates/governance/capabilities-template.json build-pack/capabilities.json
 cp .agents/templates/governance/execution-state-template.json build-pack/execution-state.json
+cp .agents/templates/governance/capabilities.schema.json build-pack/capabilities.schema.json
+cp .agents/templates/governance/execution-state.schema.json build-pack/execution-state.schema.json
 
 echo "Build pack documents and machine-readable execution state generated under build-pack/"

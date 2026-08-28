@@ -18,10 +18,10 @@
 | updated_at | TIMESTAMP | No | NOW() | Last update time |
 
 **Indexes**:
-- idx_[table]_[column] on ([column]) â€” [reason]
+- idx_[table]_[column] on ([column]) — [reason]
 
 **Foreign Keys**:
-- k_[table]_[ref_table] references [ref_table](id) ON DELETE [CASCADE/SET NULL/RESTRICT]
+- fk_[table]_[ref_table] references [ref_table](id) ON DELETE [CASCADE/SET NULL/RESTRICT]
 
 ### Modified Tables
 
@@ -34,8 +34,8 @@
 
 ## Migrations
 
-- Migration 1: [filename] â€” Create [table_name]
-- Migration 2: [filename] â€” Add indexes
+- Migration 1: [filename] — Create [table_name]
+- Migration 2: [filename] — Add indexes
 
 ## Rollback Plan
 

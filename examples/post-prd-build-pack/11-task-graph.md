@@ -1,8 +1,8 @@
-# Example Task Graph â€” User Notification System
+# Example Task Graph — User Notification System
 
 ## Dependency Graph
 ```
-T-001 (Schema) â”€â”€â–¶ T-002 (API) â”€â”€â–¶ T-003 (SSE Setup) â”€â”€â–¶ T-004 (Bell UI) â”€â”€â–¶ T-005 (Panel UI) â”€â”€â–¶ T-006 (PR)
+T-001 (Schema) ──▶ T-002 (API) ──▶ T-003 (SSE Setup) ──▶ T-004 (Bell UI) ──▶ T-005 (Panel UI) ──▶ T-006 (PR)
 ```
 
 ## Module Plans

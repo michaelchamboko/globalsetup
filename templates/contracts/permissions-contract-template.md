@@ -13,13 +13,13 @@
 
 | Action | [Role 1] | [Role 2] | [Role 3] | Unauthenticated |
 |--------|----------|----------|----------|------------------|
-| [Action 1] | âœ… | âœ… | âŒ | âŒ |
-| [Action 2] | âœ… | âŒ | âŒ | âŒ |
+| [Action 1] | ✅ | ✅ | ❌ | ❌ |
+| [Action 2] | ✅ | ❌ | ❌ | ❌ |
 
 ## Authorization Rules
 
-1. [Rule 1 â€” e.g., Users can only access their own data]
-2. [Rule 2 â€” e.g., Admins can access all data]
+1. [Rule 1 — e.g., Users can only access their own data]
+2. [Rule 2 — e.g., Admins can access all data]
 
 ## Implementation
 

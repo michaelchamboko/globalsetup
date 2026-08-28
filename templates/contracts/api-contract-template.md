@@ -15,7 +15,7 @@
 **Request**:
 `json
 {
-  "[field]": "[type â€” string, number, boolean]",
+  "[field]": "[type — string, number, boolean]",
   "[field]": "[type]"
 }
 `

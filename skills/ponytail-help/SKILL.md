@@ -1,8 +1,8 @@
 ---
 name: ponytail-help
 description: >
-  Quick-reference card for all ponytail modes, skills, and commands as
-  integrated into the Setup pipeline. One-shot display, not a persistent mode.
+  Quick-reference card for the optional ponytail modes, skills, and commands.
+  One-shot display, not a persistent mode or BuildRunner dependency.
   Trigger: /ponytail-help, "ponytail help", "what ponytail commands",
   "how do I use ponytail".
 ---
@@ -24,34 +24,20 @@ Level sticks until changed or session end.
 
 ## Skills
 
-| Skill | Trigger | What it does | Pipeline phase |
-|-------|---------|--------------|-|
-| **ponytail** | `/ponytail` | Lazy mode. Pre-build gate before every task. | Step 2: before every task card |
-| **ponytail-review** | `/ponytail-review` | Over-engineering diff review: `L42: yagni: factory, one product. Inline.` | Step 2, task 12: Specialist Reviews |
-| **ponytail-audit** | `/ponytail-audit` | Whole-repo bloat scan. | Step 1, task 3: Codebase Discovery |
-| **ponytail-debt** | `/ponytail-debt` | Ledger of `ponytail:` shortcuts. | Step 2: fresh-context resume + pre-ship |
-| **ponytail-gain** | `/ponytail-gain` | Impact scoreboard from benchmark. | On-demand |
-| **ponytail-help** | `/ponytail-help` | This card. | On-demand |
+| Skill | Trigger | What it does |
+|-------|---------|--------------|
+| **ponytail** | `/ponytail` | Activates the simplicity ladder for the current task or session. |
+| **ponytail-review** | `/ponytail-review` | Reviews a diff only for over-engineering. |
+| **ponytail-audit** | `/ponytail-audit` | Scans a whole repository for removable complexity. |
+| **ponytail-debt** | `/ponytail-debt` | Lists deliberate `ponytail:` shortcuts. |
+| **ponytail-gain** | `/ponytail-gain` | Shows the external benchmark scoreboard. |
+| **ponytail-help** | `/ponytail-help` | Displays this card. |
 
-## Pipeline Integration Summary
+## BuildRunner Boundary
 
-```
-IDEATION
-  └─ ponytail (ladder check) → is this feature even needed?
-
-STEP 1: PLANNING
-  └─ ponytail-audit (task 3, Codebase Discovery)
-       → identify existing bloat before building on top of it
-
-STEP 2: IMPLEMENTATION (each task card)
-  ├─ ponytail (pre-build gate) → climb ladder before writing a line
-  ├─ [build task]
-  ├─ ponytail-review (task 12, Specialist Reviews) → scan diff
-  └─ ponytail-debt (task 15, Pre-Ship) → ledger check before delivery
-
-FRESH CONTEXT RESUME
-  └─ ponytail-debt → surface shortcuts from previous session
-```
+BuildRunner task state, required evidence, and GitNexus completion remain
+authoritative. Ponytail adds no automatic planning, review, resume, or shipping
+gate; invoke the specific skill only when its review is wanted.
 
 ## Deactivate
 
@@ -60,7 +46,7 @@ Say "stop ponytail" or "normal mode". Resume anytime with `/ponytail`.
 
 ## Configure Default Mode
 
-Default mode = `full`, auto-active every session. Change it:
+If Ponytail is activated without a level, the default is `full`. Change it:
 
 **Environment variable** (highest priority):
 ```bash

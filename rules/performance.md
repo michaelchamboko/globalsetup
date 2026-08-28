@@ -112,9 +112,9 @@ Apply caching in layers (never cache prematurely — measure first):
 
 ---
 
-## 5. Performance in CI
+## 5. Performance Evidence
 
-- Run **Lighthouse CI** on every PR for user-facing applications. Block merges that regress Core Web Vitals.
-- Track **bundle size delta** on every PR with a bot comment showing added/removed bytes.
-- Run **load tests** (k6, Gatling) on staging before every major release. Define pass/fail thresholds.
+- For user-facing performance work, record **Lighthouse** results from the declared browser or hosted runtime as task evidence.
+- Track **bundle size delta** when the task changes shipped client code and the project exposes a supported measurement.
+- Run **load tests** (k6, Gatling) on staging before a major release when the approved risk contract requires them. Define pass/fail thresholds.
 - Profile **database migration performance** on production-representative data volumes before running in production.

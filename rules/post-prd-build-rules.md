@@ -18,8 +18,9 @@ Every task must declare:
 - a unique id, title, dependencies, and status;
 - `low`, `medium`, or `high` risk;
 - whether it changes source;
+- exact repository-relative `context_files`;
 - focused validation and the additional tiers required by its risk;
-- argument-array commands, intended validation location, and referenced plans.
+- `command` or `receipt` kind, intended validation location, and referenced plans. Local commands use argument arrays; receipts do not.
 
 Keep tasks independently verifiable. Split by dependency or permission boundary, not by arbitrary file counts.
 

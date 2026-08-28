@@ -1,4 +1,4 @@
-# Example UI Contract â€” User Notification System
+# Example UI Contract — User Notification System
 
 ## Components
 

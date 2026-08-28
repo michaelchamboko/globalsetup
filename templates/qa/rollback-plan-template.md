@@ -11,7 +11,7 @@ Rollback must be initiated if:
 ## Rollback Steps
 
 ### 1. Revert Code
-`ash
+```bash
 git checkout main
 git revert [deploy-commit-sha]
 git push origin main

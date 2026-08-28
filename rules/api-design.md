@@ -16,7 +16,7 @@ APIs are the contracts between systems. A poorly designed API becomes a permanen
   - ✅ `GET /users/{id}` — fetches a user
   - ❌ `GET /getUser?id=123` — verb in path
 - Use **plural nouns** for collections: `/users`, `/orders`, `/messages`.
-- Use **kebab-case** for multi-word resources: `/user-preferences`, not `/userPreferences` or `/user_preferences`.
+- Match the repository's existing route naming. For a genuinely new API with no precedent, choose one convention in the approved API contract and use it consistently.
 - Nest resources to express ownership, but **no more than 2 levels deep**:
   - ✅ `GET /users/{userId}/orders`
   - ❌ `GET /users/{userId}/orders/{orderId}/items/{itemId}/reviews`

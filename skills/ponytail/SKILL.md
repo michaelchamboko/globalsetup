@@ -9,8 +9,7 @@ description: >
   the user says "ponytail", "be lazy", "lazy mode", "simplest solution",
   "minimal solution", "yagni", "do less", or "shortest path", and whenever
   they complain about over-engineering, bloat, boilerplate, or unnecessary
-  dependencies. Also runs automatically as the pre-build gate before any
-  Step 2 implementation task in the Setup pipeline.
+  dependencies. It is opt-in and never an automatic BuildRunner gate.
 argument-hint: "[lite|full|ultra]"
 license: MIT
 ---
@@ -75,17 +74,9 @@ Example: "Add a cache for these API responses."
 - full: "`@lru_cache(maxsize=1000)` on the fetch function. Skipped custom cache class, add when lru_cache measurably falls short."
 - ultra: "No cache until a profiler says so. When it does: `@lru_cache`. A hand-rolled TTL cache class is a bug farm with a hit rate."
 
-## Integration with Setup Pipeline
+## BuildRunner Boundary
 
-Ponytail runs as a **pre-build gate** before any Step 2 implementation task:
-
-Before writing a single line of code for any task card, climb the ladder:
-1. Does this micro-task need to exist at all? (Check against contracts — if a platform/stdlib feature already covers it, flag to Planner-Agent.)
-2. Does an already-installed dependency in the project solve it? Use it.
-3. Can it be one line? One line.
-4. Only then: the minimum code that satisfies the task card's acceptance criteria.
-
-After each task card completes, optionally invoke `ponytail-review` on the diff before the Review-Agent signs off.
+When explicitly activated for a task, apply the ladder within that task's approved scope. Ponytail does not add lifecycle steps, broaden context, or replace required evidence.
 
 ## When NOT to Be Lazy
 

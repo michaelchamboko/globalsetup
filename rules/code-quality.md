@@ -2,30 +2,24 @@
 alwaysApply: false
 ---
 
-# Code Quality
+# Code quality
 
-## Anti-defaults (counter common agent tendencies)
+## Local style
 
-- No premature abstractions. Three similar lines beats a helper used once.
-- Don't add features or improvements beyond what was asked.
-- Don't refactor adjacent code while fixing a bug.
-- No dead code or commented-out blocks. Git has history.
-- WHY comments, never WHAT. If code needs a "what" comment, rename instead.
-- API docs at module boundaries only, not every internal function.
+- Write code that reads like the surrounding code: match its comment density, naming, structure, and idiom.
+- Use the nearest maintained code, repository formatters, and tests as the convention source of truth.
+- Preserve established public interfaces and file organization unless the active task changes them explicitly.
+- When nearby code is inconsistent, follow the pattern used by the closest tested path and record a material ambiguity in the task rather than inventing a new standard.
 
-## Naming
+## Scope
 
-- Files: PascalCase for components and classes (`UserProfile.tsx`), kebab-case for utilities and directories (`date-utils.ts`).
-- Booleans: `is` / `has` / `should` / `can` prefix. Functions: verb-first (`getUser`). Handlers: `handle*` internal, `on*` as props.
-- Factories: `create*`. Converters: `to*`. Predicates: `is*` / `has*`. Constants: `SCREAMING_SNAKE`.
-- Abbreviations only when universally known (`id`, `url`, `api`, `db`, `auth`). Acronyms as words: `userId`, not `userID`.
+- Implement only the active task's observable requirements.
+- Prefer direct code over a helper used once, and existing dependencies over new infrastructure.
+- Keep unrelated formatting and refactors out of the diff.
+- Remove only dead code created by the active change.
 
-## Code Markers
+## Comments
 
-`TODO(author): desc (#issue)` for planned work. `FIXME(author): desc (#issue)` for known bugs. `HACK(author): desc (#issue)` for ugly workarounds (explain the proper fix). `NOTE: desc` for non-obvious context. Owner and issue link required. Never `XXX`, `TEMP`, `REMOVEME`.
-
-## File Organization
-
-- Imports: builtins, external, internal, relative, types. Blank line between groups.
-- Exports: named over default. One component or class per file.
-- Function order: public API first, then helpers in call order.
+- Match surrounding comment and docstring density.
+- Explain non-obvious reasons, constraints, or workarounds; let clear names and structure explain mechanics.
+- Use the repository's existing TODO or issue-reference format.

@@ -1,4 +1,4 @@
-# Example Definition of Done â€” User Notification System
+# Example Definition of Done — User Notification System
 
 ### Requirements Traceability
 - [x] R1 (notification list) -> T-002, T-005

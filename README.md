@@ -23,7 +23,7 @@ Task state is stored in `build-pack/execution-state.json`, not in conversation h
 
 ## Quickstart
 
-Prerequisites: Git, Python 3, npm, and a GitNexus-supported Node release (currently 22.18+ or 24.11+).
+Prerequisites: Git, Python 3.10+, and a GitNexus-supported Node release (currently 22.18+ or 24.11+). npm is needed only when GitNexus is not already installed.
 
 Windows:
 
@@ -37,7 +37,13 @@ Linux or macOS:
 bash /path/to/globalsetup/scripts/setup-globalsetup.sh /path/to/project
 ```
 
-Setup initializes Git when needed, installs GitNexus when absent, indexes the repository, configures detected agent harnesses, and creates the initial build pack. It does not install application dependencies or run the application.
+Setup validates the complete UTF-8 payload and prerequisites before touching the target, stages the install, and rolls target changes back if any install step fails. It initializes Git when needed, installs GitNexus when absent, indexes the repository, configures detected agent harnesses, and creates the initial build pack. Re-running it is safe: existing target files are backed up and an existing execution state is preserved. It does not install application dependencies or run the application.
+
+Preview the operation without target or dependency mutation:
+
+```bash
+python /path/to/globalsetup/scripts/setup-globalsetup.py --target /path/to/project --dry-run
+```
 
 After the agent compiles the approved plans into execution state:
 
@@ -45,6 +51,8 @@ After the agent compiles the approved plans into execution state:
 python scripts/build-runner.py --root . validate
 python scripts/build-runner.py --root . next
 ```
+
+Every successful command returns one JSON envelope with `ok`, `command`, and `result`; contract failures return `ok: false` on stderr. Each task names exact `context_files`. Local commands and hosted receipts are separate evidence types, and all evidence is bound to the verified source fingerprint.
 
 See [the quickstart](docs/quickstart.md), [the workflow](docs/post-prd-workflow.md), and [the architecture](docs/agent-neutral-architecture.md).
 

@@ -10,14 +10,14 @@ These rules represent the baseline behavioral standards for any agent executing 
 
 ### 1. Plan Before Coding
 * Do not edit files immediately after receiving a request.
-* Create or update the implementation plan (`implementation_plan.md`) for any complex changes.
-* Verify your understanding of the codebase structure and interfaces before proposing changes.
+* Use the approved build-pack plans and active task; do not create a competing implementation plan.
+* Verify the task's declared context, code paths, and interfaces before proposing changes.
 
 ### 2. Do Not Code Blind
 * Eagerly search and inspect files related to the task before making modifications.
 * Identify existing utility functions, APIs, database tables, and design conventions to ensure new code aligns with them.
 
-### 3. Simplicity First (🪡 Ponytail Ladder)
+### 3. Simplicity First
 Before writing any code, climb the ladder and stop at the first rung that holds:
 1. Does this need to exist at all? (YAGNI) → skip it
 2. Does stdlib do it? → use it
@@ -26,24 +26,23 @@ Before writing any code, climb the ladder and stop at the first rung that holds:
 5. Can it be one line? → one line
 6. Only then: minimum code that satisfies the requirement
 
-For existing codebases: run `ponytail-audit` during discovery to map bloat before building on top.
-Mark deliberate shortcuts with `// ponytail: <ceiling>, <upgrade path>`.
+Use the optional Ponytail skills only when the operator requests them or existing-code bloat is part of the active task.
 
 ### 4. Surgical Changes
 * Limit modifications strictly to files within the scoped task area.
 * Avoid refactoring unrelated code blocks, updating styling conventions in other files, or modifying configuration files unless explicitly directed.
 
 ### 5. Contract-Driven Development
-* Draft schemas, API endpoints, UI props, permissions, and service integrations in markdown files first.
-* Share and align on contracts before beginning implementation.
+* Implement against the approved schemas, APIs, UI props, permissions, and integration contracts referenced by the task.
+* Return material contract gaps to phase 1 instead of inventing them during implementation.
 
 ### 6. Isolated Task Execution
 * Break large features into independent, self-contained task cards.
 * Write task cards with specific context baselines, module-plan references, validation locations, and testing commands so that any agent can execute them in a clean session.
 
 ### 7. Test-Driven Discipline
-* Implement automated tests (unit, integration, and E2E) alongside your code changes.
-* Use the AAA (Arrange-Act-Assert) pattern and run or observe validation in the task card's declared location after every modification.
+* Implement the smallest automated tests that prove the changed behavior at the appropriate boundary.
+* Use the AAA (Arrange-Act-Assert) pattern and run or observe validation in the task card's declared location after each coherent change.
 * Do not run local dependency installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 
 ### 8. Proportional Review Gates
@@ -56,7 +55,7 @@ Mark deliberate shortcuts with `// ponytail: <ceiling>, <upgrade path>`.
 
 ### 10. Preserve Context & Integrity
 * Maintain all existing comments, docstrings, formatting patterns, and lint requirements.
-* Never degrade test coverage.
+* Do not remove relevant coverage without recording why the approved behavior remains protected.
 
 ### 11. Clear Git Hygiene
 * Commit code in logical, self-contained units.

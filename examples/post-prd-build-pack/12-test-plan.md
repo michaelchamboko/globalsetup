@@ -1,4 +1,4 @@
-# Example Test Plan â€” User Notification System
+# Example Test Plan — User Notification System
 
 ## Test Scenarios
 

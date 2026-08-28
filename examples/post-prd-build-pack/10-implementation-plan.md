@@ -1,4 +1,4 @@
-# Example Implementation Plan â€” User Notification System
+# Example Implementation Plan — User Notification System
 
 ## Development Stages
 

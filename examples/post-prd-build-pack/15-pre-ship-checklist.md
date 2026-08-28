@@ -1,4 +1,4 @@
-# Example Pre-Ship Checklist â€” User Notification System
+# Example Pre-Ship Checklist — User Notification System
 
 - [x] Linter runs and passes with zero warnings.
 - [x] Production build passes successfully.

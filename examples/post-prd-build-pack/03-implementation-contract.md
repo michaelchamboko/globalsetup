@@ -1,4 +1,4 @@
-# Example Implementation Contract â€” User Notification System
+# Example Implementation Contract — User Notification System
 
 ## Scope Agreement
 This contract binds the implementation to the confirmed PRD and build brief. Any deviation requires explicit approval.

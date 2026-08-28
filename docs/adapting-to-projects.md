@@ -7,19 +7,19 @@ GlobalSetup provides generic templates and rules. Here is how to customize them 
 Rules in `rules/` are starting points. Adapt them to your project:
 
 ### For a Python Project
-- Update `rules/code-quality.md` naming conventions (snake_case, PascalCase classes)
+- Record the repository's observed naming, comments, layout, and formatter in discovery; do not impose a generic style guide
 - Update `rules/testing.md` to reference pytest conventions
 - Update `rules/database.md` for Alembic or Django migrations
 - Frontend rules may not apply — remove or scope them
 
 ### For a Go Project
-- Update naming conventions to Go standards (CamelCase exports, lowercase unexported)
+- Treat the nearest maintained Go code, `gofmt`, tests, and linters as the style authority
 - Testing references should use `go test` conventions
 - Error handling should reference Go error patterns (error returns, not exceptions)
 - Remove frontend rules if not applicable
 
 ### For a Full-Stack Project
-- All rules likely apply
+- Load only rules referenced by each task's `context_files`
 - Consider adding path-scoping metadata to rules (e.g., security rules apply to `src/api/**`)
 - Frontend rules apply to component files
 

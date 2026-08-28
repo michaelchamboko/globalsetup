@@ -1,4 +1,4 @@
-# Example Codebase Discovery â€” User Notification System
+# Example Codebase Discovery — User Notification System
 
 ## Technology Stack
 - **Language**: TypeScript 5.x

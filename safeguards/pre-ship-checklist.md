@@ -20,12 +20,13 @@ Run `ponytail-done` on the session's full diff. This gate must return **SHIP** b
 - [ ] **Micro-Task Validation**: The declared validation location/check for the changed module passes.
 - [ ] **Code Quality review**: Checked against `reviewers/code-reviewer.md` checklist (includes ponytail-review pass).
 
-## 2. GitHub / Intended-Location Readiness (Tier 2 Check)
+## 2. Intended-Location Readiness (Tier 2 Check)
 - [ ] **Lint and Formatting**: Lint/format checks pass in the approved validation location.
-- [ ] **Build Validation**: Hosted production build compiles successfully in the intended platform, such as Vercel or CI.
+- [ ] **Build Validation**: Hosted production build compiles successfully in the intended platform, such as Vercel or another approved hosting runtime.
 - [ ] **Holistic Verification**: Hosted/global validation passes in the approved runtime.
 - [ ] **Specialist Reviews**: Relevant reviews (security, performance, database) have passed and signed off.
 - [ ] **Protected Files check**: Confirm no secrets, credentials, `.env` files, or lockfiles are staged.
 - [ ] **Rollback Plan**: Rollback steps are verified and documented.
 - [ ] **State Alignment**: All architectural changes are logged in `state.md` and verified.
 - [ ] **No Local Build Drift**: No local install/build artifacts are required for delivery unless explicitly approved.
+- [ ] **No GitHub Actions Drift**: No GitHub Actions workflow or runner use was added without explicit operator approval.

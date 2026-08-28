@@ -38,7 +38,7 @@ A complete build pack must consist of:
 * **Verification Command Gate**: You must execute the specific verification command or hosted validation check defined on the task card. It must run in the declared validation location and succeed before delivery is called complete.
 * We enforce an **Intended-Location Validation** model:
   1. Micro-Task validation must run in the task card's declared validation location.
-  2. For hosted applications, source changes are pushed to GitHub and build validation occurs in the intended platform such as Vercel or GitHub Actions.
+  2. For hosted applications, source changes are pushed to GitHub and build validation occurs in the intended platform such as Vercel. GitHub Actions require separate explicit operator approval.
   3. For external runtimes such as databases, workers, and infrastructure, validation occurs only in the approved target environment and only within the project's explicit permission boundary.
   4. Local app installs, local production builds, local dev servers, and local full-project typechecks are prohibited by default unless the operator explicitly opts into local preview.
 

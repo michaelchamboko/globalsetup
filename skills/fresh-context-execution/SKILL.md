@@ -20,4 +20,4 @@ Follow these guidelines to execute a single task card in a fresh, isolated sessi
 9. **🪡 Ponytail-review (post-build)**: Run `ponytail-review` on the diff. Action any `delete:` or `yagni:` finding with 0 risk before committing.
 10. Commit and push according to the task card's delivery path, clear temporary variables, and prepare for the next task card.
 
-Do not run local dependency installs, local application builds, local dev servers, or full local typechecks unless the task card cites explicit operator opt-in for local preview.
+Do not run local dependency installs, local application builds, local dev servers, full local typechecks, or GitHub Actions unless the task card cites explicit operator approval for that exception.

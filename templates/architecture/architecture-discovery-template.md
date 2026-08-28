@@ -16,7 +16,7 @@
 | Database | [e.g., PostgreSQL via Prisma] |
 | Auth system | [e.g., NextAuth.js with JWT] |
 | Deployment | [e.g., Vercel] |
-| CI/CD | [e.g., GitHub Actions] |
+| Deployment validation | [e.g., Vercel deployment logs] |
 
 ## Project Structure
 

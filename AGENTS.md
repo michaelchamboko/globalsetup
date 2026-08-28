@@ -56,7 +56,7 @@ Adopt a Modular Context-First workflow. For every planning or implementation tas
 
 ### 4. Governance & Integrity
 * **State Alignment:** Every architectural change must be logged in `state.md` and verified against the established project blueprint via task-master tracking.
-* **Validation & Delivery Gate:** Code is only considered complete if it passes the project-specific validation suites in the approved runtime. **We enforce an Intended-Location Validation model: (1) Micro-Task validation runs where the task card says it belongs. (2) Hosted/global validation such as GitHub Actions, Vercel build logs, Oracle read-only probes, or another approved target must pass before delivery is called complete.**
+* **Validation & Delivery Gate:** Code is only considered complete if it passes the project-specific validation suites in the approved runtime. **We enforce an Intended-Location Validation model: (1) Micro-Task validation runs where the task card says it belongs. (2) Hosted/global validation such as Vercel build logs, Oracle read-only probes, or another approved target must pass before delivery is called complete. GitHub is source control and code review only; GitHub Actions require separate explicit operator approval.**
 * **No Local Build Default:** Do not run local application dependency installs, production builds, typechecks, dev servers, or app runtimes on the operator's workstation unless the operator explicitly opts into local preview for that project.
 * **Persistent Memory:** Treat the codebase and documentation files as your 'Source of Truth'. Access them on-demand via CodeGraph to ensure 100% architectural fidelity.
 

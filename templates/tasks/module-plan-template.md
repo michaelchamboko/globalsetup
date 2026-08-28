@@ -22,7 +22,7 @@
 
 ## Runtime Boundary
 
-- Intended build/deploy location: [e.g. Vercel, GitHub Actions, Oracle, Render]
+- Intended build/deploy location: [e.g. Vercel, Oracle, Render]
 - Local workstation role: [source editing/docs only unless explicit local-preview opt-in]
 - Local build/install exception: [No by default / approval reference]
 

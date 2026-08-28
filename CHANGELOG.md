@@ -20,12 +20,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   - `skills/ponytail-help/SKILL.md` — quick-reference card with pipeline integration map including ponytail-done flow.
   - `AGENTS.md` updated: ponytail section added as Foundation Layer; pipeline touchpoints updated to include ponytail-done at task 14; Step 2 execution guide wired with 3-step ponytail-done gate.
 - Comprehensive `security.md` rules covering OWASP Top-10, supply chain, secrets management, auth/session, CSP/headers, and audit logging.
-- New `ci.yml` GitHub Actions workflow replacing the broken `hook-tests.yml` — validates setup scripts on Ubuntu, macOS, and Windows, and checks structural integrity of all required files.
 - Expanded `.gitignore` to protect build-pack artifacts, backup files, state serialization files, secrets, and IDE artifacts.
 - `CHANGELOG.md` (this file) — tracking notable changes in Keep a Changelog format.
 - `CODE_OF_CONDUCT.md` — standard Contributor Covenant v2.1 code of conduct.
 
 ### Fixed
+- Removed GitHub Actions workflows and made GitHub source-control-only by default; deployment validation now belongs to the intended hosting runtime unless the operator explicitly approves Actions.
 - Hardcoded absolute Windows path (`file:///C:/Users/micha.MICHAEL/...`) in `AGENTS.md` replaced with portable relative path `docs/post-prd-workflow.md`.
 - Raw BEL control character (`\007`) in `reviewers/frontend-reviewer.md` `aria-label` text — corrected to literal `aria-label`.
 - Broken `npm install` rendering in `safeguards/protected-files.md` — reformatted with proper inline code backticks.

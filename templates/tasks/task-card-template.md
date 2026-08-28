@@ -36,11 +36,12 @@
 
 ## Testing Plan & Verification
 
-* **Validation Location**: `[github / vercel / oracle / approved-runtime / local-docs-only]`
+* **Validation Location**: `[vercel / oracle / approved-runtime / local-docs-only]`
 * **Verification Command or Hosted Check**: `[Exact command, PR check, Vercel deployment check, Oracle read-only probe, or docs-only validation]`
 * **Expected Output**: `[Successful exit code 0 or positive verification indicator]`
 * **Manual Verification**: [Manual verification steps]
 * **Local Build Exception**: `[No by default. If yes, cite explicit operator approval and commands allowed.]`
+* **GitHub Actions Exception**: `[No by default. If yes, cite explicit operator approval, workflow trigger, and expected runner cost.]`
 
 ## Acceptance Criteria
 

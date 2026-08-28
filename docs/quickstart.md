@@ -88,7 +88,7 @@ Before shipping:
 
 ## Step 8: Ship
 
-Use the `ship` skill to commit, push, and create a PR with safety checks at every step. Hosted applications should build in their intended platform, such as Vercel or GitHub Actions, not on the operator's workstation by default.
+Use the `ship` skill to commit, push, and create a PR with safety checks at every step. Hosted applications should build in their intended platform, such as Vercel, not on the operator's workstation by default. GitHub Actions require separate explicit operator approval.
 
 ## Next Steps
 

@@ -15,17 +15,21 @@ Examples of prohibited local defaults:
 - `npm install`, `npm ci`, `pnpm install`, `yarn install`
 - `npm run build`, `pnpm build`, `yarn build`
 - `npm run dev`, `next dev`, `vite --host`
-- Full local project typecheck commands for hosted apps when the approved build target is Vercel/GitHub Actions
+- Full local project typecheck commands for hosted apps when the approved build target is Vercel or another hosting runtime
 
 ## Intended-Location Rule
 
 Task cards must declare where validation runs:
 
-- `github`: source checks, PR checks, repository policies
+- `github`: source updates, branches, pull requests, and manual code review only; no GitHub Actions runners
 - `vercel`: install/build/deploy logs for Vercel-hosted applications
 - `oracle`: Oracle database, Hermes, and worker checks
 - `render`, `supabase`, `neon`, or another explicitly approved runtime
 - `local-docs-only`: markdown/template validation that does not install dependencies or build an app
+
+## GitHub Actions Exception
+
+GitHub Actions must not be added or used by default. A task card may use GitHub Actions only when the operator explicitly approves that workflow, its trigger, and its runner cost. Without that approval, use GitHub for source control only and validate in the intended hosting runtime.
 
 ## Allowed Local Work
 

@@ -20,7 +20,7 @@ Build the full **[PROJECT_NAME]** product exactly as specified in the repository
 * **App/Framework**: [Describe application frontend/backend framework, e.g., Next.js, Vite, React, Express].
 * **Database/Auth**: [Describe storage, database schemas, and authentication, e.g., Supabase RLS, Postgres, Firebase Firestore].
 * **External Integrations**: [Describe third-party adapters, APIs, and fallback handlers].
-* **Deployment & CI/CD**: [Describe target deployment check, e.g., Vercel deployment logs, GitHub Actions].
+* **Deployment**: [Describe the target deployment check, e.g., Vercel deployment logs].
 
 ---
 
@@ -70,7 +70,7 @@ Adhere strictly to the Zero-Assumption Execution Policy during implementation:
 * Treat files and specifications as the absolute source of truth.
 * Enforce **Intended-Location Validation**:
   1. Each micro-task must pass the validation check declared on its task card.
-  2. Hosted applications must build and deploy in their intended platform, such as Vercel or GitHub Actions.
+  2. Hosted applications must build and deploy in their intended platform, such as Vercel. GitHub Actions require separate explicit operator approval.
   3. Databases, workers, and infrastructure must be validated only in their approved target runtime.
 * Do not run local dependency installs, local production builds, local dev servers, or full local typechecks unless the operator explicitly opts into local preview.
 

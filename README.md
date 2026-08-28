@@ -42,7 +42,7 @@ Confirmed PRD
   └── 16. Branch Commit, Push, and PR Creation
 ```
 
-GlobalSetup is deployment-first by default. Agents must not install dependencies or build applications on the operator's workstation unless the operator explicitly opts into local preview. Source changes are committed to GitHub, and build/deploy verification happens in the intended runtime such as Vercel, GitHub Actions, Oracle, Render, or another approved target.
+GlobalSetup is deployment-first by default. Agents must not install dependencies or build applications on the operator's workstation unless the operator explicitly opts into local preview. GitHub is used for source updates, branches, pull requests, and code review only. Build and deploy verification happens in the intended hosting runtime such as Vercel, Oracle, Render, or another approved target; GitHub Actions require separate explicit operator approval.
 
 ---
 

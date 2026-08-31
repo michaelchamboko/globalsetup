@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "SRC-001",
+      "path": "build-pack/00-confirmed-prd-summary.md",
+      "authority": "approved",
+      "currentness": "current",
+      "sections": [{"id": "intent", "locator": {"start_line": 1, "end_line": 1}, "hash": "replace-with-sha256-of-normalized-section"}]
+    }
+  ]
+}

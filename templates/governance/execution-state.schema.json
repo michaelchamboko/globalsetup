@@ -1,133 +1,58 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://globalsetup.local/schemas/execution-state.schema.json",
-  "title": "GlobalSetup execution state",
+  "title": "GlobalSetup execution state v2",
   "type": "object",
-  "required": ["schema_version", "mode", "capabilities_file", "source_authority", "automation_authority", "tasks"],
+  "required": ["schema_version", "mode", "capabilities_file", "source_manifest_file", "requirements_file", "grommet_file", "automation_authority", "tasks"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "mode": {"enum": ["mvp", "standard", "high_assurance"]},
     "capabilities_file": {"type": "string", "minLength": 1},
-    "source_authority": {
-      "type": "object",
-      "required": ["build_intent_summary", "approved_sources", "contradictions", "grommet_review"],
-      "properties": {
-        "build_intent_summary": {"type": "string", "minLength": 1},
-        "approved_sources": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/repoPath"}},
-        "contradictions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["id", "summary", "sources", "status"],
-            "properties": {
-              "id": {"type": "string", "minLength": 1},
-              "summary": {"type": "string", "minLength": 1},
-              "sources": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/repoPath"}},
-              "status": {"enum": ["unresolved", "resolved"]},
-              "resolution": {"type": "string", "minLength": 1}
-            },
-            "additionalProperties": false
-          }
-        },
-        "grommet_review": {
-          "type": "object",
-          "required": ["status", "summary"],
-          "properties": {
-            "status": {"enum": ["pending", "approved"]},
-            "summary": {"type": "string", "minLength": 1}
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "automation_authority": {
-      "type": "object",
-      "required": ["publication"],
-      "properties": {
-        "publication": {
-          "type": "object",
-          "required": ["enabled", "destinations"],
-          "properties": {
-            "enabled": {"type": "boolean"},
-            "destinations": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "tasks": {
-      "type": "array",
-      "minItems": 1,
-      "items": {"$ref": "#/$defs/task"}
-    }
+    "source_manifest_file": {"type": "string", "minLength": 1},
+    "requirements_file": {"type": "string", "minLength": 1},
+    "grommet_file": {"type": "string", "minLength": 1},
+    "automation_authority": {"type": "object"},
+    "tasks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/task"}},
+    "extensions": {"type": "object"}
   },
-  "additionalProperties": true,
+  "additionalProperties": false,
   "$defs": {
-    "repoPath": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^(?![\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+"
-    },
-    "validation": {
-      "type": "object",
-      "required": ["name", "tier", "kind", "location"],
-      "properties": {
-        "name": {"type": "string", "minLength": 1},
-        "tier": {"enum": ["task", "affected", "full"]},
-        "kind": {"enum": ["command", "receipt"]},
-        "location": {"type": "string", "minLength": 1},
-        "argv": {
-          "type": "array",
-          "minItems": 1,
-          "items": {"type": "string", "minLength": 1}
-        },
-        "timeout_seconds": {"type": "integer", "minimum": 1}
-      },
-      "allOf": [
-        {
-          "if": {"properties": {"kind": {"const": "command"}}},
-          "then": {"required": ["argv"], "properties": {"location": {"const": "local"}}},
-          "else": {"not": {"required": ["argv"]}}
-        }
-      ],
-      "additionalProperties": true
-    },
     "task": {
       "type": "object",
-      "required": [
-        "id",
-        "title",
-        "status",
-        "dependencies",
-        "risk",
-        "source_changes",
-        "requirement_sources",
-        "context_files",
-        "validation",
-        "evidence"
-      ],
+      "required": ["id", "title", "status", "dependencies", "risk", "risk_assessment", "source_changes", "requirement_ids", "context_files", "model_route", "context_packet", "validation", "evidence", "evidence_refs", "operation_phase"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "title": {"type": "string", "minLength": 1},
-        "status": {"enum": ["blocked", "ready", "in_progress", "verified", "done"]},
-        "dependencies": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "status": {"enum": ["blocked", "ready", "in_progress", "verified", "integrated", "published", "done"]},
+        "dependencies": {"type": "array", "items": {"type": "string"}},
         "risk": {"enum": ["low", "medium", "high"]},
+        "risk_assessment": {"type": "object"},
         "source_changes": {"type": "boolean"},
-        "requirement_sources": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/repoPath"}},
-        "context_files": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/repoPath"}},
-        "publication": {
-          "type": "object",
-          "required": ["destination"],
-          "properties": {"destination": {"type": "string", "minLength": 1}},
-          "additionalProperties": false
-        },
-        "validation": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/validation"}},
+        "requirement_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "context_files": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "model_route": {"type": "object"},
+        "context_packet": {"type": "object"},
+        "validation": {"type": "array", "minItems": 1},
         "evidence": {"type": "array"},
-        "external_evidence": {"type": "array"}
+        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+        "operation_phase": {"type": "string"},
+        "baseline_commit": {"type": "string"},
+        "verified_commit": {"type": "string"},
+        "integration_commit": {"type": "string"},
+        "workspace": {"type": "object"},
+        "publication": {"type": "object"},
+        "review": {"type": "object"},
+        "blocker": {"type": "object"},
+        "external_evidence": {"type": "array"},
+        "verification_history": {"type": "array"},
+        "started_at": {"type": "string"},
+        "verified_at": {"type": "string"},
+        "integrated_at": {"type": "string"},
+        "published_at": {"type": "string"},
+        "completed_at": {"type": "string"},
+        "extensions": {"type": "object"}
       },
-      "additionalProperties": true
+      "additionalProperties": false
     }
   }
 }

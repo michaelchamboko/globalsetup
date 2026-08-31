@@ -1,22 +1,28 @@
 {
-  "$schema": "./execution-state.schema.json",
-  "schema_version": 1,
+  "schema_version": 2,
   "mode": "mvp",
   "capabilities_file": "build-pack/capabilities.json",
-  "source_authority": {
-    "build_intent_summary": "",
-    "approved_sources": [],
-    "contradictions": [],
-    "grommet_review": {
-      "status": "pending",
-      "summary": ""
+  "source_manifest_file": "build-pack/source-manifest.json",
+  "requirements_file": "build-pack/requirements.json",
+  "grommet_file": "build-pack/grommet-approval.json",
+  "automation_authority": {"publication": {"enabled": false, "destinations": []}},
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "Replace this with one dependency-ready vertical outcome",
+      "status": "ready",
+      "dependencies": [],
+      "risk": "low",
+      "risk_assessment": {"blast_radius": 0, "reversibility": 0, "authority": 0, "sensitive_data": 0, "external_impact": 0},
+      "source_changes": true,
+      "requirement_ids": ["R-001"],
+      "context_files": ["build-pack/00-confirmed-prd-summary.md"],
+      "model_route": {"worker": "standard", "verifier": "premium", "escalation": "operator"},
+      "context_packet": {"window_tokens": 32000, "initial_tokens": 12000, "retrieval": "targeted"},
+      "validation": [{"name": "focused test", "tier": "task", "kind": "command", "location": "local", "argv": ["replace", "this"]}],
+      "evidence": [],
+      "evidence_refs": [],
+      "operation_phase": "prepared"
     }
-  },
-  "automation_authority": {
-    "publication": {
-      "enabled": false,
-      "destinations": []
-    }
-  },
-  "tasks": []
+  ]
 }

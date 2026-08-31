@@ -9,26 +9,26 @@ Place the approved PRD, product-truth documents, blueprints, and explicit decisi
 Windows:
 
 ```powershell
-.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project
+.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project -AcknowledgeGitNexusLicense
 ```
 
 Linux or macOS:
 
 ```bash
-bash globalsetup/scripts/setup-globalsetup.sh /path/to/project
+bash globalsetup/scripts/setup-globalsetup.sh /path/to/project --acknowledge-gitnexus-license
 ```
 
 Preview the validated install plan without changing the target or installing GitNexus:
 
 ```powershell
-.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project -DryRun
+.\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project -DryRun -AcknowledgeGitNexusLicense
 ```
 
-The script validates its UTF-8 payload and prerequisites before target mutation, stages the complete payload, and rolls target changes back if installation fails. It backs up an existing root agent contract and `.agents` tree, then installs the BuildRunner, safety hook, GitNexus configuration, and initial build pack. Re-running setup preserves an existing execution state. It installs and indexes GitNexus and configures detected agent harnesses. It does not run application builds.
+The script validates its UTF-8 payload, prerequisites, and GitNexus eligibility before target mutation, stages the complete payload, and rolls target changes back if installation fails. It installs a pinned, index-only GitNexus configuration and never configures agent harnesses. It does not run application builds.
 
 ## 3. Compile the approved plans
 
-Ask the agent to read `AGENTS.md` and run the `prd-to-build-pack` workflow. Initial source intake registers approved files, states the build intent, records and resolves contradictions, and completes the mandatory Grommet review. The agent then translates the approved graph into `build-pack/execution-state.json` with per-task `requirement_sources`, dependencies, risk, source-change intent, exact `context_files`, and validations declared as either a local `command` or hosted/external `receipt`.
+Ask the agent to read `AGENTS.md` and run the `prd-to-build-pack` workflow. Initial source intake registers approved file sections and hashes in `source-manifest.json`, maps permanent requirements in `requirements.json`, records contradictions, and seals the mandatory Grommet digest. The agent then creates `execution-state.json` with requirement IDs, dependencies, measured risk, model route, context-packet budget, exact `context_files`, and validations.
 
 Declare publication authority once in `automation_authority.publication`: enable or disable it and list exact destinations. After build-pack approval, publication tasks targeting those destinations proceed automatically and record their receipts. Undeclared destinations fail closed.
 
@@ -50,7 +50,7 @@ Start or resume with:
 python scripts/build-runner.py --root . next
 ```
 
-For each returned task, load exactly its approved `requirement_sources` and `context_files`, use GitNexus only for structural context and impact analysis, then use BuildRunner `start`, `verify`, optional high-risk `review`, and `complete`. Record each hosted result first with `record-evidence`; local `command` checks run directly. Verification, external receipts, independent review, and the final GitNexus receipt are bound to the same source fingerprint. Continue until the approved task graph is done.
+For each returned task, load its mapped requirement sections and exact `context_files`, use GitNexus only for structural context and impact analysis, then use BuildRunner `start`, `verify`, `integrate`, optional high-risk `review`, and `complete`. The runner creates an isolated task worktree and records immutable receipts. Publication tasks use `publish` only after integration and run no more than three approved, idempotent attempts.
 
 To verify that this contract remains stack-neutral, run `python scripts/evaluate-portability.py`. It exercises the same lifecycle against small Python, TypeScript, and Go-shaped repositories; it measures contract portability, not model quality.
 

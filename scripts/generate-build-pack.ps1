@@ -34,7 +34,13 @@ Copy-Item .agents\templates\tasks\module-plan-template.md build-pack\module-plan
 Copy-Item .agents\templates\tasks\ui-ux-module-plan-template.md build-pack\module-plans\M-000-ui-ux-module-plan-template.md -Force
 Copy-Item .agents\templates\governance\capabilities-template.json build-pack\capabilities.json -Force
 Copy-Item .agents\templates\governance\execution-state-template.json build-pack\execution-state.json -Force
+Copy-Item .agents\templates\governance\source-manifest-template.json build-pack\source-manifest.json -Force
+Copy-Item .agents\templates\governance\requirements-template.json build-pack\requirements.json -Force
+Copy-Item .agents\templates\governance\grommet-approval-template.json build-pack\grommet-approval.json -Force
 Copy-Item .agents\templates\governance\capabilities.schema.json build-pack\capabilities.schema.json -Force
 Copy-Item .agents\templates\governance\execution-state.schema.json build-pack\execution-state.schema.json -Force
+Copy-Item .agents\templates\governance\source-manifest.schema.json build-pack\source-manifest.schema.json -Force
+Copy-Item .agents\templates\governance\requirements.schema.json build-pack\requirements.schema.json -Force
+Copy-Item .agents\templates\governance\grommet-approval.schema.json build-pack\grommet-approval.schema.json -Force
 
 Write-Host "Build pack documents and machine-readable execution state generated under build-pack/"

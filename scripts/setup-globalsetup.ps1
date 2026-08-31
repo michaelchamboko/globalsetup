@@ -1,6 +1,7 @@
 param (
     [string]$TargetDir = ".",
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$AcknowledgeGitNexusLicense
 )
 
 $python = $null
@@ -19,5 +20,6 @@ if (!$python) {
 $installer = Join-Path $PSScriptRoot "setup-globalsetup.py"
 $arguments = @($installer, "--target", [System.IO.Path]::GetFullPath($TargetDir))
 if ($DryRun) { $arguments += "--dry-run" }
+if ($AcknowledgeGitNexusLicense) { $arguments += "--acknowledge-gitnexus-license" }
 & $python @arguments
 exit $LASTEXITCODE

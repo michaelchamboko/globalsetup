@@ -1,30 +1,16 @@
 {
-  "$schema": "./capabilities.schema.json",
-  "schema_version": 1,
-  "python": {
-    "required": true,
-    "minimum_version": "3.10"
-  },
+  "schema_version": 2,
+  "python": {"required": true, "minimum_version": "3.10"},
+  "workspace": {"integration_branch": "globalsetup/integration", "serial": true},
   "graph": {
     "required": true,
     "provider": "gitnexus",
-    "license": {
-      "spdx": "PolyForm-Noncommercial-1.0.0",
-      "usage": "noncommercial",
-      "acknowledged": true
-    },
-    "status_argv": [
-      "node",
-      ".gitnexus/run.cjs",
-      "status"
-    ],
-    "sync_argv": [
-      "node",
-      ".gitnexus/run.cjs",
-      "analyze",
-      "--skip-agents-md",
-      "--skip-skills"
-    ],
+    "version": "1.6.10",
+    "repository_alias": "replace-with-unique-repository-alias",
+    "branch": "globalsetup/integration",
+    "license": {"spdx": "PolyForm-Noncommercial-1.0.0", "usage": "noncommercial", "eligible": false},
+    "status_argv": ["node", ".gitnexus/run.cjs", "status"],
+    "sync_argv": ["gitnexus", "analyze", "--index-only", "--skip-agents-md", "--skip-skills", "--name", "replace-with-unique-repository-alias", "--branch", "globalsetup/integration"],
     "timeout_seconds": 900
   }
 }

@@ -5,8 +5,8 @@ GlobalSetup separates durable repository state from the model or harness executi
 ## Portable core
 
 - `AGENTS.md` is a short routing contract readable by any coding model.
-- `build-pack/execution-state.json` is the task lifecycle source of truth and routes exact `context_files`.
-- `build-pack/capabilities.json` records required tools and safe argument arrays.
+- `build-pack/execution-state.json` is the lifecycle state; `source-manifest.json`, `requirements.json`, and `grommet-approval.json` bind it to approved product truth.
+- `build-pack/capabilities.json` records required tools, GitNexus eligibility, managed-worktree policy, and safe argument arrays.
 - `scripts/build-runner.py` uses only the Python standard library and has PowerShell and Bash wrappers.
 - Markdown plans, task cards, rules, and reviewers remain human-readable.
 - `scripts/pre-tool-hook.ps1` is an executable guard for harnesses that support pre-tool hooks; declarative safeguards remain available to all others.
@@ -15,13 +15,13 @@ The runner does not call a model API, require a vendor-specific persona system, 
 
 ## One setup, two phases
 
-Setup runs once after the source documents are approved. A fail-fast preflight validates prerequisites, UTF-8 text, and local references; a staged transaction installs the repository contract, BuildRunner, safety files, GitNexus configuration, and the initial build pack. Target mutations roll back on failure, and re-running setup preserves durable execution state. Phase 1 records source authority, build intent, contradictions, mandatory Grommet approval, per-task requirement provenance, and publication authority before compiling the task graph. Phase 2 repeatedly selects, executes, verifies, and completes tasks; completion performs and records the GitNexus update.
+Setup runs once after the source documents are approved. A fail-fast preflight validates prerequisites, UTF-8 text, local references, and declared GitNexus license eligibility; a staged transaction installs the repository contract, BuildRunner, safety files, index-only GitNexus configuration, and the initial build pack. Phase 1 hashes exact source sections, maps permanent requirement IDs, resolves contradictions, and records a Grommet approval digest. Phase 2 creates one managed worktree at a time, verifies a committed outcome, integrates it, refreshes GitNexus, and completes it.
 
 There is no GitHub runner. GitHub remains source control and manual review only.
 
 ## GitNexus adapter
 
-GitNexus is the required code-intelligence layer for this noncommercial workflow. The CLI gives every harness the same status and re-index commands; MCP-aware harnesses also receive graph query, context, flow, and impact tools after `gitnexus setup`.
+GitNexus is the required derived structural index for an eligible noncommercial workflow. GlobalSetup pins its version, uses only index-only analysis and bounded queries, and does not run GitNexus setup, hooks, skill generation, publication, wiki, or cleanup commands.
 
 The committed `.gitnexusrc` uses index-only mode so GitNexus cannot rewrite the repository's model-agnostic instructions. BuildRunner also rejects `.gitnexus` content as product authority; graph data is limited to dependencies, execution flow, context, and impact. The generated `.gitnexus/` index stays local and ignored by Git.
 

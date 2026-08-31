@@ -50,8 +50,14 @@ BUILD_PACK_FILES = (
     ("tasks/ui-ux-module-plan-template.md", "module-plans/M-000-ui-ux-module-plan-template.md"),
     ("governance/capabilities-template.json", "capabilities.json"),
     ("governance/execution-state-template.json", "execution-state.json"),
+    ("governance/source-manifest-template.json", "source-manifest.json"),
+    ("governance/requirements-template.json", "requirements.json"),
+    ("governance/grommet-approval-template.json", "grommet-approval.json"),
     ("governance/capabilities.schema.json", "capabilities.schema.json"),
     ("governance/execution-state.schema.json", "execution-state.schema.json"),
+    ("governance/source-manifest.schema.json", "source-manifest.schema.json"),
+    ("governance/requirements.schema.json", "requirements.schema.json"),
+    ("governance/grommet-approval.schema.json", "grommet-approval.schema.json"),
 )
 
 
@@ -74,7 +80,7 @@ def require_command(name: str) -> str:
     return command
 
 
-def preflight(source: Path, target: Path, install_dependencies: bool = True) -> dict[str, str]:
+def preflight(source: Path, target: Path, install_dependencies: bool = True, license_eligible: bool = False) -> dict[str, str]:
     git = require_command("git")
     node = require_command("node")
     run([sys.executable, str(source / "scripts" / "repository-text.py"), "--root", str(source)])
@@ -107,10 +113,12 @@ def preflight(source: Path, target: Path, install_dependencies: bool = True) -> 
     if not gitnexus:
         npm = require_command("npm")
         if install_dependencies:
-            run([npm, "install", "--global", "gitnexus@latest"])
+            run([npm, "install", "--global", "gitnexus@1.6.10"])
             gitnexus = require_command("gitnexus")
         else:
             gitnexus = "gitnexus"
+    if not license_eligible:
+        raise SetupError("GitNexus is PolyForm-Noncommercial; pass --acknowledge-gitnexus-license only when this target is eligible")
     return {"git": git, "node": node, "npm": npm, "gitnexus": gitnexus}
 
 
@@ -170,7 +178,7 @@ def append_gitignore(target: Path, journal: Journal) -> None:
     journal.snapshot_file(path)
     existing = path.read_text(encoding="utf-8") if path.exists() else ""
     lines = existing.splitlines()
-    for entry in (".gitnexus/", ".globalsetup-backups/"):
+    for entry in (".gitnexus/", ".globalsetup-backups/", "build-pack/runtime/"):
         if entry not in lines:
             lines.append(entry)
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
@@ -271,14 +279,26 @@ def install(source: Path, target: Path, tools: dict[str, str], dry_run: bool) ->
                     (target / "scripts" / name).chmod(0o755)
             run([tools["git"], "-C", str(target), "config", "--local", "core.hooksPath", ".githooks"])
 
-            run([tools["gitnexus"], "analyze"], cwd=target)
+            run(
+                [
+                    tools["gitnexus"],
+                    "analyze",
+                    "--index-only",
+                    "--skip-agents-md",
+                    "--skip-skills",
+                    "--name",
+                    target.name,
+                    "--branch",
+                    "globalsetup/integration",
+                ],
+                cwd=target,
+            )
             local_runner = target / ".gitnexus" / "run.cjs"
             if not local_runner.exists():
                 raise SetupError("GitNexus did not create its repository-local runner")
             status = run([tools["node"], str(local_runner), "status"], cwd=target).stdout
             if "up-to-date" not in status.lower() and "up to date" not in status.lower():
                 raise SetupError("GitNexus did not report an up-to-date index")
-            run([tools["gitnexus"], "setup"], cwd=target)
             if include_build_pack:
                 journal.replace(stage / "build-pack", target / "build-pack")
             persist_backups(target, backup_root)
@@ -305,12 +325,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", default=".", help="Target repository directory")
     parser.add_argument("--dry-run", action="store_true", help="Preflight and print the install plan without mutation")
+    parser.add_argument(
+        "--acknowledge-gitnexus-license",
+        action="store_true",
+        help="Confirm the target's eligible noncommercial GitNexus use before installation",
+    )
     args = parser.parse_args()
 
     source = Path(__file__).resolve().parents[1]
     target = Path(args.target).resolve()
     try:
-        tools = preflight(source, target, install_dependencies=not args.dry_run)
+        tools = preflight(
+            source,
+            target,
+            install_dependencies=not args.dry_run,
+            license_eligible=args.acknowledge_gitnexus_license,
+        )
     except SetupError as exc:
         print(f"setup preflight failed: {exc}", file=sys.stderr)
         return 2

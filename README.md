@@ -28,21 +28,21 @@ Prerequisites: Git, Python 3.10+, and a GitNexus-supported Node release (current
 Windows:
 
 ```powershell
-& C:\path\to\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project
+& C:\path\to\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project -AcknowledgeGitNexusLicense
 ```
 
 Linux or macOS:
 
 ```bash
-bash /path/to/globalsetup/scripts/setup-globalsetup.sh /path/to/project
+bash /path/to/globalsetup/scripts/setup-globalsetup.sh /path/to/project --acknowledge-gitnexus-license
 ```
 
-Setup validates the complete UTF-8 payload and prerequisites before touching the target, stages the install, and rolls target changes back if any install step fails. It initializes Git when needed, installs GitNexus when absent, indexes the repository, configures detected agent harnesses, and creates the initial build pack. Re-running it is safe: existing target files are backed up and an existing execution state is preserved. It does not install application dependencies or run the application.
+Setup validates the complete UTF-8 payload, prerequisites, and declared noncommercial GitNexus eligibility before touching the target. It stages the install, rolls target changes back if any install step fails, pins GitNexus 1.6.10, indexes only, and creates the initial build pack. It never configures agent harnesses or lets GitNexus rewrite governance files. Re-running it preserves existing execution state.
 
 Preview the operation without target or dependency mutation:
 
 ```bash
-python /path/to/globalsetup/scripts/setup-globalsetup.py --target /path/to/project --dry-run
+python /path/to/globalsetup/scripts/setup-globalsetup.py --target /path/to/project --dry-run --acknowledge-gitnexus-license
 ```
 
 After the agent compiles the approved plans into execution state:

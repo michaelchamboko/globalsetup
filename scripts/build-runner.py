@@ -8,9 +8,12 @@ import hashlib
 import json
 import os
 import re
+import secrets
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -24,6 +27,8 @@ REQUIRED_TIERS = {
 }
 GITNEXUS_STATUS_ARGV = ["node", ".gitnexus/run.cjs", "status"]
 GITNEXUS_SYNC_ARGV = ["node", ".gitnexus/run.cjs", "analyze", "--skip-agents-md", "--skip-skills"]
+GITNEXUS_VERSION = "1.6.10"
+JOURNAL_NAME = "execution-journal.jsonl"
 
 
 class ContractError(Exception):
@@ -55,7 +60,18 @@ def emit_error(command: str, error: str, result: Any | None = None) -> None:
 
 def read_json(path: Path) -> dict[str, Any]:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+            result: dict[str, Any] = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ContractError(f"duplicate JSON key {key!r} in {path}")
+                result[key] = value
+            return result
+
+        value = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=reject_duplicates)
+        if not isinstance(value, dict):
+            raise ContractError(f"JSON document must be an object: {path}")
+        return value
     except FileNotFoundError as exc:
         raise ContractError(f"missing required file: {path}") from exc
     except json.JSONDecodeError as exc:
@@ -69,7 +85,20 @@ def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
         with os.fdopen(handle, "w", encoding="utf-8", newline="\n") as stream:
             json.dump(payload, stream, indent=2, ensure_ascii=False)
             stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Re-read the staged payload before replacing the durable state.
+        read_json(Path(temp_name))
         os.replace(temp_name, path)
+        if hasattr(os, "O_DIRECTORY"):
+            try:
+                directory = os.open(path.parent, os.O_DIRECTORY)
+                try:
+                    os.fsync(directory)
+                finally:
+                    os.close(directory)
+            except OSError:
+                pass
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)
@@ -84,8 +113,23 @@ class StateLock:
         try:
             self.fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError as exc:
+            try:
+                metadata = read_json(self.path)
+                started = metadata.get("started_at", "")
+                age = time.time() - datetime.fromisoformat(str(started).replace("Z", "+00:00")).timestamp()
+            except (ContractError, TypeError, ValueError):
+                age = 0
+            if age > 3600:
+                raise ContractError(f"execution state has a stale lock requiring recover: {self.path}") from exc
             raise ContractError(f"execution state is locked: {self.path}") from exc
-        os.write(self.fd, str(os.getpid()).encode("ascii"))
+        payload = {
+            "pid": os.getpid(),
+            "nonce": secrets.token_hex(16),
+            "started_at": now_utc(),
+            "heartbeat_at": now_utc(),
+        }
+        os.write(self.fd, json.dumps(payload, ensure_ascii=True).encode("utf-8"))
+        os.fsync(self.fd)
         return self
 
     def __exit__(self, *_: object) -> None:
@@ -734,6 +778,459 @@ def command_unblock(state: dict[str, Any], state_path: Path, task_id: str, resol
     return task
 
 
+# Version 2 keeps source meaning in dedicated, hash-bound contracts.  The v1
+# commands above remain intentionally intact so installed build packs can be
+# migrated explicitly instead of being rewritten during an ordinary command.
+V2_STATUSES = {"blocked", "ready", "in_progress", "verified", "integrated", "published", "done"}
+V2_ROOT_KEYS = {
+    "schema_version", "mode", "capabilities_file", "source_manifest_file", "requirements_file",
+    "grommet_file", "automation_authority", "tasks", "extensions",
+}
+V2_TASK_KEYS = {
+    "id", "title", "status", "dependencies", "risk", "risk_assessment", "source_changes",
+    "requirement_ids", "context_files", "validation", "evidence", "model_route", "context_packet",
+    "baseline_commit", "workspace", "operation_phase", "evidence_refs", "publication", "review",
+    "blocker", "external_evidence", "verification_history", "started_at", "verified_at", "integrated_at",
+    "published_at", "completed_at", "verified_commit", "integration_commit", "extensions",
+}
+
+
+def stable_json(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def digest_value(value: Any) -> str:
+    return hashlib.sha256(stable_json(value).encode("utf-8")).hexdigest()
+
+
+def normalized_section(path: Path, locator: dict[str, Any]) -> str:
+    start, end = locator.get("start_line"), locator.get("end_line")
+    if not isinstance(start, int) or not isinstance(end, int) or start < 1 or end < start:
+        raise ContractError(f"invalid source section locator for {path}")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if end > len(lines):
+        raise ContractError(f"source section locator exceeds file length: {path}")
+    return "\n".join(line.rstrip() for line in lines[start - 1 : end]).strip() + "\n"
+
+
+def v2_contract_paths(root: Path, state: dict[str, Any]) -> dict[str, Path]:
+    defaults = {
+        "source_manifest_file": "build-pack/source-manifest.json",
+        "requirements_file": "build-pack/requirements.json",
+        "grommet_file": "build-pack/grommet-approval.json",
+    }
+    paths: dict[str, Path] = {}
+    for field, default in defaults.items():
+        raw = state.get(field, default)
+        if not isinstance(raw, str) or not raw:
+            raise ContractError(f"{field} must be a repository-relative path")
+        candidate = (root / raw).resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError as exc:
+            raise ContractError(f"{field} must resolve inside the repository") from exc
+        paths[field] = candidate
+    return paths
+
+
+def v2_raw_contracts(root: Path, state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    paths = v2_contract_paths(root, state)
+    return tuple(read_json(paths[field]) for field in ("source_manifest_file", "requirements_file", "grommet_file"))  # type: ignore[return-value]
+
+
+def v2_digest(root: Path, state: dict[str, Any], manifest: dict[str, Any], requirements: dict[str, Any]) -> str:
+    task_plan = []
+    for task in state.get("tasks", []):
+        if isinstance(task, dict):
+            task_plan.append({key: task.get(key) for key in ("id", "title", "dependencies", "requirement_ids", "risk", "publication")})
+    return digest_value({"manifest": manifest, "requirements": requirements, "task_plan": task_plan})
+
+
+def append_journal(root: Path, operation: str, phase: str, details: dict[str, Any]) -> None:
+    journal = root / "build-pack" / JOURNAL_NAME
+    journal.parent.mkdir(parents=True, exist_ok=True)
+    entry = {"operation": operation, "phase": phase, "recorded_at": now_utc(), "details": details}
+    with journal.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(stable_json(entry) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def write_receipt(root: Path, task_id: str, operation: str, payload: dict[str, Any]) -> str:
+    path = root / "build-pack" / "evidence" / task_id / f"{operation}.json"
+    if path.exists():
+        raise ContractError(f"immutable evidence receipt already exists: {path}")
+    write_json_atomic(path, payload)
+    return path.relative_to(root).as_posix()
+
+
+def ensure_v2_fields(state: dict[str, Any], capabilities: dict[str, Any], root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    if state.get("schema_version") != 2 or capabilities.get("schema_version") != 2:
+        raise ContractError("v2 commands require schema_version 2 state and capabilities")
+    unknown = set(state) - V2_ROOT_KEYS
+    if unknown:
+        raise ContractError(f"execution-state has unknown core fields: {sorted(unknown)}")
+    if "extensions" in state and not isinstance(state["extensions"], dict):
+        raise ContractError("execution-state.extensions must be an object")
+    manifest, requirements, grommet = v2_raw_contracts(root, state)
+    if manifest.get("schema_version") != 1 or requirements.get("schema_version") != 1 or grommet.get("schema_version") != 1:
+        raise ContractError("source manifest, requirements map, and Grommet approval must use schema_version 1")
+    if grommet.get("status") != "approved":
+        raise ContractError("Grommet approval is required before execution")
+    calculated = v2_digest(root, state, manifest, requirements)
+    if grommet.get("candidate_digest") != calculated:
+        raise ContractError("Grommet approval digest does not match the current build pack; reseal and reapprove it")
+    sources: dict[tuple[str, str], str] = {}
+    for source in manifest.get("sources", []):
+        if not isinstance(source, dict) or source.get("authority") != "approved":
+            raise ContractError("each source manifest entry must be an approved object")
+        source_id, relative = source.get("id"), source.get("path")
+        if not isinstance(source_id, str) or not isinstance(relative, str):
+            raise ContractError("source manifest entries require id and path")
+        path = (root / relative).resolve()
+        try:
+            path.relative_to(root)
+        except ValueError as exc:
+            raise ContractError("source manifest path must stay inside the repository") from exc
+        if not path.is_file() or ".gitnexus" in path.parts:
+            raise ContractError(f"invalid product authority source: {relative}")
+        for section in source.get("sections", []):
+            if not isinstance(section, dict) or not isinstance(section.get("id"), str):
+                raise ContractError("source sections require an id")
+            actual = hashlib.sha256(normalized_section(path, section.get("locator", {})).encode("utf-8")).hexdigest()
+            if section.get("hash") != actual:
+                raise ContractError(f"source section changed: {source_id}/{section.get('id')}")
+            sources[(source_id, section["id"])] = actual
+    requirement_ids: set[str] = set()
+    for requirement in requirements.get("requirements", []):
+        if not isinstance(requirement, dict) or not isinstance(requirement.get("id"), str):
+            raise ContractError("requirements must have permanent ids")
+        requirement_ids.add(requirement["id"])
+        refs = requirement.get("sources")
+        if not isinstance(refs, list) or not refs:
+            raise ContractError(f"requirement {requirement['id']} has no source references")
+        for ref in refs:
+            if not isinstance(ref, dict) or (ref.get("source_id"), ref.get("section_id")) not in sources:
+                raise ContractError(f"requirement {requirement['id']} has an unknown source section")
+    graph = capabilities.get("graph", {})
+    if graph.get("provider") != "gitnexus" or graph.get("version") != GITNEXUS_VERSION:
+        raise ContractError(f"GitNexus version must be pinned to {GITNEXUS_VERSION}")
+    if graph.get("license", {}).get("eligible") is not True:
+        raise ContractError("GitNexus license eligibility must be explicitly confirmed")
+    for task in state.get("tasks", []):
+        if not isinstance(task, dict):
+            raise ContractError("tasks must be objects")
+        unknown_task = set(task) - V2_TASK_KEYS
+        if unknown_task:
+            raise ContractError(f"task {task.get('id', '<unknown>')} has unknown core fields: {sorted(unknown_task)}")
+        if task.get("status") not in V2_STATUSES:
+            raise ContractError(f"task {task.get('id', '<unknown>')} has invalid status")
+        refs = task.get("requirement_ids")
+        if not isinstance(refs, list) or not refs or any(item not in requirement_ids for item in refs):
+            raise ContractError(f"task {task.get('id', '<unknown>')} must reference mapped requirements")
+        score = task.get("risk_assessment", {})
+        factors = ("blast_radius", "reversibility", "authority", "sensitive_data", "external_impact")
+        if any(not isinstance(score.get(name), int) or score[name] not in {0, 1, 2} for name in factors):
+            raise ContractError(f"task {task.get('id', '<unknown>')} has invalid measured-risk factors")
+        total = sum(score[name] for name in factors)
+        expected = "low" if total <= 2 else "medium" if total <= 5 else "high"
+        publication = task.get("publication")
+        if publication or score.get("authority") == 2 or score.get("sensitive_data") == 2:
+            expected = "high"
+        if task.get("risk") != expected:
+            raise ContractError(f"task {task.get('id', '<unknown>')} risk does not match its measured assessment")
+        checks = task.get("validation")
+        if not isinstance(checks, list) or not checks:
+            raise ContractError(f"task {task.get('id', '<unknown>')} must declare validation")
+        tiers = {item.get("tier") for item in checks if isinstance(item, dict)}
+        if not REQUIRED_TIERS[task["risk"]].issubset(tiers):
+            raise ContractError(f"task {task.get('id', '<unknown>')} lacks validation for its risk tier")
+        packet = task.get("context_packet", {})
+        if not isinstance(packet, dict) or not isinstance(packet.get("window_tokens"), int) or not isinstance(packet.get("initial_tokens"), int):
+            raise ContractError(f"task {task.get('id', '<unknown>')} must declare its context packet")
+        if packet["initial_tokens"] > packet["window_tokens"] * 0.40:
+            raise ContractError(f"task {task.get('id', '<unknown>')} initial context exceeds 40 percent of its model window")
+        if publication:
+            authority = state.get("automation_authority", {}).get("publication", {})
+            required = {"destination", "artifact", "idempotency_key", "credential_refs", "attempts"}
+            if not isinstance(publication, dict) or not required.issubset(publication):
+                raise ContractError(f"task {task.get('id', '<unknown>')} publication contract is incomplete")
+            if authority.get("enabled") is not True or publication["destination"] not in authority.get("destinations", []):
+                raise ContractError(f"task {task.get('id', '<unknown>')} publication destination is not authorized")
+            prefixes = authority.get("command_prefixes", [])
+            if not isinstance(prefixes, list) or not prefixes:
+                raise ContractError("publication authority must declare allowed command prefixes")
+            for attempt in publication["attempts"]:
+                argv = attempt.get("publish_argv") if isinstance(attempt, dict) else None
+                if not isinstance(argv, list) or not any(argv[: len(prefix)] == prefix for prefix in prefixes if isinstance(prefix, list)):
+                    raise ContractError(f"task {task.get('id', '<unknown>')} publication command is outside approved prefixes")
+    return manifest, requirements, grommet
+
+
+def v2_workspace_root(root: Path) -> Path:
+    return root.parent / ".globalsetup-worktrees" / root.name
+
+
+def run_git(argv: list[str], cwd: Path) -> str:
+    result = run_argv(["git", *argv], cwd, timeout=120)
+    if result.returncode != 0:
+        raise ContractError(output_tail(result.stderr or result.stdout))
+    return result.stdout.strip()
+
+
+def v2_ensure_integration(root: Path, capabilities: dict[str, Any]) -> Path:
+    workspace_root = v2_workspace_root(root)
+    integration = workspace_root / "integration"
+    if integration.exists():
+        return integration
+    workspace_root.mkdir(parents=True, exist_ok=True)
+    base = run_git(["rev-parse", "HEAD"], root)
+    branch = capabilities.get("workspace", {}).get("integration_branch", "globalsetup/integration")
+    run_git(["worktree", "add", "-b", branch, str(integration), base], root)
+    return integration
+
+
+def v2_start(state: dict[str, Any], capabilities: dict[str, Any], root: Path, state_path: Path, task_id: str) -> dict[str, Any]:
+    active = next((task for task in state["tasks"] if task["status"] in {"in_progress", "verified", "integrated"}), None)
+    if active:
+        raise ContractError(f"task {active['id']} is already active")
+    task = get_task(state, task_id)
+    if task["status"] != "ready":
+        raise ContractError(f"task {task_id} is not ready")
+    graph_status(root, capabilities)
+    integration = v2_ensure_integration(root, capabilities)
+    base = run_git(["rev-parse", "HEAD"], integration)
+    path = v2_workspace_root(root) / task_id
+    if path.exists():
+        raise ContractError(f"managed task worktree already exists: {path}")
+    branch = f"globalsetup/task-{task_id.lower()}"
+    run_git(["worktree", "add", "-b", branch, str(path), base], root)
+    operation = secrets.token_hex(12)
+    append_journal(root, operation, "prepared", {"command": "start", "task_id": task_id, "baseline": base})
+    task.update({"status": "in_progress", "started_at": now_utc(), "baseline_commit": base, "workspace": {"path": str(path), "branch": branch}, "operation_phase": "executed"})
+    append_journal(root, operation, "executed", {"workspace": str(path)})
+    write_json_atomic(state_path, state)
+    append_journal(root, operation, "committed", {"state": "in_progress"})
+    return task
+
+
+def v2_verify(state: dict[str, Any], root: Path, state_path: Path, task_id: str) -> list[dict[str, Any]]:
+    task = get_task(state, task_id)
+    if task.get("status") != "in_progress":
+        raise ContractError(f"task {task_id} must be in_progress before verification")
+    workspace = Path(task.get("workspace", {}).get("path", root))
+    if not workspace.is_dir():
+        raise ContractError(f"task {task_id} worktree is unavailable")
+    evidence: list[dict[str, Any]] = []
+    operation = secrets.token_hex(12)
+    append_journal(root, operation, "prepared", {"command": "verify", "task_id": task_id})
+    for check in task.get("validation", []):
+        if check.get("kind") != "command":
+            continue
+        argv = ensure_argv(check.get("argv"), f"{task_id} validation")
+        result = run_argv(argv, workspace, timeout=int(check.get("timeout_seconds", 900)))
+        receipt = {"name": check.get("name"), "kind": "command", "exit_code": result.returncode, "verified_at": now_utc(), "stdout": output_tail(result.stdout), "stderr": output_tail(result.stderr)}
+        evidence.append(receipt)
+        if result.returncode != 0:
+            task.update({"status": "blocked", "blocker": {"reason": f"validation failed: {check.get('name')}", "recorded_at": now_utc()}, "evidence": evidence, "operation_phase": "verified"})
+            write_json_atomic(state_path, state)
+            append_journal(root, operation, "verified", {"result": "failed", "check": check.get("name")})
+            raise VerificationFailed(f"validation failed: {check.get('name')}", receipt)
+    head = run_git(["rev-parse", "HEAD"], workspace)
+    if head == task.get("baseline_commit") and task.get("source_changes"):
+        raise ContractError(f"task {task_id} has no committed change in its worktree")
+    if run_git(["status", "--porcelain"], workspace):
+        raise ContractError(f"task {task_id} worktree is dirty; commit or discard task-owned changes before verification")
+    receipt_ref = write_receipt(root, task_id, operation, {"task_id": task_id, "commit": head, "evidence": evidence})
+    task.update({"status": "verified", "verified_at": now_utc(), "evidence": evidence, "evidence_refs": [receipt_ref], "operation_phase": "verified", "verified_commit": head})
+    write_json_atomic(state_path, state)
+    append_journal(root, operation, "committed", {"receipt": receipt_ref})
+    return evidence
+
+
+def v2_integrate(state: dict[str, Any], capabilities: dict[str, Any], root: Path, state_path: Path, task_id: str) -> dict[str, Any]:
+    task = get_task(state, task_id)
+    if task.get("status") != "verified":
+        raise ContractError(f"task {task_id} must be verified before integration")
+    if task.get("risk") == "high" and task.get("review", {}).get("status") != "passed":
+        raise ContractError(f"task {task_id} is high risk and requires a passed independent review before integration")
+    integration = v2_ensure_integration(root, capabilities)
+    if run_git(["status", "--porcelain"], integration):
+        raise ContractError("managed integration worktree is dirty")
+    operation = secrets.token_hex(12)
+    append_journal(root, operation, "prepared", {"command": "integrate", "task_id": task_id})
+    run_git(["merge", "--no-ff", "--no-edit", task["workspace"]["branch"]], integration)
+    graph = capabilities["graph"]
+    result = run_argv(ensure_argv(graph["sync_argv"], "graph.sync_argv"), integration, timeout=int(graph.get("timeout_seconds", 900)))
+    if result.returncode != 0:
+        raise ContractError(f"GitNexus sync failed after integration: {output_tail(result.stderr or result.stdout)}")
+    task.update({"status": "integrated", "integrated_at": now_utc(), "integration_commit": run_git(["rev-parse", "HEAD"], integration), "operation_phase": "verified"})
+    write_json_atomic(state_path, state)
+    append_journal(root, operation, "committed", {"integration_commit": task["integration_commit"]})
+    return task
+
+
+def v2_publish(state: dict[str, Any], root: Path, state_path: Path, task_id: str) -> dict[str, Any]:
+    task = get_task(state, task_id)
+    if task.get("status") != "integrated" or not isinstance(task.get("publication"), dict):
+        raise ContractError(f"task {task_id} must be an integrated publication task")
+    publication = task["publication"]
+    attempts = publication.get("attempts")
+    if not isinstance(attempts, list) or not 1 <= len(attempts) <= 3 or len({item.get("strategy") for item in attempts if isinstance(item, dict)}) != len(attempts):
+        raise ContractError("publication must declare one to three materially distinct attempts")
+    workspace = v2_ensure_integration(root, {"workspace": {}})
+    operation = secrets.token_hex(12)
+    append_journal(root, operation, "prepared", {"command": "publish", "task_id": task_id, "idempotency_key": publication.get("idempotency_key")})
+    records: list[dict[str, Any]] = []
+    for attempt in attempts:
+        publish = run_argv(ensure_argv(attempt.get("publish_argv"), "publication publish_argv"), workspace)
+        health = run_argv(ensure_argv(attempt.get("health_argv"), "publication health_argv"), workspace)
+        record = {"strategy": attempt["strategy"], "publish_exit_code": publish.returncode, "health_exit_code": health.returncode}
+        records.append(record)
+        if publish.returncode == 0 and health.returncode == 0:
+            ref = write_receipt(root, task_id, operation, {"publication": publication, "attempts": records, "status": "published"})
+            task.update({"status": "published", "published_at": now_utc(), "evidence_refs": task.get("evidence_refs", []) + [ref], "operation_phase": "verified"})
+            write_json_atomic(state_path, state)
+            append_journal(root, operation, "committed", {"receipt": ref})
+            return {"status": "published", "attempts": records}
+        rollback = attempt.get("rollback_argv")
+        if rollback:
+            run_argv(ensure_argv(rollback, "publication rollback_argv"), workspace)
+    preview = publication.get("preview_argv")
+    if preview:
+        run_argv(ensure_argv(preview, "publication preview_argv"), workspace)
+    task.update({"status": "blocked", "blocker": {"reason": "three publication attempts did not pass health checks", "recorded_at": now_utc()}, "operation_phase": "verified"})
+    write_json_atomic(state_path, state)
+    append_journal(root, operation, "verified", {"status": "preview_or_blocked", "attempts": records})
+    raise ContractError("publication did not produce a healthy production release")
+
+
+def v2_review(state: dict[str, Any], root: Path, state_path: Path, task_id: str, reviewer: str, status: str, summary: str, receipt: str) -> dict[str, Any]:
+    task = get_task(state, task_id)
+    if task.get("status") != "verified":
+        raise ContractError(f"task {task_id} must be verified before review")
+    review = {"reviewer": reviewer, "status": status, "summary": summary, "receipt": receipt, "commit": task.get("verified_commit"), "reviewed_at": now_utc()}
+    task["review"] = review
+    write_json_atomic(state_path, state)
+    append_journal(root, secrets.token_hex(12), "committed", {"command": "review", "task_id": task_id, "status": status})
+    return review
+
+
+def v2_reconcile(state: dict[str, Any]) -> None:
+    mapping = task_map(state)
+    for task in state["tasks"]:
+        if task["status"] in {"done", "in_progress", "verified", "integrated", "published"} or task.get("blocker"):
+            continue
+        task["status"] = "ready" if all(mapping[dep]["status"] == "done" for dep in task.get("dependencies", [])) else "blocked"
+
+
+def v2_impact(state: dict[str, Any], root: Path, state_path: Path) -> dict[str, Any]:
+    manifest, requirements, _ = v2_raw_contracts(root, state)
+    changed_sections: set[tuple[str, str]] = set()
+    for source in manifest.get("sources", []):
+        if not isinstance(source, dict):
+            continue
+        path = root / str(source.get("path", ""))
+        for section in source.get("sections", []):
+            if not isinstance(section, dict) or not path.is_file():
+                continue
+            actual = hashlib.sha256(normalized_section(path, section.get("locator", {})).encode("utf-8")).hexdigest()
+            if actual != section.get("hash"):
+                changed_sections.add((str(source.get("id")), str(section.get("id"))))
+    changed_requirements = {
+        item["id"] for item in requirements.get("requirements", []) if isinstance(item, dict) and any(
+            (ref.get("source_id"), ref.get("section_id")) in changed_sections for ref in item.get("sources", []) if isinstance(ref, dict)
+        )
+    }
+    requirement_dependencies = {
+        item["id"]: set(item.get("dependencies", [])) for item in requirements.get("requirements", []) if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    changed = True
+    while changed:
+        changed = False
+        for requirement_id, dependencies in requirement_dependencies.items():
+            if requirement_id not in changed_requirements and dependencies & changed_requirements:
+                changed_requirements.add(requirement_id)
+                changed = True
+    changed_tasks = {task["id"] for task in state.get("tasks", []) if isinstance(task, dict) and any(req in changed_requirements for req in task.get("requirement_ids", []))}
+    task_dependencies = {task["id"]: set(task.get("dependencies", [])) for task in state.get("tasks", []) if isinstance(task, dict) and isinstance(task.get("id"), str)}
+    changed = True
+    while changed:
+        changed = False
+        for task_id, dependencies in task_dependencies.items():
+            if task_id not in changed_tasks and dependencies & changed_tasks:
+                changed_tasks.add(task_id)
+                changed = True
+    for task in state.get("tasks", []):
+        if isinstance(task, dict) and task.get("id") in changed_tasks and task.get("status") != "done":
+            task["status"] = "blocked"
+            task["blocker"] = {"reason": "approved source section changed; reseal and reapprove the affected plan", "recorded_at": now_utc()}
+    if changed_tasks:
+        write_json_atomic(state_path, state)
+    result = {"changed_requirements": sorted(changed_requirements), "changed_tasks": sorted(changed_tasks), "source_manifest_digest": digest_value(manifest), "requirements_digest": digest_value(requirements)}
+    append_journal(root, secrets.token_hex(12), "committed", {"command": "impact", **result})
+    return result
+
+
+def command_migrate(root: Path, state_path: Path, apply: bool) -> dict[str, Any]:
+    state = read_json(state_path)
+    if state.get("schema_version") == 2:
+        return {"status": "already_v2"}
+    if state.get("schema_version") != 1:
+        raise ContractError("only schema_version 1 execution state can be migrated")
+    capabilities_path = root / state.get("capabilities_file", "build-pack/capabilities.json")
+    capabilities = read_json(capabilities_path)
+    sources = []
+    for index, relative in enumerate(state["source_authority"]["approved_sources"], start=1):
+        path = root / relative
+        lines = path.read_text(encoding="utf-8").splitlines()
+        sources.append({"id": f"SRC-{index:03d}", "path": relative, "authority": "approved", "currentness": "current", "sections": [{"id": "whole-document", "locator": {"start_line": 1, "end_line": max(1, len(lines))}, "hash": hashlib.sha256(normalized_section(path, {"start_line": 1, "end_line": max(1, len(lines))}).encode("utf-8")).hexdigest()}]})
+    manifest = {"schema_version": 1, "sources": sources}
+    requirements = {"schema_version": 1, "requirements": [{"id": f"R-{task['id']}", "summary": task["title"], "sources": [{"source_id": source["id"], "section_id": "whole-document"} for source in sources], "acceptance_criteria": [check["name"] for check in task["validation"]], "tests": [check["name"] for check in task["validation"]], "tasks": [task["id"]], "dependencies": []} for task in state["tasks"]]}
+    migrated = {key: value for key, value in state.items() if key in {"mode", "capabilities_file", "automation_authority", "tasks"}}
+    migrated.update({"schema_version": 2, "source_manifest_file": "build-pack/source-manifest.json", "requirements_file": "build-pack/requirements.json", "grommet_file": "build-pack/grommet-approval.json"})
+    for task in migrated["tasks"]:
+        legacy_risk = task.get("risk")
+        task["requirement_ids"] = [f"R-{task['id']}"]
+        task.pop("requirement_sources", None)
+        scores = {
+            "low": {"blast_radius": 0, "reversibility": 0, "authority": 0, "sensitive_data": 0, "external_impact": 0},
+            "medium": {"blast_radius": 1, "reversibility": 1, "authority": 1, "sensitive_data": 0, "external_impact": 0},
+            "high": {"blast_radius": 2, "reversibility": 1, "authority": 1, "sensitive_data": 0, "external_impact": 2},
+        }
+        task["risk_assessment"] = scores.get(legacy_risk, scores["high"]).copy()
+        if task.get("publication"):
+            task["risk_assessment"]["authority"] = 2
+            task["risk_assessment"]["external_impact"] = 2
+        task["risk"] = "high" if task.get("publication") else legacy_risk
+        task["model_route"] = {"worker": "standard", "verifier": "premium", "escalation": "operator"}
+        task["context_packet"] = {"window_tokens": 32000, "initial_tokens": 12000, "retrieval": "targeted"}
+        task["evidence_refs"] = []
+        task["operation_phase"] = "prepared"
+    migrated_caps = dict(capabilities)
+    migrated_caps["schema_version"] = 2
+    graph = dict(migrated_caps.get("graph", {}))
+    graph.update({"version": GITNEXUS_VERSION, "repository_alias": root.name, "branch": "globalsetup/integration", "license": {"spdx": "PolyForm-Noncommercial-1.0.0", "eligible": True}, "sync_argv": ["gitnexus", "analyze", "--index-only", "--skip-agents-md", "--skip-skills", "--name", root.name, "--branch", "globalsetup/integration"]})
+    migrated_caps["graph"] = graph
+    migrated_caps["workspace"] = {"integration_branch": "globalsetup/integration", "serial": True}
+    grommet = {"schema_version": 1, "status": "pending", "operator": "", "approved_at": "", "contradictions": state["source_authority"].get("contradictions", []), "candidate_digest": v2_digest(root, migrated, manifest, requirements)}
+    result = {"status": "dry_run", "candidate_digest": grommet["candidate_digest"], "files": [str(state_path), str(capabilities_path), "build-pack/source-manifest.json", "build-pack/requirements.json", "build-pack/grommet-approval.json"]}
+    if not apply:
+        return result
+    backup = state_path.with_suffix(".json.v1.bak")
+    if backup.exists():
+        raise ContractError(f"migration backup already exists: {backup}")
+    shutil.copy2(state_path, backup)
+    write_json_atomic(root / "build-pack" / "source-manifest.json", manifest)
+    write_json_atomic(root / "build-pack" / "requirements.json", requirements)
+    write_json_atomic(root / "build-pack" / "grommet-approval.json", grommet)
+    write_json_atomic(capabilities_path, migrated_caps)
+    write_json_atomic(state_path, migrated)
+    append_journal(root, secrets.token_hex(12), "committed", {"command": "migrate", "backup": str(backup)})
+    result["status"] = "migrated_pending_grommet_approval"
+    return result
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".", help="Target repository root")
@@ -771,6 +1268,16 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--status", required=True, choices=("passed", "failed"), help="Review outcome")
     review.add_argument("--summary", required=True, help="Findings or no-blocker conclusion")
     review.add_argument("--receipt", required=True, help="Durable review task, thread, or artifact identifier")
+    migrate = subparsers.add_parser("migrate", help="Create a reversible schema v2 build-pack migration")
+    migrate.add_argument("--apply", action="store_true", help="Write the migration after reviewing the dry-run result")
+    subparsers.add_parser("seal-plan", help="Return the current source-to-build digest for Grommet approval")
+    subparsers.add_parser("impact", help="Record source-contract impact for the current build pack")
+    subparsers.add_parser("recover", help="Inspect durable journal state and report incomplete operations")
+    integrate = subparsers.add_parser("integrate", help="Merge a verified task worktree into the managed integration worktree")
+    integrate.add_argument("task_id", help="Verified task identifier")
+    publish = subparsers.add_parser("publish", help="Run the approved autonomous publication contract")
+    publish.add_argument("task_id", help="Integrated publication task identifier")
+    subparsers.add_parser("release-check", help="Confirm every approved task has integrated, reviewed release evidence")
     return parser
 
 
@@ -781,6 +1288,10 @@ def main() -> int:
     try:
         with StateLock(state_path):
             state = read_json(state_path)
+            if args.command == "migrate":
+                result = command_migrate(root, state_path, args.apply)
+                emit_result(args.command, result)
+                return 0
             capabilities_rel = state.get("capabilities_file", "build-pack/capabilities.json")
             capabilities_path = (root / capabilities_rel).resolve()
             try:
@@ -788,6 +1299,64 @@ def main() -> int:
             except ValueError as exc:
                 raise ContractError("capabilities_file must resolve inside the repository root") from exc
             capabilities = read_json(capabilities_path)
+            if state.get("schema_version") == 2:
+                if args.command == "seal-plan":
+                    manifest, requirements, grommet = v2_raw_contracts(root, state)
+                    emit_result(args.command, {"candidate_digest": v2_digest(root, state, manifest, requirements), "grommet_status": grommet.get("status")})
+                    return 0
+                if args.command == "impact":
+                    result = v2_impact(state, root, state_path)
+                    emit_result(args.command, result)
+                    return 0
+                manifest, requirements, grommet = ensure_v2_fields(state, capabilities, root)
+                if args.command == "validate":
+                    result = {"status": "valid", "schema_version": 2, "candidate_digest": v2_digest(root, state, manifest, requirements)}
+                elif args.command == "status":
+                    v2_reconcile(state)
+                    write_json_atomic(state_path, state)
+                    result = state
+                elif args.command == "next":
+                    v2_reconcile(state)
+                    ready = next((task for task in state["tasks"] if task["status"] in {"in_progress", "verified", "integrated", "published"}), None)
+                    result = ready or next((task for task in state["tasks"] if task["status"] == "ready"), None)
+                    if result is None:
+                        raise ContractError("no ready task; resolve blockers or complete active work")
+                elif args.command == "recover":
+                    journal = root / "build-pack" / JOURNAL_NAME
+                    entries = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines() if line.strip()] if journal.exists() else []
+                    phases = {entry.get("operation"): entry.get("phase") for entry in entries}
+                    incomplete = [operation for operation, phase in phases.items() if phase != "committed"]
+                    result = {"journal_entries": len(entries), "incomplete_operations": incomplete, "status": "no automatic replay; inspect incomplete operations before retrying"}
+                elif args.command == "start":
+                    result = v2_start(state, capabilities, root, state_path, args.task_id)
+                elif args.command == "verify":
+                    result = v2_verify(state, root, state_path, args.task_id)
+                elif args.command == "integrate":
+                    result = v2_integrate(state, capabilities, root, state_path, args.task_id)
+                elif args.command == "publish":
+                    result = v2_publish(state, root, state_path, args.task_id)
+                elif args.command == "review":
+                    result = v2_review(state, root, state_path, args.task_id, args.reviewer, args.status, args.summary, args.receipt)
+                elif args.command == "release-check":
+                    incomplete = [task["id"] for task in state["tasks"] if task.get("status") != "done"]
+                    if incomplete:
+                        raise ContractError(f"release is incomplete; unfinished tasks: {incomplete}")
+                    missing_reviews = [task["id"] for task in state["tasks"] if task.get("risk") == "high" and task.get("review", {}).get("status") != "passed"]
+                    if missing_reviews:
+                        raise ContractError(f"release lacks independent review for high-risk tasks: {missing_reviews}")
+                    result = {"status": "release_ready", "tasks": len(state["tasks"]), "grommet_digest": grommet["candidate_digest"]}
+                elif args.command == "complete":
+                    task = get_task(state, args.task_id)
+                    if task.get("status") not in ({"published"} if task.get("publication") else {"integrated"}):
+                        raise ContractError(f"task {args.task_id} must be integrated and published when required before completion")
+                    task.update({"status": "done", "completed_at": now_utc(), "operation_phase": "committed"})
+                    v2_reconcile(state)
+                    write_json_atomic(state_path, state)
+                    result = task
+                else:
+                    raise ContractError(f"command {args.command} is not available for schema_version 2")
+                emit_result(args.command, result)
+                return 0
             contract_errors = validate_contract(state, capabilities, root)
             if contract_errors:
                 raise ContractError("invalid execution contract: " + "; ".join(contract_errors))

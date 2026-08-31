@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    {
+      "id": "R-001",
+      "summary": "Replace with the approved requirement.",
+      "sources": [{"source_id": "SRC-001", "section_id": "intent"}],
+      "acceptance_criteria": ["Replace with observable acceptance criteria."],
+      "tests": ["Replace with a declared validation name."],
+      "tasks": ["T-001"],
+      "dependencies": []
+    }
+  ]
+}

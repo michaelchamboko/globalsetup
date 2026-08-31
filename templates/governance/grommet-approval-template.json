@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "pending",
+  "operator": "",
+  "approved_at": "",
+  "contradictions": [],
+  "candidate_digest": "replace-with-output-of-build-runner-seal-plan"
+}

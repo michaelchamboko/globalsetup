@@ -6,6 +6,8 @@
 **Lifecycle State**: Managed only in `build-pack/execution-state.json`
 **Risk**: [low / medium / high]
 **Source Changes**: [true / false]
+**Requirement Sources**: [Approved repository-local PRD, truth-document, or blueprint paths]
+**Publication Destination**: [Authorized destination / N/A]
 
 ## Context Files
 
@@ -62,6 +64,8 @@ Mirror these exact repository-relative paths into the execution state's `context
 ## Execution-State Mapping
 
 - [ ] Dependencies, risk, source-change intent, `context_files`, and validation kinds/locations match this card.
+- [ ] Every mapped requirement traces to `requirement_sources`, and each source is included in `context_files`.
+- [ ] Any publication destination appears in `automation_authority.publication.destinations`.
 - [ ] Every local `command` has an argument array; every hosted/external `receipt` names its intended runtime and durable evidence source.
 - [ ] High-risk work names the independent review evidence required before completion.
 

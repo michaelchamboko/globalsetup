@@ -9,5 +9,5 @@ alwaysApply: false
 - Keep commits coherent and scoped to completed task boundaries or another approved delivery checkpoint.
 - Use descriptive, imperative commit messages and required attribution or sign-off trailers.
 - Stage only files belonging to the current build objective and verify the staged diff before committing.
-- Push only with repository authority and only after required BuildRunner evidence is recorded.
+- Push or publish automatically when the approved task declares that authority and destination, after required BuildRunner evidence is recorded. Do not create a second confirmation gate.
 - GitHub is source control and manual review only. Do not add or use GitHub Actions workflows or hosted runners.

@@ -2,6 +2,15 @@
   "schema_version": 1,
   "mode": "mvp",
   "capabilities_file": "build-pack/capabilities.json",
+  "source_authority": {
+    "build_intent_summary": "Build and publish the approved notification system.",
+    "approved_sources": ["build-pack/00-confirmed-prd-summary.md"],
+    "contradictions": [],
+    "grommet_review": {"status": "approved", "summary": "The task graph matches the approved notification requirements."}
+  },
+  "automation_authority": {
+    "publication": {"enabled": true, "destinations": ["notification-production"]}
+  },
   "tasks": [
     {
       "id": "T-001",
@@ -10,7 +19,9 @@
       "dependencies": [],
       "risk": "high",
       "source_changes": true,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-001-notification-core.md",
         "build-pack/06-database-contract.md",
         ".agents/skills/fresh-context-execution/SKILL.md",
@@ -30,7 +41,9 @@
       "dependencies": ["T-001"],
       "risk": "medium",
       "source_changes": true,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-001-notification-core.md",
         "build-pack/07-api-contract.md",
         ".agents/skills/fresh-context-execution/SKILL.md",
@@ -49,7 +62,9 @@
       "dependencies": ["T-002"],
       "risk": "medium",
       "source_changes": true,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-001-notification-core.md",
         "build-pack/07-api-contract.md",
         ".agents/skills/fresh-context-execution/SKILL.md"
@@ -67,7 +82,9 @@
       "dependencies": ["T-003"],
       "risk": "low",
       "source_changes": true,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-002-notification-ui-ux.md",
         "build-pack/08-ui-contract.md",
         ".agents/skills/fresh-context-execution/SKILL.md",
@@ -85,7 +102,9 @@
       "dependencies": ["T-004"],
       "risk": "medium",
       "source_changes": true,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-002-notification-ui-ux.md",
         "build-pack/08-ui-contract.md",
         ".agents/skills/fresh-context-execution/SKILL.md",
@@ -104,7 +123,10 @@
       "dependencies": ["T-005"],
       "risk": "high",
       "source_changes": false,
+      "requirement_sources": ["build-pack/00-confirmed-prd-summary.md"],
+      "publication": {"destination": "notification-production"},
       "context_files": [
+        "build-pack/00-confirmed-prd-summary.md",
         "build-pack/module-plans/M-003-release-validation.md",
         "build-pack/15-pre-ship-checklist.md",
         ".agents/skills/fresh-context-execution/SKILL.md",

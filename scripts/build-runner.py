@@ -192,6 +192,66 @@ def validate_contract(state: dict[str, Any], capabilities: dict[str, Any], root:
     if state.get("mode") not in {"mvp", "standard", "high_assurance"}:
         errors.append("mode must be mvp, standard, or high_assurance")
 
+    source_authority = state.get("source_authority")
+    approved_sources: set[str] = set()
+    if not isinstance(source_authority, dict):
+        errors.append("source_authority must declare approved sources and contradictions")
+    else:
+        if not isinstance(source_authority.get("build_intent_summary"), str) or not source_authority["build_intent_summary"].strip():
+            errors.append("source_authority.build_intent_summary must state what GlobalSetup will build")
+        grommet_review = source_authority.get("grommet_review")
+        if not isinstance(grommet_review, dict) or grommet_review.get("status") != "approved":
+            errors.append("source_authority.grommet_review must approve the source-to-build mapping")
+        sources = source_authority.get("approved_sources")
+        if not isinstance(sources, list) or not sources:
+            errors.append("source_authority.approved_sources must be a non-empty array")
+        else:
+            for index, relative in enumerate(sources):
+                field = f"source_authority.approved_sources[{index}]"
+                if not isinstance(relative, str) or not relative.strip():
+                    errors.append(f"{field} must be a non-empty repository-relative path")
+                    continue
+                normalized = relative.replace("\\", "/")
+                if normalized == ".gitnexus" or normalized.startswith(".gitnexus/"):
+                    errors.append(f"{field} cannot use derived GitNexus data as product authority")
+                    continue
+                candidate = (root / relative).resolve()
+                try:
+                    candidate.relative_to(root)
+                except ValueError:
+                    errors.append(f"{field} must resolve inside the repository")
+                    continue
+                if not candidate.is_file():
+                    errors.append(f"{field} does not exist: {relative}")
+                    continue
+                approved_sources.add(relative)
+        contradictions = source_authority.get("contradictions")
+        if not isinstance(contradictions, list):
+            errors.append("source_authority.contradictions must be an array")
+        else:
+            for index, contradiction in enumerate(contradictions):
+                if not isinstance(contradiction, dict):
+                    errors.append(f"source_authority.contradictions[{index}] must be an object")
+                    continue
+                if contradiction.get("status") != "resolved":
+                    identifier = contradiction.get("id", index)
+                    errors.append(f"source contradiction {identifier} must be resolved before execution")
+
+    automation_authority = state.get("automation_authority")
+    publication_authority: dict[str, Any] = {}
+    if not isinstance(automation_authority, dict):
+        errors.append("automation_authority must explicitly declare publication authority")
+    else:
+        publication_authority = automation_authority.get("publication", {})
+        if not isinstance(publication_authority, dict):
+            errors.append("automation_authority.publication must be an object")
+            publication_authority = {}
+        elif not isinstance(publication_authority.get("enabled"), bool):
+            errors.append("automation_authority.publication.enabled must be true or false")
+        destinations = publication_authority.get("destinations")
+        if not isinstance(destinations, list):
+            errors.append("automation_authority.publication.destinations must be an array")
+
     graph = capabilities.get("graph", {})
     if graph.get("required") is not True:
         errors.append("graph.required must be true")
@@ -248,6 +308,23 @@ def validate_contract(state: dict[str, Any], capabilities: dict[str, Any], root:
                     continue
                 if not candidate.is_file():
                     errors.append(f"{field} does not exist: {relative}")
+        requirement_sources = task.get("requirement_sources")
+        if not isinstance(requirement_sources, list) or not requirement_sources:
+            errors.append(f"{task_id}: requirement_sources must be a non-empty array")
+        else:
+            for relative in requirement_sources:
+                if relative not in approved_sources:
+                    errors.append(f"{task_id}: requirement source is not approved: {relative}")
+                if isinstance(context_files, list) and relative not in context_files:
+                    errors.append(f"{task_id}: requirement source must also be in context_files: {relative}")
+        publication = task.get("publication")
+        if publication is not None:
+            if not isinstance(publication, dict) or not isinstance(publication.get("destination"), str):
+                errors.append(f"{task_id}: publication must declare a destination")
+            elif publication_authority.get("enabled") is not True:
+                errors.append(f"{task_id}: automated publication is not enabled")
+            elif publication.get("destination") not in publication_authority.get("destinations", []):
+                errors.append(f"{task_id}: publication destination is not authorized: {publication.get('destination')}")
         if task.get("blocker") and status != "blocked":
             errors.append(f"{task_id}: a task with an active blocker must be blocked")
         risk = task.get("risk")

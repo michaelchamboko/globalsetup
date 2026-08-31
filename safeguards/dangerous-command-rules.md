@@ -8,8 +8,7 @@ The following commands must **NEVER** be executed during a standard build:
 
 - **Git Force Push**: git push --force, git push -f (use --force-with-lease only with explicit developer approval on feature branches).
 - **Git Reset Hard on Core Branches**: git reset --hard when on main, master, or production branches.
-- **Production Package Publish**: 
-pm publish or similar commands.
+- **Undeclared Production Publication**: package, content, application, or deployment publication without an approved task and a destination declared in `automation_authority.publication.destinations`.
 - **Arbitrary Recursive Delete**: m -rf / or recursive deletes outside your project working directory.
 - **Production Database Drops**: DROP TABLE, DROP DATABASE or similar raw SQL commands targeting production.
 
@@ -20,3 +19,5 @@ The following commands must be confirmed with the user:
 - git clean -fd (could delete untracked work files).
 - Database migrations targeting staging/production.
 - System-level configuration changes (chmod, chown).
+
+Automated publication to an approved destination does not require another confirmation. The task contract, validation receipts, rollback path, and initial build-pack approval provide the authority.

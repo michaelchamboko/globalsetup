@@ -37,6 +37,8 @@ process.exit(2);
         (self.project / "build-pack" / "tasks").mkdir()
         (self.project / "build-pack" / "tasks" / "T-001.md").write_text("# T-001\n", encoding="utf-8")
         (self.project / "build-pack" / "tasks" / "T-002.md").write_text("# T-002\n", encoding="utf-8")
+        (self.project / "docs").mkdir()
+        (self.project / "docs" / "approved-prd.md").write_text("# Approved PRD\n", encoding="utf-8")
         (self.project / ".agents" / "skills" / "fresh-context-execution").mkdir(parents=True)
         (self.project / ".agents" / "skills" / "fresh-context-execution" / "SKILL.md").write_text(
             "---\nname: fresh-context-execution\ndescription: Use when executing one task.\n---\n",
@@ -64,6 +66,15 @@ process.exit(2);
             "schema_version": 1,
             "mode": "mvp",
             "capabilities_file": "build-pack/capabilities.json",
+            "source_authority": {
+                "build_intent_summary": "Build the approved foundation and use it.",
+                "approved_sources": ["docs/approved-prd.md"],
+                "contradictions": [],
+                "grommet_review": {"status": "approved", "summary": "Tasks match the approved PRD."},
+            },
+            "automation_authority": {
+                "publication": {"enabled": True, "destinations": ["production-site"]}
+            },
             "tasks": [
                 {
                     "id": "T-001",
@@ -72,7 +83,9 @@ process.exit(2);
                     "dependencies": [],
                     "risk": "low",
                     "source_changes": False,
+                    "requirement_sources": ["docs/approved-prd.md"],
                     "context_files": [
+                        "docs/approved-prd.md",
                         "build-pack/tasks/T-001.md",
                         ".agents/skills/fresh-context-execution/SKILL.md",
                     ],
@@ -94,7 +107,9 @@ process.exit(2);
                     "dependencies": ["T-001"],
                     "risk": "medium",
                     "source_changes": True,
+                    "requirement_sources": ["docs/approved-prd.md"],
                     "context_files": [
+                        "docs/approved-prd.md",
                         "build-pack/tasks/T-002.md",
                         ".agents/skills/fresh-context-execution/SKILL.md",
                     ],
@@ -139,6 +154,9 @@ process.exit(2);
 
     def read_state(self):
         return json.loads(self.state_path.read_text(encoding="utf-8"))
+
+    def write_state(self, state):
+        self.state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
     def result_payload(self, completed):
         payload = json.loads(completed.stdout)
@@ -360,6 +378,53 @@ process.exit(2);
         self.assertIn("inside the repository", result.stderr)
         result = self.run_runner("start", "T-001", expected=2)
         self.assertIn("context_files", result.stderr)
+
+    def test_unresolved_source_contradiction_blocks_execution(self):
+        state = self.read_state()
+        state["source_authority"]["contradictions"] = [
+            {
+                "id": "C-001",
+                "summary": "Conflicting publication rules",
+                "sources": ["docs/approved-prd.md", "docs/approved-prd.md"],
+                "status": "unresolved",
+            }
+        ]
+        self.write_state(state)
+
+        result = self.run_runner("validate", expected=2)
+
+        self.assertIn("source contradiction C-001 must be resolved", result.stderr)
+
+    def test_gitnexus_output_cannot_be_product_authority(self):
+        graph_source = self.project / ".gitnexus" / "derived.md"
+        graph_source.write_text("# Derived graph\n", encoding="utf-8")
+        state = self.read_state()
+        state["source_authority"]["approved_sources"] = [".gitnexus/derived.md"]
+        state["tasks"][0]["requirement_sources"] = [".gitnexus/derived.md"]
+        state["tasks"][0]["context_files"].append(".gitnexus/derived.md")
+        self.write_state(state)
+
+        result = self.run_runner("validate", expected=2)
+
+        self.assertIn("cannot use derived GitNexus data as product authority", result.stderr)
+
+    def test_authorized_publication_does_not_require_another_confirmation(self):
+        state = self.read_state()
+        state["tasks"][0]["publication"] = {"destination": "production-site"}
+        self.write_state(state)
+
+        result = self.run_runner("validate")
+
+        self.assertTrue(result.stdout)
+
+    def test_undeclared_publication_destination_is_rejected(self):
+        state = self.read_state()
+        state["tasks"][0]["publication"] = {"destination": "package-registry"}
+        self.write_state(state)
+
+        result = self.run_runner("validate", expected=2)
+
+        self.assertIn("publication destination is not authorized", result.stderr)
 
     def test_hosted_receipt_is_required_and_bound_to_source(self):
         state = self.read_state()

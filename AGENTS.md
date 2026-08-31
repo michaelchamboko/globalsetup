@@ -9,7 +9,7 @@ GlobalSetup runs once after the source PRD and supporting documents are approved
 Use these in order:
 
 1. `build-pack/execution-state.json` for task status, dependencies, risk, context, and evidence.
-2. The `context_files` returned with the active task.
+2. The approved `source_authority`, mandatory Grommet review, and `context_files` returned with the active task.
 3. Approved contracts and plans under `build-pack/`.
 4. The code and current GitNexus graph.
 
@@ -21,13 +21,14 @@ BuildRunner owns lifecycle state. Markdown explains intent and must not become a
 2. Run `python scripts/build-runner.py --root . validate`.
 3. Run `node .gitnexus/run.cjs status`; refresh a missing or stale index before trusting it.
 4. Run `python scripts/build-runner.py --root . next`.
-5. Load exactly the returned task's `context_files`, then use GitNexus context and impact analysis for the symbols in scope.
+5. Load exactly the returned task's approved `requirement_sources` and `context_files`, then use GitNexus context and impact analysis for the symbols in scope.
 
 Run `python scripts/build-runner.py --help` for the authoritative command interface. PowerShell and Bash wrappers accept the same arguments.
 
 ## Build phases
 
-- Phase 1 compiles the approved PRD into discovery, architecture, contracts, module plans, task cards, risk tiers, context files, and validation contracts. It ends when the operator approves the build and BuildRunner validation passes.
+- Phase 1 registers approved sources, states build intent, resolves contradictions, completes the mandatory Grommet source-to-build review, and compiles source-backed requirements into discovery, architecture, contracts, module plans, task cards, risk tiers, context files, and validation contracts. It ends when the operator approves the build and BuildRunner validation passes.
+- Every task traces to approved `requirement_sources`. GitNexus is derived structural evidence only and cannot introduce, reinterpret, or override product requirements.
 - Phase 2 executes one dependency-ready task at a time through `.agents/skills/fresh-context-execution/SKILL.md` until the graph is complete or a stop condition occurs.
 
 ## Engineering contract
@@ -51,7 +52,7 @@ Run `python scripts/build-runner.py --help` for the authoritative command interf
 
 - GitHub is source control and manual review only. GitHub Actions workflows and hosted runners are prohibited.
 - Validation runs in the location declared by the task. A local result cannot replace required hosted or production evidence.
-- Application installs, dev servers, and production builds require an approved task contract or explicit operator authority. GlobalSetup bootstrap tools are the exception.
+- Application installs, dev servers, production builds, external writes, and publications require an approved task contract. Publication proceeds automatically to destinations declared in `automation_authority`; do not request repeated confirmation. GlobalSetup bootstrap tools are the exception.
 
 ## Progressive guidance
 

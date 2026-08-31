@@ -3,5 +3,20 @@
   "schema_version": 1,
   "mode": "mvp",
   "capabilities_file": "build-pack/capabilities.json",
+  "source_authority": {
+    "build_intent_summary": "",
+    "approved_sources": [],
+    "contradictions": [],
+    "grommet_review": {
+      "status": "pending",
+      "summary": ""
+    }
+  },
+  "automation_authority": {
+    "publication": {
+      "enabled": false,
+      "destinations": []
+    }
+  },
   "tasks": []
 }

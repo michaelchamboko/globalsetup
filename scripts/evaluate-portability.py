@@ -46,6 +46,9 @@ def evaluate_profile(root: Path, profile: str, code: tuple[str, str]) -> dict[st
     task_card = project / "build-pack" / "tasks" / "T-001.md"
     task_card.parent.mkdir(parents=True)
     task_card.write_text(f"# T-001 {profile} contract check\n", encoding="utf-8")
+    approved_source = project / "docs" / "approved-prd.md"
+    approved_source.parent.mkdir()
+    approved_source.write_text(f"# Approved {profile} PRD\n", encoding="utf-8")
     skill = project / ".agents" / "skills" / "fresh-context-execution" / "SKILL.md"
     skill.parent.mkdir(parents=True)
     skill.write_text(
@@ -81,6 +84,7 @@ def evaluate_profile(root: Path, profile: str, code: tuple[str, str]) -> dict[st
         json.dumps(capabilities, indent=2), encoding="utf-8"
     )
     context_files = [
+        "docs/approved-prd.md",
         code[0].replace("\\", "/"),
         "build-pack/tasks/T-001.md",
         ".agents/skills/fresh-context-execution/SKILL.md",
@@ -89,6 +93,13 @@ def evaluate_profile(root: Path, profile: str, code: tuple[str, str]) -> dict[st
         "schema_version": 1,
         "mode": "mvp",
         "capabilities_file": "build-pack/capabilities.json",
+        "source_authority": {
+            "build_intent_summary": f"Validate the approved {profile} repository contract.",
+            "approved_sources": ["docs/approved-prd.md"],
+            "contradictions": [],
+            "grommet_review": {"status": "approved", "summary": "The task matches the approved source."},
+        },
+        "automation_authority": {"publication": {"enabled": False, "destinations": []}},
         "tasks": [
             {
                 "id": "T-001",
@@ -97,6 +108,7 @@ def evaluate_profile(root: Path, profile: str, code: tuple[str, str]) -> dict[st
                 "dependencies": [],
                 "risk": "low",
                 "source_changes": False,
+                "requirement_sources": ["docs/approved-prd.md"],
                 "context_files": context_files,
                 "validation": [
                     {

@@ -34,6 +34,12 @@
 
 ## Verdict
 
+- [ ] Build intent is stated in plain language
+- [ ] Every proposed requirement maps to an approved source file
+- [ ] GitNexus output is used only for dependencies and impact, never product authority
+- [ ] Every source contradiction is recorded and resolved
+- [ ] Mandatory Grommet source-to-build review is approved
+- [ ] Automated publication authority and destinations are explicit
 - [ ] **Ready for build pack generation**
 - [ ] **Needs revision** — list items to address:
   - [Item 1]

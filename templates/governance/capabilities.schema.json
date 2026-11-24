@@ -2,10 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "GlobalSetup capabilities v2",
   "type": "object",
-  "required": ["schema_version", "python", "workspace", "graph"],
+  "required": ["schema_version", "node", "workspace", "graph"],
   "properties": {
     "schema_version": {"const": 2},
-    "python": {"type": "object"},
+    "node": {"type": "object", "required": ["required", "minimum_version"]},
     "workspace": {"type": "object", "required": ["integration_branch", "serial"]},
     "graph": {
       "type": "object",

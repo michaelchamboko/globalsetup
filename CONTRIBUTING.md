@@ -30,5 +30,6 @@ We welcome contributions across all areas of the project:
 ## Process
 1. Create a feature branch (`feat/your-improvement`).
 2. Make surgical, clean changes.
-3. Commit with conventional commit messages.
-4. Open a Pull Request with a clear description of your changes and why they are beneficial.
+3. Run `npm ci` and `npm run check`.
+4. Commit with conventional commit messages.
+5. Open a Pull Request with a clear description of your changes and why they are beneficial.

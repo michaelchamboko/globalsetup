@@ -51,18 +51,18 @@ if [ "$MISSING" -eq 0 ]; then
     echo "[missing] real build-pack/module-plans/M-*.md module plans beyond the M-000 template"
     exit 1
   fi
-  PYTHON_BIN=""
-  for candidate in python3 python; do
-    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
-      PYTHON_BIN="$candidate"
+  NODE_BIN=""
+  for candidate in node nodejs; do
+    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit((a===22&&b>=20)||(a===24&&b>=11)||a>24?0:1)' >/dev/null 2>&1; then
+      NODE_BIN="$candidate"
       break
     fi
   done
-  if [ -z "$PYTHON_BIN" ]; then
-    echo "[missing] Python 3.10 or newer is required to validate execution state"
+  if [ -z "$NODE_BIN" ]; then
+    echo "[missing] Node.js 22.20+ or 24.11+ is required to validate execution state"
     exit 1
   fi
-  "$PYTHON_BIN" scripts/build-runner.py --root . validate
+  "$NODE_BIN" scripts/build-runner.mts --root . validate
   echo "[ok] Build pack documents and executable task state are valid"
   exit 0
 else

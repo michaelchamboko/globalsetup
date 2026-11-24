@@ -56,19 +56,19 @@ if ($missing -eq 0) {
         Write-Host "[missing] real build-pack\module-plans\M-*.md module plans beyond the M-000 template" -ForegroundColor Red
         exit 1
     }
-    $python = $null
-    foreach ($candidateName in @("python3", "python")) {
+    $node = $null
+    foreach ($candidateName in @("node", "nodejs")) {
         $candidate = Get-Command $candidateName -ErrorAction SilentlyContinue
         if ($candidate) {
-            & $candidate.Source -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" *> $null
-            if ($LASTEXITCODE -eq 0) { $python = $candidate; break }
+            & $candidate.Source -e "const [a,b]=process.versions.node.split('.').map(Number); process.exit((a===22&&b>=20)||(a===24&&b>=11)||a>24?0:1)" *> $null
+            if ($LASTEXITCODE -eq 0) { $node = $candidate; break }
         }
     }
-    if (!$python) {
-        Write-Host "[missing] Python 3.10 or newer is required to validate execution state" -ForegroundColor Red
+    if (!$node) {
+        Write-Host "[missing] Node.js 22.20+ or 24.11+ is required to validate execution state" -ForegroundColor Red
         exit 1
     }
-    & $python.Source "scripts\build-runner.py" --root . validate
+    & $node.Source "scripts\build-runner.mts" --root . validate
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Write-Host "[ok] Build pack documents and executable task state are valid" -ForegroundColor Green
     exit 0

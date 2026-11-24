@@ -11,23 +11,23 @@ for argument in "$@"; do
     *) TARGET_DIR="$argument" ;;
   esac
 done
-PYTHON_BIN=""
-for candidate in python3 python; do
-  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
-    PYTHON_BIN="$candidate"
+NODE_BIN=""
+for candidate in node nodejs; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit((a===22&&b>=20)||(a===24&&b>=11)||a>24?0:1)' >/dev/null 2>&1; then
+    NODE_BIN="$candidate"
     break
   fi
 done
-if [ -z "$PYTHON_BIN" ]; then
-  echo "GlobalSetup requires Python 3.10 or newer." >&2
+if [ -z "$NODE_BIN" ]; then
+  echo "GlobalSetup requires Node.js 22.20+ or 24.11+." >&2
   exit 2
 fi
 
-ARGS=("$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/setup-globalsetup.py" --target "$TARGET_DIR")
+ARGS=("$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/setup-globalsetup.ts" --target "$TARGET_DIR")
 if [ "$DRY_RUN" = "--dry-run" ]; then
   ARGS+=(--dry-run)
 fi
 if [ "$LICENSE_ACK" = "--acknowledge-gitnexus-license" ]; then
   ARGS+=(--acknowledge-gitnexus-license)
 fi
-exec "$PYTHON_BIN" "${ARGS[@]}"
+exec "$NODE_BIN" "${ARGS[@]}"

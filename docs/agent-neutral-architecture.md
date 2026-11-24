@@ -7,7 +7,7 @@ GlobalSetup separates durable repository state from the model or harness executi
 - `AGENTS.md` is a short routing contract readable by any coding model.
 - `build-pack/execution-state.json` is the lifecycle state; `source-manifest.json`, `requirements.json`, and `grommet-approval.json` bind it to approved product truth.
 - `build-pack/capabilities.json` records required tools, GitNexus eligibility, managed-worktree policy, and safe argument arrays.
-- `scripts/build-runner.py` uses only the Python standard library and has PowerShell and Bash wrappers.
+- `scripts/build-runner.mts` uses only the Node.js standard library at runtime and has PowerShell and Bash wrappers.
 - Markdown plans, task cards, rules, and reviewers remain human-readable.
 - `scripts/pre-tool-hook.ps1` is an executable guard for harnesses that support pre-tool hooks; declarative safeguards remain available to all others.
 
@@ -29,4 +29,4 @@ The committed `.gitnexusrc` uses index-only mode so GitNexus cannot rewrite the 
 
 A harness may add its own thin adapter, but it must not replace the JSON state, widen the returned context, weaken the risk gates, or create a second task ledger. The BuildRunner's stable JSON envelope is the adapter boundary. Local commands and hosted receipts remain distinct, and verification, independent review, and graph receipts bind to the exact source fingerprint. If an MCP integration is unavailable, the agent may use the repository-local GitNexus CLI runner. If GitNexus itself is unavailable, execution fails closed.
 
-`scripts/evaluate-portability.py` exercises this contract against Python, TypeScript, and Go-shaped repositories. It proves deterministic contract portability only; it does not claim equal model intelligence or implementation quality.
+`scripts/evaluate-portability.ts` exercises this contract against Python, TypeScript, and Go-shaped repositories. It proves deterministic contract portability only; it does not claim equal model intelligence or implementation quality.

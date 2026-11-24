@@ -1,17 +1,17 @@
 param([Parameter(ValueFromRemainingArguments = $true)][string[]]$RunnerArgs)
 
-$python = $null
-foreach ($candidateName in @("python3", "python")) {
+$node = $null
+foreach ($candidateName in @("node", "nodejs")) {
     $candidate = Get-Command $candidateName -ErrorAction SilentlyContinue
     if ($candidate) {
-        & $candidate.Source -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" *> $null
-        if ($LASTEXITCODE -eq 0) { $python = $candidate; break }
+        & $candidate.Source -e "const [a,b]=process.versions.node.split('.').map(Number); process.exit((a===22&&b>=20)||(a===24&&b>=11)||a>24?0:1)" *> $null
+        if ($LASTEXITCODE -eq 0) { $node = $candidate; break }
     }
 }
-if (-not $python) {
-    Write-Error "Python 3.10 or newer is required for the model-agnostic BuildRunner."
+if (-not $node) {
+    Write-Error "Node.js 22.20+ or 24.11+ is required for BuildRunner."
     exit 2
 }
 
-& $python.Source (Join-Path $PSScriptRoot "build-runner.py") @RunnerArgs
+& $node.Source (Join-Path $PSScriptRoot "build-runner.mts") @RunnerArgs
 exit $LASTEXITCODE

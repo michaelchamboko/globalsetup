@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "python": {
+  "node": {
     "required": true,
-    "minimum_version": "3.10"
+    "minimum_version": "22.20"
   },
   "graph": {
     "required": true,

@@ -7,9 +7,11 @@ import {
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  readlinkSync,
   readdirSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -101,6 +103,10 @@ ${gitnexusCli}`,
 }
 const HAS_POWERSHELL =
   run(["pwsh", "-NoProfile", "-Command", "exit 0"]).status === 0;
+const HAS_CROSS_DEVICE_TMP =
+  process.platform !== "win32" &&
+  existsSync("/dev/shm") &&
+  statSync("/dev/shm").dev !== statSync(tmpdir()).dev;
 function filesBelow(root: string): string[] {
   if (!existsSync(root)) return [];
   const found: string[] = [];
@@ -198,6 +204,61 @@ test("setup failure rolls back every target mutation", () => {
   }
 });
 
+test(
+  "cross-device setup failure restores existing files exactly",
+  { skip: !HAS_CROSS_DEVICE_TMP },
+  () => {
+    const temp = temporary(),
+      target = mkdtempSync("/dev/shm/globalsetup-cross-device-"),
+      bin = path.join(temp.root, "bin");
+    try {
+      mkdirSync(path.join(target, ".agents"), { recursive: true });
+      mkdirSync(bin);
+      write(path.join(target, "AGENTS.md"), "operator-owned\n");
+      write(path.join(target, ".agents", "custom.md"), "keep\n");
+      symlinkSync("custom.md", path.join(target, ".agents", "custom-link"));
+      write(path.join(target, ".gitignore"), "operator-only/\n");
+      const result = run(
+        [
+          NODE,
+          path.join(REPO_ROOT, "scripts", "setup-globalsetup.ts"),
+          "--target",
+          target,
+          "--acknowledge-gitnexus-license",
+        ],
+        { env: fakeTools(bin, 9) },
+      );
+      assert.equal(result.status, 2, result.stdout + result.stderr);
+      assert.match(result.stderr, /target changes were rolled back/);
+      assert.equal(
+        readFileSync(path.join(target, "AGENTS.md"), "utf8"),
+        "operator-owned\n",
+      );
+      assert.equal(
+        readFileSync(path.join(target, ".agents", "custom.md"), "utf8"),
+        "keep\n",
+      );
+      assert.equal(
+        readlinkSync(path.join(target, ".agents", "custom-link")),
+        "custom.md",
+      );
+      assert.equal(
+        readFileSync(path.join(target, ".gitignore"), "utf8"),
+        "operator-only/\n",
+      );
+      assert.deepEqual(filesBelow(target), [
+        ".agents/custom-link",
+        ".agents/custom.md",
+        ".gitignore",
+        "AGENTS.md",
+      ]);
+    } finally {
+      temp.cleanup();
+      rmSync(target, { recursive: true, force: true });
+    }
+  },
+);
+
 test("rollback restores hooks, executable mode, index, and backup state", () => {
   const temp = temporary();
   try {
@@ -289,6 +350,10 @@ test("successful setup installs official skills and preserves unrelated custom s
       path.join(target, ".gitnexusrc"),
       `${JSON.stringify({ indexOnly: false, customSetting: "preserve" }, null, 2)}\n`,
     );
+    write(
+      path.join(target, "package.json"),
+      `${JSON.stringify({ type: "commonjs" }, null, 2)}\n`,
+    );
     const env = fakeTools(bin);
     const dryRun = run(
       [
@@ -341,10 +406,10 @@ test("successful setup installs official skills and preserves unrelated custom s
     for (const relative of [
       "AGENTS.md",
       ".gitnexusrc",
-      "scripts/build-runner.ts",
-      "scripts/node-package-command.ts",
+      "scripts/build-runner.mts",
+      "scripts/node-package-command.mts",
       "scripts/pre-tool-hook.ps1",
-      "scripts/repository-guard.ts",
+      "scripts/repository-guard.mts",
       ".githooks/pre-commit",
       "build-pack/capabilities.json",
       "build-pack/execution-state.json",
@@ -355,6 +420,25 @@ test("successful setup installs official skills and preserves unrelated custom s
     );
     assert.equal(config.indexOnly, true);
     assert.equal(config.customSetting, "preserve");
+    for (const command of [
+      [NODE, path.join(target, "scripts", "build-runner.mts"), "--help"],
+      [
+        NODE,
+        path.join(target, "scripts", "repository-guard.mts"),
+        "--root",
+        target,
+        "--staged",
+      ],
+      [
+        NODE,
+        path.join(target, "scripts", "repository-text.mts"),
+        "--root",
+        target,
+      ],
+    ]) {
+      const installed = run(command);
+      assert.equal(installed.status, 0, installed.stdout + installed.stderr);
+    }
     const statePath = path.join(target, "build-pack", "execution-state.json"),
       state = JSON.parse(readFileSync(statePath, "utf8"));
     state.operator_marker = "preserve-on-rerun";
@@ -393,7 +477,7 @@ test("successful setup installs official skills and preserves unrelated custom s
     run(["git", "-C", target, "add", ".github/workflows/build.yml"]);
     const guard = run([
       NODE,
-      path.join(target, "scripts", "repository-guard.ts"),
+      path.join(target, "scripts", "repository-guard.mts"),
       "--root",
       target,
       "--staged",
@@ -402,7 +486,7 @@ test("successful setup installs official skills and preserves unrelated custom s
     assert.match(guard.stderr, /GitHub Actions/);
     const clean = run([
       NODE,
-      path.join(target, "scripts", "repository-text.ts"),
+      path.join(target, "scripts", "repository-text.mts"),
       "--root",
       target,
     ]);
@@ -458,7 +542,7 @@ test("repository text validator rejects corruption, invalid UTF-8, and accepts C
     write(path.join(temp.root, "clean.md"), "clean\r\ntext\r\n");
     const result = run([
       NODE,
-      path.join(REPO_ROOT, "scripts", "repository-text.ts"),
+      path.join(REPO_ROOT, "scripts", "repository-text.mts"),
       "--root",
       temp.root,
     ]);
@@ -481,7 +565,7 @@ test("repository text validator rejects broken local Markdown links", () => {
     );
     const result = run([
       NODE,
-      path.join(REPO_ROOT, "scripts", "repository-text.ts"),
+      path.join(REPO_ROOT, "scripts", "repository-text.mts"),
       "--root",
       temp.root,
     ]);
@@ -495,7 +579,7 @@ test("repository text validator rejects broken local Markdown links", () => {
 test("repository text is UTF-8 and reference clean", () => {
   const result = run([
     NODE,
-    path.join(REPO_ROOT, "scripts", "repository-text.ts"),
+    path.join(REPO_ROOT, "scripts", "repository-text.mts"),
     "--root",
     REPO_ROOT,
   ]);
@@ -577,7 +661,7 @@ test(
         { env: fakeTools(bin) },
       );
       assert.equal(result.status, 0, result.stdout + result.stderr);
-      assert.ok(existsSync(path.join(target, "scripts", "build-runner.ts")));
+      assert.ok(existsSync(path.join(target, "scripts", "build-runner.mts")));
     } finally {
       temp.cleanup();
     }
@@ -604,7 +688,7 @@ test("example execution state is valid", () => {
     );
     const result = run([
       NODE,
-      path.join(REPO_ROOT, "scripts", "build-runner.ts"),
+      path.join(REPO_ROOT, "scripts", "build-runner.mts"),
       "--root",
       temp.root,
       "validate",

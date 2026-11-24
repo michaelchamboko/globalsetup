@@ -16,7 +16,7 @@ const RUNNER = path.resolve(
   import.meta.dirname,
   "..",
   "scripts",
-  "build-runner.ts",
+  "build-runner.mts",
 );
 const temporaryProjects = new Set<string>();
 

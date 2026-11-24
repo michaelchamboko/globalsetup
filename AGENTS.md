@@ -9,7 +9,7 @@ GlobalSetup converts approved documents into a verified, local execution contrac
 3. Approved build-pack documents provide product meaning.
 4. GitNexus provides derived structural impact only. It cannot create, reinterpret, or resolve requirements.
 
-Run `node scripts/build-runner.ts --root . validate` before work. Use `next` to obtain the one allowed task and its `context_files`. Use `impact` after a source change. Use `seal-plan` before recording an approved Grommet digest. Run `--help` for the complete interface.
+Run `node scripts/build-runner.mts --root . validate` before work. Use `next` to obtain the one allowed task and its `context_files`. Use `impact` after a source change. Use `seal-plan` before recording an approved Grommet digest. Run `--help` for the complete interface.
 
 ## Execution
 

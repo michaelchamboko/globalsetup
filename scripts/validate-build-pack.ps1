@@ -68,7 +68,7 @@ if ($missing -eq 0) {
         Write-Host "[missing] Node.js 22.20+ or 24.11+ is required to validate execution state" -ForegroundColor Red
         exit 1
     }
-    & $node.Source "scripts\build-runner.ts" --root . validate
+    & $node.Source "scripts\build-runner.mts" --root . validate
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Write-Host "[ok] Build pack documents and executable task state are valid" -ForegroundColor Green
     exit 0

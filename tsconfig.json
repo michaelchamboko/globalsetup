@@ -10,5 +10,5 @@
     "target": "ES2024",
     "types": ["node"]
   },
-  "include": ["scripts/**/*.ts", "tests/**/*.ts"]
+  "include": ["scripts/**/*.ts", "scripts/**/*.mts", "tests/**/*.ts"]
 }

@@ -13,7 +13,7 @@ import * as path from "node:path";
 import { afterEach, test } from "node:test";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
-const RUNNER = path.join(REPO_ROOT, "scripts", "build-runner.ts");
+const RUNNER = path.join(REPO_ROOT, "scripts", "build-runner.mts");
 const js = (source: string) => [process.execPath, "-e", source];
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 

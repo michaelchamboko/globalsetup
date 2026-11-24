@@ -6,7 +6,7 @@ import test, { afterEach } from "node:test";
 import {
   NodePackageCommandError,
   resolveNodePackageArgv,
-} from "../scripts/node-package-command.ts";
+} from "../scripts/node-package-command.mts";
 
 const temporaryDirectories = new Set<string>();
 

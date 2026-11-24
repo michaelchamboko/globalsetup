@@ -49,8 +49,8 @@ node /path/to/globalsetup/scripts/setup-globalsetup.ts --target /path/to/project
 After the agent compiles the approved plans into execution state:
 
 ```bash
-node scripts/build-runner.ts --root . validate
-node scripts/build-runner.ts --root . next
+node scripts/build-runner.mts --root . validate
+node scripts/build-runner.mts --root . next
 ```
 
 Every successful command returns one JSON envelope with `ok`, `command`, and `result`; contract failures return `ok: false` on stderr. Each task names exact `context_files`. Local commands and hosted receipts are separate evidence types, and all evidence is bound to the verified source fingerprint.

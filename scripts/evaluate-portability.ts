@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import * as path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
-const RUNNER = path.join(ROOT, "scripts", "build-runner.ts");
+const RUNNER = path.join(ROOT, "scripts", "build-runner.mts");
 const PROFILES: Record<string, readonly [string, string]> = {
   python: [
     "src/account_service.py",

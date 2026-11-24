@@ -24,13 +24,13 @@ const SCRIPT_NAMES = [
   "generate-build-pack.ps1",
   "validate-build-pack.sh",
   "validate-build-pack.ps1",
-  "build-runner.ts",
+  "build-runner.mts",
   "build-runner.ps1",
   "build-runner.sh",
-  "node-package-command.ts",
+  "node-package-command.mts",
   "pre-tool-hook.ps1",
-  "repository-guard.ts",
-  "repository-text.ts",
+  "repository-guard.mts",
+  "repository-text.mts",
 ] as const;
 const MATT_POCOCK_SKILLS = [
   "setup-matt-pocock-skills",
@@ -109,6 +109,7 @@ const BUILD_PACK_FILES: ReadonlyArray<readonly [string, string]> = [
   ["governance/grommet-approval.schema.json", "grommet-approval.schema.json"],
 ];
 class SetupError extends Error {}
+class RollbackError extends SetupError {}
 type Command = readonly [string, ...string[]];
 type Tools = { git: string; gitnexus: Command; node: string; npx: Command };
 type JournalEntry = { backup?: string; destination: string };
@@ -186,6 +187,7 @@ async function copy(source: string, destination: string): Promise<void> {
   await fs.cp(source, destination, {
     recursive: true,
     preserveTimestamps: true,
+    verbatimSymlinks: true,
   });
 }
 async function sameTree(left: string, right: string): Promise<boolean> {
@@ -268,16 +270,25 @@ class Journal {
     this.backupRoot = backupRoot;
   }
   async replace(source: string, destination: string): Promise<void> {
-    let backup: string | undefined;
+    let backup: string | undefined,
+      recorded = false;
     if (existsSync(destination)) {
       backup = path.join(
         this.backupRoot,
         path.relative(this.target, destination),
       );
       await fs.mkdir(path.dirname(backup), { recursive: true });
-      await fs.rename(destination, backup);
+      try {
+        await fs.rename(destination, backup);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EXDEV") throw error;
+        await copy(destination, backup);
+        this.entries.push({ destination, backup });
+        recorded = true;
+        await fs.rm(destination, { recursive: true, force: true });
+      }
     }
-    this.entries.push({ destination, backup });
+    if (!recorded) this.entries.push({ destination, backup });
     await copy(source, destination);
   }
   async snapshot(destination: string): Promise<void> {
@@ -297,11 +308,24 @@ class Journal {
   }
   async rollback(): Promise<void> {
     for (const entry of [...this.entries].reverse()) {
-      await fs.rm(entry.destination, { recursive: true, force: true });
       if (entry.backup && existsSync(entry.backup)) {
-        await fs.mkdir(path.dirname(entry.destination), { recursive: true });
-        await fs.rename(entry.backup, entry.destination);
-      }
+        const restoreRoot = await fs.mkdtemp(
+          `${entry.destination}.globalsetup-restore-`,
+        );
+        const restored = path.join(restoreRoot, "content");
+        try {
+          await copy(entry.backup, restored);
+          await fs.rm(entry.destination, { recursive: true, force: true });
+          await fs.rename(restored, entry.destination);
+          await fs.rm(entry.backup, { recursive: true, force: true });
+        } finally {
+          try {
+            await fs.rm(restoreRoot, { recursive: true, force: true });
+          } catch {
+            /* The durable backup, not temporary cleanup, controls recovery. */
+          }
+        }
+      } else await fs.rm(entry.destination, { recursive: true, force: true });
     }
     const parents = [
       ...new Set(this.entries.map((entry) => path.dirname(entry.destination))),
@@ -332,7 +356,7 @@ async function preflight(
   const npx = nodePackageCommand(node, requireCommand("npx"), "npx");
   run([
     node,
-    path.join(source, "scripts", "repository-text.ts"),
+    path.join(source, "scripts", "repository-text.mts"),
     "--root",
     source,
   ]);
@@ -588,6 +612,7 @@ async function install(
   const targetCreated = !existsSync(target),
     tempRoot = await fs.mkdtemp(path.join(tmpdir(), "globalsetup-")),
     stage = path.join(tempRoot, "stage");
+  let cleanupTemporary = true;
   await fs.mkdir(stage);
   const includeBuildPack = !existsSync(
     path.join(target, "build-pack", "execution-state.json"),
@@ -687,37 +712,55 @@ async function install(
         );
       await persistBackups(target, backupRoot, journal);
     } catch (error) {
-      await journal.rollback();
-      if (hadGit) {
-        if (hadHooksSetting)
-          run([
-            tools.git,
-            "-C",
-            target,
-            "config",
-            "--local",
-            "core.hooksPath",
-            oldHooks,
-          ]);
-        else
-          spawnSync(tools.git, [
-            "-C",
-            target,
-            "config",
-            "--local",
-            "--unset",
-            "core.hooksPath",
-          ]);
-      } else
-        await fs.rm(path.join(target, ".git"), {
-          recursive: true,
-          force: true,
-        });
-      if (targetCreated) await fs.rm(target, { recursive: true, force: true });
+      const rollbackFailures: unknown[] = [];
+      try {
+        await journal.rollback();
+      } catch (rollbackError) {
+        rollbackFailures.push(rollbackError);
+      }
+      try {
+        if (hadGit) {
+          if (hadHooksSetting)
+            run([
+              tools.git,
+              "-C",
+              target,
+              "config",
+              "--local",
+              "core.hooksPath",
+              oldHooks,
+            ]);
+          else
+            spawnSync(tools.git, [
+              "-C",
+              target,
+              "config",
+              "--local",
+              "--unset",
+              "core.hooksPath",
+            ]);
+        } else
+          await fs.rm(path.join(target, ".git"), {
+            recursive: true,
+            force: true,
+          });
+        if (targetCreated && !rollbackFailures.length)
+          await fs.rm(target, { recursive: true, force: true });
+      } catch (rollbackError) {
+        rollbackFailures.push(rollbackError);
+      }
+      if (rollbackFailures.length) {
+        cleanupTemporary = false;
+        const failure = rollbackFailures[0];
+        throw new RollbackError(
+          `installation failed (${error instanceof Error ? error.message : error}); rollback incomplete (${failure instanceof Error ? failure.message : failure}); recover originals from ${backupRoot}`,
+        );
+      }
       throw error;
     }
   } finally {
-    await fs.rm(tempRoot, { recursive: true, force: true });
+    if (cleanupTemporary)
+      await fs.rm(tempRoot, { recursive: true, force: true });
   }
   return plan;
 }
@@ -783,7 +826,9 @@ async function main(): Promise<void> {
     );
   } catch (error) {
     console.error(
-      `setup failed and target changes were rolled back: ${error instanceof Error ? error.message : error}`,
+      error instanceof RollbackError
+        ? `setup failed; rollback incomplete: ${error.message}`
+        : `setup failed and target changes were rolled back: ${error instanceof Error ? error.message : error}`,
     );
     process.exitCode = 2;
   }

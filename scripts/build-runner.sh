@@ -13,4 +13,4 @@ if [ -z "$NODE_BIN" ]; then
   exit 2
 fi
 
-exec "$NODE_BIN" "$(dirname "$0")/build-runner.ts" "$@"
+exec "$NODE_BIN" "$(dirname "$0")/build-runner.mts" "$@"

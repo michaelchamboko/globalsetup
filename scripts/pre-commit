@@ -14,8 +14,8 @@ if [ -z "$NODE_BIN" ]; then
   exit 2
 fi
 
-"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.ts" --root "$REPOSITORY_ROOT" --staged
-"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-text.ts" --root "$REPOSITORY_ROOT" --staged
+"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.mts" --root "$REPOSITORY_ROOT" --staged
+"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-text.mts" --root "$REPOSITORY_ROOT" --staged
 
 if [ -x "$REPOSITORY_ROOT/.githooks/pre-commit.user" ]; then
   "$REPOSITORY_ROOT/.githooks/pre-commit.user"

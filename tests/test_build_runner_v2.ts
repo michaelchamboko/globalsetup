@@ -17,7 +17,7 @@ const RUNNER = path.resolve(
   import.meta.dirname,
   "..",
   "scripts",
-  "build-runner.ts",
+  "build-runner.mts",
 );
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 const js = (source: string) => [process.execPath, "-e", source];

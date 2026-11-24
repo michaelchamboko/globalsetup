@@ -62,7 +62,7 @@ if [ "$MISSING" -eq 0 ]; then
     echo "[missing] Node.js 22.20+ or 24.11+ is required to validate execution state"
     exit 1
   fi
-  "$NODE_BIN" scripts/build-runner.ts --root . validate
+  "$NODE_BIN" scripts/build-runner.mts --root . validate
   echo "[ok] Build pack documents and executable task state are valid"
   exit 0
 else

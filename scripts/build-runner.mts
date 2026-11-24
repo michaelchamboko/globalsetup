@@ -30,7 +30,7 @@ import { spawnSync } from "node:child_process";
 import {
   NodePackageCommandError,
   resolveNodePackageArgv,
-} from "./node-package-command.ts";
+} from "./node-package-command.mts";
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 type Obj = Record<string, any>;
@@ -2240,7 +2240,7 @@ const TASK_COMMANDS = new Set([
   "publish",
 ]);
 function usage(): string {
-  return "usage: build-runner.ts [--root PATH] {validate,next,status,start,verify,complete,graph-sync,block,unblock,record-evidence,review,migrate,seal-plan,impact,recover,integrate,publish,release-check} ...";
+  return "usage: build-runner.mts [--root PATH] {validate,next,status,start,verify,complete,graph-sync,block,unblock,record-evidence,review,migrate,seal-plan,impact,recover,integrate,publish,release-check} ...";
 }
 const COMMAND_HELP: Record<string, string> = {
   validate: "Validate task state, context paths, tools, and evidence contracts",
@@ -2290,7 +2290,7 @@ function helpFor(command?: string): string {
       `  --${name.replace(/_/g, "-")}${name === "apply" ? "" : " VALUE"}\t${description}`,
   );
   return [
-    `usage: build-runner.ts ${command}${positional}${options.length ? " [options]" : ""}`,
+    `usage: build-runner.mts ${command}${positional}${options.length ? " [options]" : ""}`,
     "",
     COMMAND_HELP[command],
     ...(options.length ? ["", "options:", ...options] : []),

@@ -37,7 +37,7 @@ Declare publication authority once in `automation_authority.publication`: enable
 Run:
 
 ```bash
-node scripts/build-runner.ts --root . validate
+node scripts/build-runner.mts --root . validate
 ```
 
 Planning is complete only after this passes and the operator approves the pack.
@@ -49,7 +49,7 @@ BuildRunner emits a stable JSON envelope. Read task data from `result`, for exam
 Start or resume with:
 
 ```bash
-node scripts/build-runner.ts --root . next
+node scripts/build-runner.mts --root . next
 ```
 
 For each returned task, load its mapped requirement sections and exact `context_files`, use GitNexus only for structural context and impact analysis, then use BuildRunner `start`, `verify`, `integrate`, optional high-risk `review`, and `complete`. The runner creates an isolated task worktree and records immutable receipts. Publication tasks use `publish` only after integration and run no more than three approved, idempotent attempts.

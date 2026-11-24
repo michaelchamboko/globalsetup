@@ -13,5 +13,5 @@ if (-not $node) {
     exit 2
 }
 
-& $node.Source (Join-Path $PSScriptRoot "build-runner.ts") @RunnerArgs
+& $node.Source (Join-Path $PSScriptRoot "build-runner.mts") @RunnerArgs
 exit $LASTEXITCODE

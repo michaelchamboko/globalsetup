@@ -1,6 +1,6 @@
 ---
-name: tdd
-description: Use when the active task calls for test-driven implementation of a bounded behavior.
+name: globalsetup-tdd
+description: Use when a non-Matt-Pocock workflow calls for test-driven implementation of a bounded behavior.
 argument-hint: [feature description]
 ---
 

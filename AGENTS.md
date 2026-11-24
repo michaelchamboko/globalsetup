@@ -9,7 +9,7 @@ GlobalSetup converts approved documents into a verified, local execution contrac
 3. Approved build-pack documents provide product meaning.
 4. GitNexus provides derived structural impact only. It cannot create, reinterpret, or resolve requirements.
 
-Run `python scripts/build-runner.py --root . validate` before work. Use `next` to obtain the one allowed task and its `context_files`. Use `impact` after a source change. Use `seal-plan` before recording an approved Grommet digest. Run `--help` for the complete interface.
+Run `node scripts/build-runner.ts --root . validate` before work. Use `next` to obtain the one allowed task and its `context_files`. Use `impact` after a source change. Use `seal-plan` before recording an approved Grommet digest. Run `--help` for the complete interface.
 
 ## Execution
 
@@ -19,6 +19,7 @@ Run `python scripts/build-runner.py --root . validate` before work. Use `next` t
 - Risk is measured from blast radius, reversibility, authority, sensitive data, and external impact. Publication, credentials, migrations, and security or privacy work are high risk.
 - Initial task context must be complete but no more than 40 percent of the model window. Retrieve specific sections when needed.
 - State writes, receipts, and the operation journal are BuildRunner-owned. Never edit statuses, evidence, or locks by hand.
+- For the installed Matt Pocock flow, load `.agents/rules/matt-pocock-workflow.md` and execute its gates in order.
 
 ## GitNexus And Release
 

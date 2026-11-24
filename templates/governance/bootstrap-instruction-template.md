@@ -4,7 +4,7 @@ Execute the approved build end to end. Repository state, not conversation histor
 
 ## Resume
 
-1. Read `AGENTS.md` and run `scripts/build-runner.py --root . validate`.
+1. Read `AGENTS.md` and run `node scripts/build-runner.ts --root . validate`.
 2. Inspect Git status and preserve unrelated changes.
 3. Run `node .gitnexus/run.cjs status`; re-index before trusting stale results.
 4. Run BuildRunner `next`, read the JSON `result`, and load exactly its `context_files`.

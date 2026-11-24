@@ -9,7 +9,7 @@ The following commands must **NEVER** be executed during a standard build:
 - **Git Force Push**: git push --force, git push -f (use --force-with-lease only with explicit developer approval on feature branches).
 - **Git Reset Hard on Core Branches**: git reset --hard when on main, master, or production branches.
 - **Undeclared Production Publication**: package, content, application, or deployment publication without an approved task and a destination declared in `automation_authority.publication.destinations`.
-- **Arbitrary Recursive Delete**: m -rf / or recursive deletes outside your project working directory.
+- **Arbitrary Recursive Delete**: rm -rf / or recursive deletes outside your project working directory.
 - **Production Database Drops**: DROP TABLE, DROP DATABASE or similar raw SQL commands targeting production.
 
 ## Commands Requiring Interactive Confirmation

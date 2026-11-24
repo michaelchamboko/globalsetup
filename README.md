@@ -7,7 +7,8 @@ GlobalSetup turns an approved PRD and repository documents into a model-agnostic
 - a compact `AGENTS.md` routing contract;
 - planning rules, skills, templates, reviewers, and safeguards under `.agents/`;
 - a machine-readable build pack and durable task state;
-- a standard-library Python BuildRunner with PowerShell and Bash wrappers;
+- a dependency-free TypeScript BuildRunner with PowerShell and Bash wrappers;
+- the selected official Matt Pocock engineering skills and their ordered workflow rule;
 - the executable protected-file hook;
 - GitNexus plus a local, Git-ignored repository index.
 
@@ -23,7 +24,7 @@ Task state is stored in `build-pack/execution-state.json`, not in conversation h
 
 ## Quickstart
 
-Prerequisites: Git, Python 3.10+, and a GitNexus-supported Node release (currently 22.18+ or 24.11+). npm is needed only when GitNexus is not already installed.
+Prerequisites: Git, Node.js 22.20+ or 24.11+, and npm. The runtime is Node-only even when the target project uses Python, Go, or another language.
 
 Windows:
 
@@ -37,24 +38,24 @@ Linux or macOS:
 bash /path/to/globalsetup/scripts/setup-globalsetup.sh /path/to/project --acknowledge-gitnexus-license
 ```
 
-Setup validates the complete UTF-8 payload, prerequisites, and declared noncommercial GitNexus eligibility before touching the target. It stages the install, rolls target changes back if any install step fails, pins GitNexus 1.6.10, indexes only, and creates the initial build pack. It never configures agent harnesses or lets GitNexus rewrite governance files. Re-running it preserves existing execution state.
+Setup validates the complete UTF-8 payload, prerequisites, and declared noncommercial GitNexus eligibility before touching the target. It stages the install, rolls target changes back if any install step fails, pins GitNexus 1.6.10, installs the official Matt Pocock skills without overwriting differing custom skills, indexes only, and creates the initial build pack. It never configures agent harnesses, invokes the prompt-driven skill setup, or lets GitNexus rewrite governance files. Re-running it preserves existing execution state.
 
 Preview the operation without target or dependency mutation:
 
 ```bash
-python /path/to/globalsetup/scripts/setup-globalsetup.py --target /path/to/project --dry-run --acknowledge-gitnexus-license
+node /path/to/globalsetup/scripts/setup-globalsetup.ts --target /path/to/project --dry-run --acknowledge-gitnexus-license
 ```
 
 After the agent compiles the approved plans into execution state:
 
 ```bash
-python scripts/build-runner.py --root . validate
-python scripts/build-runner.py --root . next
+node scripts/build-runner.ts --root . validate
+node scripts/build-runner.ts --root . next
 ```
 
 Every successful command returns one JSON envelope with `ok`, `command`, and `result`; contract failures return `ok: false` on stderr. Each task names exact `context_files`. Local commands and hosted receipts are separate evidence types, and all evidence is bound to the verified source fingerprint.
 
-See [the quickstart](docs/quickstart.md), [the workflow](docs/post-prd-workflow.md), and [the architecture](docs/agent-neutral-architecture.md).
+See [the quickstart](docs/quickstart.md), [the build workflow](docs/post-prd-workflow.md), [the Matt Pocock workflow](docs/matt-pocock-workflow.md), and [the architecture](docs/agent-neutral-architecture.md).
 
 ## Delivery boundary
 

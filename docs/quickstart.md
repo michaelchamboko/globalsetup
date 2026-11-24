@@ -2,7 +2,7 @@
 
 ## 1. Prepare the target
 
-Place the approved PRD, product-truth documents, blueprints, and explicit decisions in the target repository. Install Git, Python 3.10+, and a GitNexus-supported Node release. npm is required only when setup must install GitNexus.
+Place the approved PRD, product-truth documents, blueprints, and explicit decisions in the target repository. Install Git, Node.js 22.20+ or 24.11+, and npm.
 
 ## 2. Run GlobalSetup once
 
@@ -24,7 +24,9 @@ Preview the validated install plan without changing the target or installing Git
 .\globalsetup\scripts\setup-globalsetup.ps1 -TargetDir C:\path\to\project -DryRun -AcknowledgeGitNexusLicense
 ```
 
-The script validates its UTF-8 payload, prerequisites, and GitNexus eligibility before target mutation, stages the complete payload, and rolls target changes back if installation fails. It installs a pinned, index-only GitNexus configuration and never configures agent harnesses. It does not run application builds.
+The script validates its UTF-8 payload, prerequisites, and GitNexus eligibility before target mutation, stages the complete payload, and rolls target changes back if installation fails. It installs a pinned, index-only GitNexus configuration and the selected official Matt Pocock skills. It never configures agent harnesses or invokes the prompt-driven `setup-matt-pocock-skills` skill. It does not run application builds.
+
+After setup, explicitly invoke `setup-matt-pocock-skills` once and confirm its repository-specific choices. For TypeScript delivery, then follow [the six ordered workflow gates](matt-pocock-workflow.md): discovery, specification, ticketing, implementation with TDD and initial review, separate final review, and retrospective instruction improvements.
 
 ## 3. Compile the approved plans
 
@@ -35,7 +37,7 @@ Declare publication authority once in `automation_authority.publication`: enable
 Run:
 
 ```bash
-python scripts/build-runner.py --root . validate
+node scripts/build-runner.ts --root . validate
 ```
 
 Planning is complete only after this passes and the operator approves the pack.
@@ -47,12 +49,12 @@ BuildRunner emits a stable JSON envelope. Read task data from `result`, for exam
 Start or resume with:
 
 ```bash
-python scripts/build-runner.py --root . next
+node scripts/build-runner.ts --root . next
 ```
 
 For each returned task, load its mapped requirement sections and exact `context_files`, use GitNexus only for structural context and impact analysis, then use BuildRunner `start`, `verify`, `integrate`, optional high-risk `review`, and `complete`. The runner creates an isolated task worktree and records immutable receipts. Publication tasks use `publish` only after integration and run no more than three approved, idempotent attempts.
 
-To verify that this contract remains stack-neutral, run `python scripts/evaluate-portability.py`. It exercises the same lifecycle against small Python, TypeScript, and Go-shaped repositories; it measures contract portability, not model quality.
+To verify that this contract remains stack-neutral, run `node scripts/evaluate-portability.ts`. It exercises the same lifecycle against small Python, TypeScript, and Go-shaped repositories; it measures contract portability, not model quality.
 
 ## 5. Deliver
 

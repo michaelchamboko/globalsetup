@@ -2,20 +2,20 @@
 set -eu
 
 REPOSITORY_ROOT="$(git rev-parse --show-toplevel)"
-PYTHON_BIN=""
-for candidate in python3 python; do
-  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
-    PYTHON_BIN="$candidate"
+NODE_BIN=""
+for candidate in node nodejs; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit((a===22&&b>=18)||(a===24&&b>=11)||a>24?0:1)' >/dev/null 2>&1; then
+    NODE_BIN="$candidate"
     break
   fi
 done
-if [ -z "$PYTHON_BIN" ]; then
-  echo "repository guard requires Python 3.10 or newer" >&2
+if [ -z "$NODE_BIN" ]; then
+  echo "repository guard requires Node.js 22.18+ or 24.11+" >&2
   exit 2
 fi
 
-"$PYTHON_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.py" --root "$REPOSITORY_ROOT" --staged
-"$PYTHON_BIN" "$REPOSITORY_ROOT/scripts/repository-text.py" --root "$REPOSITORY_ROOT" --staged
+"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-guard.ts" --root "$REPOSITORY_ROOT" --staged
+"$NODE_BIN" "$REPOSITORY_ROOT/scripts/repository-text.ts" --root "$REPOSITORY_ROOT" --staged
 
 if [ -x "$REPOSITORY_ROOT/.githooks/pre-commit.user" ]; then
   "$REPOSITORY_ROOT/.githooks/pre-commit.user"
